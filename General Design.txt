@@ -1,0 +1,244 @@
+﻿Prompt per Gemini
+-----------------
+Sto creando un'applicazione windows in C# utilizzando WPF per il front-end.
+Questa applicazione sarà un simulatore di combattimenti RPG basato sulle regole
+di D&D, nello specifico la 5a edizione del 2014.
+Questa applicazione avrà una finestra per creare i personaggi utilizzando tutti
+i passaggi delle regole ufficiali, dei libri di espansione e homebrew, inoltre 
+sarà in grado di salvare i personaggi creati e caricare personaggi creati
+precedentemente.
+Ci sarà inoltre una finestra per caricare i mostri descritti nei vari manuali o
+crearne di nuovi.
+Sarà possibile selezionare più personaggi per formare un party che incontrerà
+un boss oppure più mostri nel combattimento
+Sarà inoltre possibile posizionare i token dei vari membri del party e dei 
+nemici su una griglia 3D che rappresenterà il terreno di battaglia.
+Ci saranno anche molte altre feature, come una sorta di AI per i nemici, una 
+scelta di strategia automatica da parte del party e la possibilità di simulare 
+più volte un incontro automaticamente oppure di far scegliere sia ai membri del
+party sia al DM che controlla i nemici le varie azioni, sempre seguendo le 
+regole ufficiali
+L'applicazione dovrà tenere conto dei vari punteggi, modificatori ed abilità di
+ciascun combattente, le loro armi o incantesimi, delle varie feature di classe 
+o azioni custom.
+Mi rendo conto che è un compito monumentale che potrà richiedere diversi mesi 
+per il completamento ma al momento mi voglio concentrare su come organizzare lo
+sviluppo dell'applicazione e la divisione dei compiti fra i diversi DEV
+Tu sei un esperto PO ed analista: organizza una strategia di sviluppo di questa
+applicazione, crea un team di lavoro e figure professionali con le diverse 
+competenze necessarie, utilizza le regole della metodologia Agile per assegnare
+i diversi compiti a ciascuno, utilizzando soprattutto un software architect 
+come lead developer, un esperto di creazione UI con WPF in progetti .net, un 
+DBA per la gestione dei dati ed un numero di sviluppatori sufficiente ad 
+assumersi i differenti ruoli necessari per coprire questo progetto senza 
+risultare ridondanti.
+Crea una outline dei differenti step di sviluppo ed assegna i differenti step 
+alle differenti figure professionali
+
+Effettua un'analisi approfondita del problema e crea un report esteso su come 
+procedere, quali tecnologie accessorie utilizzare e da dove partire
+
+
+Soluzione proposta
+------------------
+Questo è un progetto ambizioso ed entusiasmante! Un simulatore di combattimento
+RPG di D&D 5e con tutte le sue sfaccettature richiede una pianificazione 
+meticolosa. Come Product Owner (PO) e Analista esperto, ho strutturato un 
+approccio Agile e definito il team e le fasi di sviluppo necessarie.
+
+1. Analisi del Problema e Strategia Generale
+
+L'applicazione è complessa e può essere suddivisa in tre macro-aree principali:
+ - Core System & Regole
+ - Interfaccia Utente (UI)
+ - Gestione Dati. 
+La chiave del successo sarà la creazione di un motore di regole (Rules Engine)
+solido e ben isolato dal resto dell'applicazione.
+
+Architettura: Modulare e a Livelli (Layered/Domain-Driven Design - DDD)
+
+Si consiglia un'architettura a strati con un focus su un approccio
+Domain-Driven Design (DDD) per gestire la complessità delle regole di D&D.
+
+- Livello Dominio (Core Rules Engine):
+
+    Contiene l'intera logica di D&D 5e (calcoli di CA, modificatori di 
+    abilità, gestione di incantesimi, azioni, condizioni, ecc.).
+
+    Cruciale: Deve essere completamente agnostico rispetto all'UI e alla 
+    persistenza. Può essere una libreria .NET Standard o .NET Core isolata.
+
+- Livello Infrastruttura (Persistenza & Servizi Esterni):
+
+    Gestione del database (salvataggio/caricamento di personaggi, mostri,
+    incontri).
+
+    Implementazione dei Repository per il dominio.
+
+- Livello Applicazione (Servizi Applicativi):
+
+    Orchestra le operazioni tra il Dominio e l'Infrastruttura 
+    (es. "Crea Personaggio", "Inizia Combattimento").
+
+    Gestisce le transazioni.
+
+- Livello Presentazione (WPF UI):
+
+    La finestra Windows in C# con WPF.
+
+    Utilizzo del pattern MVVM (Model-View-ViewModel) per separare l'UI
+    dalla logica.
+
+- Tecnologie Accessorie Consigliate
+
+    Database: PostgreSQL o SQL Server (Express). Per la complessità delle
+    entità di D&D (classi, sottoclassi, incantesimi, abilità, ecc.), è 
+    necessaria una soluzione relazionale robusta.
+
+    ORM (Object-Relational Mapper): Entity Framework Core (EF Core) per la 
+    gestione pulita della persistenza in C#.
+
+    Libreria MVVM: Community Toolkit MVVM o Prism per facilitare 
+    l'implementazione del pattern MVVM in WPF.
+
+    Grafica 3D (per la griglia): WPF ha capacità 3D native (Viewport3D), ma se 
+    si cercano feature avanzate o performance elevate, si potrebbe considerare
+    un engine più specifico integrato tramite interop, anche se per una 
+    griglia tattica base, le funzionalità native di WPF potrebbero bastare 
+    inizialmente.
+
+    Iniezione di Dipendenza (DI): Microsoft.Extensions.DependencyInjection 
+    (standard in .NET) per una migliore modularità e testabilità.
+
+    Testing: xUnit o NUnit per unit test, soprattutto per il Core Rules Engine.
+
+2. Team di Sviluppo e Ruoli
+
+Ho definito un team snello ma completo, bilanciando le competenze richieste.
++--------------------+------------------------+--------------------------------+
+| Ruolo              | Competenze Principali  |	Responsabilità Chiave          |
++--------------------+------------------------+--------------------------------+
+| Software Architect | Architettura, C#, DDD, | Definizione dell'architettura  |
+| (Lead Dev)         | Design Pattern,        | generale, Core Rules Engine,   |
+|                    | Leadership Tecnica.	  | revisione del codice,          |
+|                    |                        | mentoring                      |
++--------------------+------------------------+--------------------------------+
+| UI/WPF Specialist	 | WPF, XAML, MVVM,       | Progettazione e                |
+|                    | UX/UI Design,          | implementazione dell'intera    |
+|                    | Data Binding           | interfaccia utente             |
+|                    |                        | (Creazione Personaggio,        |
+|                    |                        | Griglia 3D, Finestra           |
+|                    |                        | Combattimento)                 |
++--------------------+------------------------+--------------------------------+
+| Database           | Modellazione Dati      | Progettazione dello schema del |
+| Administrator DBA  | (Relazionale/NoSQL),   | DB, implementazione di EF      |
+|                    | SQL,                   | Core, gestione migrazioni e    |
+|                    | Performance Query,     | integrità dei dati             |
+|                    | EF Core 	              |                                |
++--------------------+------------------------+--------------------------------+
+| Developer (Dev A)	 | C#, Logica di Business | Sviluppo dei moduli di         |
+|                    | UI (supporto), Testing | gestione Personaggi e Mostri,  |
+|                    |                        | logica di salvataggio          |
+|                    |                        | e caricamento                  |
++--------------------+------------------------+--------------------------------+
+| Developer (Dev B)  | C#, AI/Algoritmi,      | Sviluppo del Motore di         |
+|                    | Simulazione, Testing   | Combattimento, Logica AI per i |
+|                    |                        | nemici, Funzionalità di        |
+|                    |                        | simulazione multipla           |
++--------------------+------------------------+--------------------------------+
+
+
+3. Strategia di Sviluppo Agile (Scrum/Kanban Ibrido)
+
+Adottiamo Scrum per la pianificazione degli Sprint e una board Kanban per 
+tracciare il flusso di lavoro.
+
+Fasi di Sviluppo (Roadmap)
+
+Dividiamo il progetto in Epics (Obiettivi di alto livello) e User Stories
+(Funzionalità specifiche).
+
++---------+--------------------------------------------------+----------------+
+| Epic	  | Obiettivo	                                     | Durata Stimata |
++---------+--------------------------------------------------+----------------+
+| Epic 1: | Fondamenta e Dati Architettura, Setup del DB e   | Sprint 1-2     |
+|         | Modulo base di persistenza                       |                |
++---------+--------------------------------------------------+----------------+
+| Epic 2: | Core Rules Engine (Motore Base)	Implementazione  | Sprint 3-4     |
+|         | dei calcoli essenziali di D&D 5e e gestione      |                |
+|         | delle statistiche base                           |                |
++---------+--------------------------------------------------+----------------+
+| Epic 3: | Creazione e Gestione Entità	UI per Personaggi e  | Sprint 5-6     |
+|         | Mostri (CRUD: Create, Read, Update, Delete)      |                |
++---------+--------------------------------------------------+----------------+
+| 
+
+
+Epic 4: Motore di Combattimento Base	Iniziativa, Posizionamento, Turno base (attacco semplice).	Sprint 7-8
+Epic 5: UI Avanzata e Funzionalità Regole	Griglia 3D, Incantesimi, Abilità Complesse, Azioni Speciali.	Sprint 9-11
+Epic 6: AI e Simulazione	Logica di strategia automatica, simulazioni multiple.	Sprint 12+
+
+4. Outline Dettagliato degli Step e Assegnazione Compiti
+
+Di seguito, un esempio di User Stories per i primi Sprint, con l'assegnazione dei compiti.
+
+Sprint 1: Architettura e Database Iniziale (Focus: Fondamenta)
+
+Task (User Story)	Assegnato	Obiettivo
+Setup Architettura	Software Architect	Creare la struttura multi-progetto (Dominio, Infrastruttura, Applicazione, UI), configurazione DI, scelta libreria MVVM.
+Modello Dati Base	DBA	Definizione dello schema DB per le entità chiave (Character, Monster, AbilityScore, Skill).
+Infrastruttura Dati	DBA + Dev A	Configurazione di EF Core, prima migrazione e creazione dei Repository base per Ability Scores.
+Base UI (Shell)	UI/WPF Specialist	Creazione della finestra principale e della navigazione di base tra le sezioni (MVVM Shell).
+
+Sprint 2: Persistenza e Oggetti di Dominio Base (Focus: Dati Funzionanti)
+
+Task (User Story)	Assegnato	Obiettivo
+Personaggio (Entity)	Software Architect	Implementazione degli oggetti di dominio Character e AbilityScore con logica di base (es. calcolo dei modificatori).
+Repository Personaggio	Dev A	Implementazione del CharacterRepository per salvare e caricare un personaggio di base dal DB.
+UI Gestione Dati	UI/WPF Specialist	Creazione della View e ViewModel per il caricamento/salvataggio (senza editing) di un personaggio di test.
+Test Unitari Dominio	Dev B	Scrittura di unit test per la logica di calcolo dei modificatori di Ability Score.
+
+Sprint 3: Core Rules Engine - Parte I (Focus: Logica Statistica)
+
+Task (User Story)	Assegnato	Obiettivo
+Rules Engine - Base	Software Architect	Creazione del servizio centrale per i calcoli: CA, Saving Throws, Bonus di Competenza, Punti Ferita massimi.
+Modellazione Classi/Razze	Dev A	Definizione delle strutture dati per Class, Race e Background.
+UI Creazione Scheda	UI/WPF Specialist	Creazione della View per l'inserimento manuale degli Ability Scores e visualizzazione immediata dei modificatori calcolati.
+DB - Tabelle Regole	DBA	Creazione delle tabelle statiche per Classi, Razze, Abilità (Skills).
+
+5. Report Esteso: Priorità e Gestione della Complessità
+
+Il progetto ha una criticità elevata legata alla fedeltà delle regole.
+
+A. Priorità: Il Motore di Regole (The Core Rules Engine)
+
+La priorità assoluta è il Core Rules Engine. Deve essere sviluppato per primo e con il massimo rigore. Qualsiasi errore qui si ripercuoterà su tutto il simulatore.
+
+    Approccio: TDD (Test-Driven Development) è altamente consigliato per questo modulo. Lo Software Architect deve garantire che ogni regola (es. calcolo del danno critico, vantaggio/svantaggio, tiri salvezza) sia coperta da un test unitario.
+
+    Gestione delle Personalizzazioni (Homebrew): Il Core Rules Engine deve essere estensibile. Ad esempio, usare un sistema di Componenti/Strategie per le Features di Classe o per gli Incantesimi permette di aggiungere nuove regole homebrew senza modificare il codice core.
+
+B. Gestione della Grafica 3D (La Griglia di Battaglia)
+
+La visualizzazione 3D è una feature ad alto rischio:
+
+    MVP (Minimum Viable Product): Iniziare con una griglia 2D semplice in WPF (o una View 3D estremamente basilare) per validare la logica di posizionamento e distanza.
+
+    Iterazione Successiva: Solo dopo che il motore di combattimento 2D è stabile, si passerà al WPF 3D (Viewport3D). Lo UI/WPF Specialist dovrà fare una proof of concept presto per valutare le limitazioni di performance e il carico di lavoro necessario per la griglia tattica.
+
+C. La Gestione della Logica Complessa (Incantesimi e Azioni)
+
+La varietà di incantesimi e features è enorme. Non si possono implementare tutti in un colpo solo.
+
+    Strategia di Contenimento: Utilizzare il pattern Comando o Strategia per modellare Incantesimi e Azioni. Ogni incantesimo o azione speciale sarà un oggetto che implementa un'interfaccia comune (IAction o ICastable).
+
+    Focus Iniziale: Implementare solo un set limitato di incantesimi e azioni comuni (es. Firebolt, Cure Wounds, Dash, Disengage) per validare l'architettura del motore di combattimento prima di scalare.
+
+D. La "AI" e la Simulazione
+
+Le funzionalità di AI/strategia automatica e simulazione sono fondamentali, ma devono essere posticipate:
+
+    Prerequisito: Un Motore di Combattimento completamente funzionante (che gestisce Hit, Miss, Danno, Healing, Condizioni).
+
+    Dev B si concentrerà prima sulla logica del Motore di Combattimento manuale. L'AI sarà un servizio aggiuntivo (IStrategyService) che sceglierà l'azione da un pool di azioni disponibili, rendendo lo sviluppo separato e testabile.
+
