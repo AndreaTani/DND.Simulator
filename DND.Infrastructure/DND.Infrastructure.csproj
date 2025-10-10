@@ -15,4 +15,9 @@
     <ProjectReference Include="..\DND.Domain\DND.Domain.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Migrations\" />
+    <Folder Include="Extensions\" />
+  </ItemGroup>
+
 </Project>

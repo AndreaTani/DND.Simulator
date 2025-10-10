@@ -16,4 +16,9 @@
     <ProjectReference Include="..\DND.Application\DND.Application.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Models\" />
+    <Folder Include="Converters\" />
+  </ItemGroup>
+
 </Project>

@@ -1,0 +1,227 @@
+Prompt per Gemini
+=================
+Ora assumi il ruolo di "Software Architect (Lead Dev)" ed occupati di definire
+l'architettura a strati, utilizzando un approccio Domain-Drive Design in modo
+da poter gestire la complessità delle regole di D&D.
+
+Poni particolari attenzione a definire bene i domain boundaries dei seguenti
+livelli:
+
+- Livello Dominio (Core Rules Engine)
+- Livello Infrastruttura (Persistenza & Servizi Esterni)
+- Livello Applicazione (Servizi Applicativi)
+- Livello Presentazione (WPF UI)
+
+Inoltre descrivi come impostare la soluzione in Microsoft Visual Studio 
+definendo bene i differenti progetti e le cartelle che li compongono per 
+organizzare al meglio la gestione del codice 
+
+
+
+Soluzione proposta
+==================
+Assumo il ruolo di Software Architect (Lead Dev).
+
+L'obiettivo primario è isolare il motore delle regole (Core Rules Engine) in 
+modo che possa essere modificato e testato senza impattare l'interfaccia utente
+o la gestione dei dati. Per questo, utilizzeremo un'architettura a Strati 
+(Layered Architecture) con principi Domain-Driven Design (DDD).
+
+Questa architettura assicura che le dipendenze fluiscano solo verso l'interno, 
+mantenendo il Dominio (le regole di D&D) come il cuore del sistema e la parte 
+più agnostica e testabile.
+
+
+1. Livello Dominio (Core Rules Engine)
+--------------------------------------
+
+Questo è il cuore dell'applicazione e implementa tutte le regole di D&D 5e. Non
+deve avere dipendenze da altri strati (né UI, né Database).
+
+Responsabilità:
+ - Definire le entità del gioco (Character, Monster, Spell, Item, Condition)
+ - Implementare le Regole di Business (logica di calcolo del CA, modificatori
+   di Abilità, Punti Ferita, gestione di Vantaggio/Svantaggio, tiri salvezza)
+ - Definire le interfacce per la persistenza (i Repository), ma non la loro
+   implementazione
+
+Elementi Chiave DDD:
+ - Entità: Character, Monster, Spell, Weapon. Oggetti con identità e ciclo di
+   vita
+ - Value Objects: AbilityScore, HitPoints, Dice, Damage. Oggetti che non hanno
+   identità ma descrivono proprietà
+ - Aggregati: Insiemi di Entità correlate che devono essere trattate com
+   un'unità transazionale (es. il Character è l'aggregato root per Equipment e
+   Features)
+ - Domain Services: Operazioni che non appartengono a una singola Entità
+   (es. CombatService per la risoluzione degli attacchi)
+
+
+2. Livello Infrastruttura (Persistenza & Servizi Esterni)
+---------------------------------------------------------
+
+Questo strato gestisce la comunicazione con l'esterno, principalmente il
+database. Dipende dal Dominio, in quanto implementa le interfacce definite lì.
+
+Responsabilità:
+ - Implementazione dei Repository definiti nel Dominio (es. CharacterRepository
+   implementa ICharacterRepository del Dominio)
+ - Configurazione di Entity Framework Core (EF Core) per la persistenza dei
+   dati
+ - Gestione delle migrazioni del database e della connessione
+ - Implementazione di eventuali Servizi Esterni (es. log o integrazioni future)
+
+Tecnologie: EF Core, connessione al DB (SQL Server/PostgreSQL).
+
+
+3. Livello Applicazione (Servizi Applicativi)
+---------------------------------------------
+
+Questo strato orchestra il flusso di lavoro dell'applicazione, fungendo da 
+mediatore tra l'UI e il Dominio/Infrastruttura. Dipende da entrambi gli strati
+sottostanti.
+
+Responsabilità:
+ - Definire i casi d'uso (es. CreateNewCharacterCommand,
+   StartCombatSessionCommand)
+ - Gestire le transazioni e le sequenze di operazioni (es. Carica Personaggio,
+   esegui attacco, salva Punti Ferita aggiornati)
+ - Utilizzare i Repository dell'Infrastruttura per recuperare i dati
+ - Eseguire la logica di business utilizzando i Domain Services e le Entità del
+   Dominio
+ - Mappare gli oggetti di Dominio in DTO (Data Transfer Objects) da inviare
+   all'UI
+
+Elementi Chiave:
+    Application Services (o Command/Query Handlers se si usa MediatR)
+    Mappers (es. AutoMapper).
+
+
+4. Livello Presentazione (WPF UI)
+---------------------------------
+
+Il livello più esterno e visibile. Gestisce l'interazione con l'utente e la
+visualizzazione dei dati. Dipende solo dal Livello Applicazione.
+
+Responsabilità:
+ - Implementazione dell'interfaccia utente (XAML, Controlli, Stili)
+ - Implementazione del pattern MVVM (Model-View-ViewModel)
+ - Chiamare i servizi del Livello Applicazione in risposta alle azioni
+   dell'utente
+ - Visualizzare i dati ricevuti dai DTO
+
+Tecnologie:
+ - WPF
+  - XAML
+  - Libreria MVVM (es. Community Toolkit MVVM)
+  - Dependency injection (es. Microsoft.Extensions.DependencyInjection)
+
+Struttura della Soluzione in Microsoft Visual Studio
+
+Organizzeremo la soluzione in più progetti C# per garantire
+la separazione dei livelli e delle dipendenze.
+
+Struttura della Soluzione: DND.Simulator.sln
++--------------------+----------+------------+---------------------------------+
+| Progetto           | Tipo     | Dipendenze | Scopo                           |
++--------------------+----------+------------+---------------------------------+
+| DND.Domain         | Libreria | NESSUNA    | CORE RULES ENGINE. Contiene     |
+|                    |          |            | Entità, Value Objects, Domain   |
+|                    |          |            | Services e interfacce           |
+|                    |          |            | Repository                      |
++--------------------+----------+------------+---------------------------------+
+| DND.Application    | Libreria | DND.Domain | Contiene Application Services,  |
+|					 |          |            | DTOs, use cases e interfacce    |
+|                    |          |            | per l'infrastruttura            |
++--------------------+----------+------------+---------------------------------+
+| DND.Infrastructure | Libreria | DND.Domain | Implementazione concreta dei    |
+|                    |          | DND.Appl.  | Repository, contesto DB e       |
+|                    |          |            | servizi esterni                 |
++--------------------+----------+------------+---------------------------------+
+| DND.Simulator.UI	 | WPF App  | DND.Appl.  | Interfaccia Utente (Views,      |
+|                    |          |            | ViewModels, servizi UI)         |
++--------------------+----------+------------+---------------------------------+
+| DND.Tests	         | Test lib | DND.Domain | Unit Test sul Dominio, Test dei |
+|                    |          | DND.Appl.  | servizi applicativi             |
+|                    |          | DND.Infra. |                                 |
++--------------------+----------+------------+---------------------------------+
+
+Dettaglio Cartelle per Progetto
+
+1. Progetto: DND.Domain (Core Rules Engine)
++--------------+---------------------------------------------------------------+
+| Cartella     | Contenuto                                                     |
++--------------+---------------------------------------------------------------+
+| Aggregates   | Classi radice degli aggregati (es. Character.cs, Monster.cs)  |
++--------------+---------------------------------------------------------------+
+| Entities     | Entità non root (es. Feature.cs, Equipment.cs)                |
++--------------+---------------------------------------------------------------+
+| ValueObjects | Oggetti senza identità (es. AbilityScore.cs, Damage.cs,       |
+|              | Dice.cs)                                                      |
++--------------+---------------------------------------------------------------+
+| Enums        | Enumerazioni di gioco (es. ConditionType, DamageType)         |
++--------------+---------------------------------------------------------------+
+| Services     | Logica di dominio pura (es. CombatResolver.cs,                |
+|              | SavingThrowCalculator.cs)                                     |
++--------------+---------------------------------------------------------------+
+| Interfaces   | Interfacce dei Repository e servizi di infrastruttura         |
+|              | richiesti (es. ICharacterRepository.cs)                       |
++--------------+---------------------------------------------------------------+
+
+2. Progetto: DND.Application (Servizi Applicativi)
++----------+-------------------------------------------------------------------+
+| Cartella | Contenuto                                                         |
++----------+-------------------------------------------------------------------+
+| DTOs     | Oggetti per il trasferimento dati all'UI                          |
+|          | (es. CharacterSummaryDto.cs)                                      |
++----------+-------------------------------------------------------------------+
+| Commands | Oggetti che rappresentano azioni che modificano lo stato          |
+|          | (es. CreateCharacterCommand.cs)                                   |
++----------+-------------------------------------------------------------------+
+| Queries  | Oggetti che rappresentano richieste di dati                       |
+|          | (es. GetCharacterDetailsQuery.cs)                                 |
++----------+-------------------------------------------------------------------+
+| Services | Classi che implementano la logica applicativa                     |
+|          | (es. CharacterService.cs)                                         |
++----------+-------------------------------------------------------------------+
+| Mappers  | Logica di mapping tra Entità di Dominio e DTO                     |
++----------+-------------------------------------------------------------------+
+
+3. Progetto: DND.Infrastructure (Persistenza)
++--------------+---------------------------------------------------------------+
+| Cartella     | Contenuto                                                     |
++--------------+---------------------------------------------------------------+
+| Data         | Contesto EF Core (SimulatorDbContext.cs) e configurazioni     |
+|              | delle entità                                                  |
++--------------+---------------------------------------------------------------+
+| Migrations   | Cartella gestita da EF Core per le migrazioni del DB          |
++--------------+---------------------------------------------------------------+
+| Repositories | Implementazioni concrete delle interfacce Repository          |
+|              | (es. CharacterRepository.cs)                                  |
++--------------+---------------------------------------------------------------+
+| Extensions   | Logica per la configurazione del DB (es. seeding iniziale dei |
+|              | dati delle regole base)								       |
++--------------+---------------------------------------------------------------+
+
+4. Progetto: DND.Simulator.UI (WPF Front-end)
++------------+-----------------------------------------------------------------+
+| Cartella   | Contenuto                                                       |
++------------+-----------------------------------------------------------------+
+| Views      | File XAML per l'interfaccia (es. MainWindow.xaml,               |
+|            | CharacterCreatorView.xaml)									   |
++------------+-----------------------------------------------------------------+
+| ViewModels | Classi ViewModels che implementano INotifyPropertyChanged       |
+|            | (es. CharacterCreatorViewModel.cs)                              |
++------------+-----------------------------------------------------------------+
+| Models     | Oggetti dati locali che supportano i ViewModels se necessario   |
+|            | (evitare confusione con il Dominio)							   |
++------------+-----------------------------------------------------------------+
+| Services   | Servizi specifici per l'UI (es. NavigationService.cs,           |
+|            | DialogService.cs)                                               |
++------------+-----------------------------------------------------------------+
+| Converters | Logica XAML per la formattazione dei dati                       |
++------------+-----------------------------------------------------------------+
+
+Questo approccio garantisce la Separazione delle Preoccupazioni (SoC), rendendo
+il sistema scalabile, manutenibile e, crucialmente, facilmente testabile, a 
+partire dal complesso Core Rules Engine.

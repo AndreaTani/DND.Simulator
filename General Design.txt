@@ -1,5 +1,5 @@
 ﻿Prompt per Gemini
------------------
+=================
 Sto creando un'applicazione windows in C# utilizzando WPF per il front-end.
 Questa applicazione sarà un simulatore di combattimenti RPG basato sulle regole
 di D&D, nello specifico la 5a edizione del 2014.
@@ -39,14 +39,17 @@ Effettua un'analisi approfondita del problema e crea un report esteso su come
 procedere, quali tecnologie accessorie utilizzare e da dove partire
 
 
+
 Soluzione proposta
-------------------
+==================
 Questo è un progetto ambizioso ed entusiasmante! Un simulatore di combattimento
 RPG di D&D 5e con tutte le sue sfaccettature richiede una pianificazione 
 meticolosa. Come Product Owner (PO) e Analista esperto, ho strutturato un 
 approccio Agile e definito il team e le fasi di sviluppo necessarie.
 
+
 1. Analisi del Problema e Strategia Generale
+--------------------------------------------
 
 L'applicazione è complessa e può essere suddivisa in tre macro-aree principali:
  - Core System & Regole
@@ -112,7 +115,9 @@ Domain-Driven Design (DDD) per gestire la complessità delle regole di D&D.
 
     Testing: xUnit o NUnit per unit test, soprattutto per il Core Rules Engine.
 
+
 2. Team di Sviluppo e Ruoli
+---------------------------
 
 Ho definito un team snello ma completo, bilanciando le competenze richieste.
 +--------------------+------------------------+--------------------------------+
@@ -149,6 +154,7 @@ Ho definito un team snello ma completo, bilanciando le competenze richieste.
 
 
 3. Strategia di Sviluppo Agile (Scrum/Kanban Ibrido)
+----------------------------------------------------
 
 Adottiamo Scrum per la pianificazione degli Sprint e una board Kanban per 
 tracciare il flusso di lavoro.
@@ -161,84 +167,166 @@ Dividiamo il progetto in Epics (Obiettivi di alto livello) e User Stories
 +---------+--------------------------------------------------+----------------+
 | Epic	  | Obiettivo	                                     | Durata Stimata |
 +---------+--------------------------------------------------+----------------+
-| Epic 1: | Fondamenta e Dati Architettura, Setup del DB e   | Sprint 1-2     |
+| Epic 1: | Fondamenta e Dati Architettura: Setup del DB e   | Sprint 1-2     |
 |         | Modulo base di persistenza                       |                |
 +---------+--------------------------------------------------+----------------+
-| Epic 2: | Core Rules Engine (Motore Base)	Implementazione  | Sprint 3-4     |
+| Epic 2: | Core Rules Engine (Motore Base): Implementazione | Sprint 3-4     |
 |         | dei calcoli essenziali di D&D 5e e gestione      |                |
 |         | delle statistiche base                           |                |
 +---------+--------------------------------------------------+----------------+
-| Epic 3: | Creazione e Gestione Entità	UI per Personaggi e  | Sprint 5-6     |
+| Epic 3: | Creazione e Gestione Entità: UI per Personaggi e | Sprint 5-6     |
 |         | Mostri (CRUD: Create, Read, Update, Delete)      |                |
 +---------+--------------------------------------------------+----------------+
-| 
+| Epic 4: | Motore di Combattimento Base: Iniziativa,        | Sprint 7-8     |
+|         | Posizionamento, Turno base (attacco semplice)    | 			      |
++---------+--------------------------------------------------+----------------+
+| Epic 5: | UI Avanzata e Funzionalità Regole :Griglia 3D,   | Sprint 9-11    |
+|         | Incantesimi, Abilità Complesse, Azioni Speciali  |                |
++---------+--------------------------------------------------+----------------+
+| Epic 6: | AI e Simulazione: Logica di strategia automatica | Sprint 12+     |
+|         | e simulazioni multiple                           |                |
++---------+--------------------------------------------------+----------------+
 
-
-Epic 4: Motore di Combattimento Base	Iniziativa, Posizionamento, Turno base (attacco semplice).	Sprint 7-8
-Epic 5: UI Avanzata e Funzionalità Regole	Griglia 3D, Incantesimi, Abilità Complesse, Azioni Speciali.	Sprint 9-11
-Epic 6: AI e Simulazione	Logica di strategia automatica, simulazioni multiple.	Sprint 12+
 
 4. Outline Dettagliato degli Step e Assegnazione Compiti
+--------------------------------------------------------
 
-Di seguito, un esempio di User Stories per i primi Sprint, con l'assegnazione dei compiti.
+Di seguito, un esempio di User Stories per i primi Sprint, con l'assegnazione
+dei compiti.
 
 Sprint 1: Architettura e Database Iniziale (Focus: Fondamenta)
-
-Task (User Story)	Assegnato	Obiettivo
-Setup Architettura	Software Architect	Creare la struttura multi-progetto (Dominio, Infrastruttura, Applicazione, UI), configurazione DI, scelta libreria MVVM.
-Modello Dati Base	DBA	Definizione dello schema DB per le entità chiave (Character, Monster, AbilityScore, Skill).
-Infrastruttura Dati	DBA + Dev A	Configurazione di EF Core, prima migrazione e creazione dei Repository base per Ability Scores.
-Base UI (Shell)	UI/WPF Specialist	Creazione della finestra principale e della navigazione di base tra le sezioni (MVVM Shell).
++--------------------+--------------------+-----------------------------------+
+| Task (User Story)	 | Assegnato	      | Obiettivo                         |
++--------------------+--------------------+-----------------------------------+
+| Setup Architettura | Software Architect | Creare la struttura multiprogetto |
+|                    |                    | (Dominio, Infrastruttura,         |
+|                    |                    | Applicazione, UI), configurazione |
+|                    |                    | DI, scelta libreria MVVM          |
++--------------------+--------------------+-----------------------------------+
+| Modello Dati Base  | DBA                |	Definizione dello schema DB per   |
+|                    |                    | le entità chiave (Character,      |
+|                    |                    | Monster, AbilityScore, Skill)     |
++--------------------+--------------------+-----------------------------------+
+| Infrastruttura     | DBA + Dev A        | Configurazione di EF Core, prima  |
+| Dati               |                    | migrazione e creazione dei        |
+|                    |                    | Repository base per Ability       |
+|                    |                    | Scores                            |
++--------------------+--------------------+-----------------------------------+
+| Base UI (Shell)    | UI/WPF Specialist  | Creazione della finestra          |
+|                    |                    | principale e della navigazione    |
+|                    |                    | di base tra le sezioni            |
+|                    |                    | (MVVM Shell)                      |
++--------------------+--------------------+-----------------------------------+
 
 Sprint 2: Persistenza e Oggetti di Dominio Base (Focus: Dati Funzionanti)
-
-Task (User Story)	Assegnato	Obiettivo
-Personaggio (Entity)	Software Architect	Implementazione degli oggetti di dominio Character e AbilityScore con logica di base (es. calcolo dei modificatori).
-Repository Personaggio	Dev A	Implementazione del CharacterRepository per salvare e caricare un personaggio di base dal DB.
-UI Gestione Dati	UI/WPF Specialist	Creazione della View e ViewModel per il caricamento/salvataggio (senza editing) di un personaggio di test.
-Test Unitari Dominio	Dev B	Scrittura di unit test per la logica di calcolo dei modificatori di Ability Score.
++-------------------+--------------------+------------------------------------+
+| Task (User Story)	| Assegnato          | Obiettivo                          |
++-------------------+--------------------+------------------------------------+
+| Personaggio       | Software Architect | Implementazione degli oggetti di   |
+| (Entity)          |                    | dominio Character e AbilityScore   |
+|                   |                    | con logica di base (es. calcolo    |
+|                   |                    | dei modificatori)                  |
++-------------------+--------------------+------------------------------------+
+| Repository        | Dev A              | Implementazione del                |
+| Personaggio       |                    | CharacterRepository per salvare    |
+|                   |                    | e caricare un personaggio di base  |
+|                   |                    | dal DB                             |
++-------------------+--------------------+------------------------------------+
+| UI Gestione Dati  | UI/WPF Specialist  | Creazione della View e ViewModel   |
+|                   |                    | per il caricamento/salvataggio     |
+|                   |                    | (senza editing) di un personaggio  |
+|                   |                    | di test                            |
++-------------------+--------------------+------------------------------------+
+| Unit Test Dominio | Dev B              | Scrittura di unit test per la      |
+|                   |                    | logica di calcolo dei modificatori |
+|                   |                    | di AbilityScore                    |
++-------------------+--------------------+------------------------------------+
 
 Sprint 3: Core Rules Engine - Parte I (Focus: Logica Statistica)
++-------------------+--------------------+------------------------------------+
+| Task (User Story)	| Assegnato          | Obiettivo                          |
++-------------------+--------------------+------------------------------------+
+| Rules Engine Base	| Software Architect | Creazione del servizio centrale    |
+|                   |                    | per i calcoli: CA, Saving Throws,  |
+|                   |                    | Bonus di Competenza, Punti Ferita  |
+|                   |                    | massimi                            |
++-------------------+--------------------+------------------------------------+
+| Modellazione      | Dev A              | Definizione delle strutture dati   |
+| Classi/Razze      |                    | per Class, Race e Background       |
++-------------------+--------------------+------------------------------------+
+| Creazione Scheda  | UI/WPF Specialist  | Creazione della View per           |
+|                   |                    | l'inserimento manuale degli        |
+|                   |                    | Ability Scores e visualizzazione   |
+|                   |                    | immediata dei modificatori         |
+|                   |                    | calcolati                          |
++-------------------+--------------------+------------------------------------+
+| Tabelle Regole    | DBA                | Creazione delle tabelle statiche   |
+|                   |                    | per Classi, Razze, Abilità         |
++-------------------+--------------------+------------------------------------+
 
-Task (User Story)	Assegnato	Obiettivo
-Rules Engine - Base	Software Architect	Creazione del servizio centrale per i calcoli: CA, Saving Throws, Bonus di Competenza, Punti Ferita massimi.
-Modellazione Classi/Razze	Dev A	Definizione delle strutture dati per Class, Race e Background.
-UI Creazione Scheda	UI/WPF Specialist	Creazione della View per l'inserimento manuale degli Ability Scores e visualizzazione immediata dei modificatori calcolati.
-DB - Tabelle Regole	DBA	Creazione delle tabelle statiche per Classi, Razze, Abilità (Skills).
 
 5. Report Esteso: Priorità e Gestione della Complessità
+-------------------------------------------------------
 
 Il progetto ha una criticità elevata legata alla fedeltà delle regole.
 
 A. Priorità: Il Motore di Regole (The Core Rules Engine)
 
-La priorità assoluta è il Core Rules Engine. Deve essere sviluppato per primo e con il massimo rigore. Qualsiasi errore qui si ripercuoterà su tutto il simulatore.
+La priorità assoluta è il Core Rules Engine. Deve essere sviluppato per primo e
+con il massimo rigore. Qualsiasi errore qui si ripercuoterà su tutto il
+simulatore.
 
-    Approccio: TDD (Test-Driven Development) è altamente consigliato per questo modulo. Lo Software Architect deve garantire che ogni regola (es. calcolo del danno critico, vantaggio/svantaggio, tiri salvezza) sia coperta da un test unitario.
+    Approccio: 
+    TDD (Test-Driven Development) è altamente consigliato per questo modulo. Il
+    Software Architect deve garantire che ogni regola (es. calcolo del danno 
+    critico, vantaggio/svantaggio, tiri salvezza) sia coperta da uno unit test
 
-    Gestione delle Personalizzazioni (Homebrew): Il Core Rules Engine deve essere estensibile. Ad esempio, usare un sistema di Componenti/Strategie per le Features di Classe o per gli Incantesimi permette di aggiungere nuove regole homebrew senza modificare il codice core.
+    Gestione delle Personalizzazioni (Homebrew):
+    Il Core Rules Engine deve essere estensibile. Ad esempio, usare un sistema
+    di Componenti/Strategie per le Features di Classe o per gli Incantesimi 
+    permette di aggiungere nuove regole homebrew senza modificare il codice 
+    core
 
 B. Gestione della Grafica 3D (La Griglia di Battaglia)
 
 La visualizzazione 3D è una feature ad alto rischio:
 
-    MVP (Minimum Viable Product): Iniziare con una griglia 2D semplice in WPF (o una View 3D estremamente basilare) per validare la logica di posizionamento e distanza.
+    MVP (Minimum Viable Product):
+    Iniziare con una griglia 2D semplice in WPF (o una View 3D estremamente 
+    basilare) per validare la logica di posizionamento e distanza.
 
-    Iterazione Successiva: Solo dopo che il motore di combattimento 2D è stabile, si passerà al WPF 3D (Viewport3D). Lo UI/WPF Specialist dovrà fare una proof of concept presto per valutare le limitazioni di performance e il carico di lavoro necessario per la griglia tattica.
+    Iterazione Successiva: 
+    Solo dopo che il motore di combattimento 2D è stabile, si passerà al WPF 3D
+    (Viewport3D). Lo UI/WPF Specialist dovrà fare una proof of concept presto 
+    per valutare le limitazioni di performance e il carico di lavoro necessario
+    per la griglia tattica.
 
 C. La Gestione della Logica Complessa (Incantesimi e Azioni)
 
-La varietà di incantesimi e features è enorme. Non si possono implementare tutti in un colpo solo.
+La varietà di incantesimi e features è enorme. Non si possono implementare
+tutti in un colpo solo.
 
-    Strategia di Contenimento: Utilizzare il pattern Comando o Strategia per modellare Incantesimi e Azioni. Ogni incantesimo o azione speciale sarà un oggetto che implementa un'interfaccia comune (IAction o ICastable).
+    Strategia di Contenimento: 
+    Utilizzare il pattern Comando o Strategia per modellare Incantesimi e
+    Azioni. Ogni incantesimo o azione speciale sarà un oggetto che implementa
+    un'interfaccia comune (IAction o ICastable)
 
-    Focus Iniziale: Implementare solo un set limitato di incantesimi e azioni comuni (es. Firebolt, Cure Wounds, Dash, Disengage) per validare l'architettura del motore di combattimento prima di scalare.
+    Focus Iniziale: 
+    Implementare solo un set limitato di incantesimi e azioni comuni
+    (es. Firebolt, Cure Wounds, Dash, Disengage) per validare l'architettura 
+    del motore di combattimento prima di scalare
 
 D. La "AI" e la Simulazione
 
-Le funzionalità di AI/strategia automatica e simulazione sono fondamentali, ma devono essere posticipate:
+Le funzionalità di AI/strategia automatica e simulazione sono fondamentali,
+ma devono essere posticipate:
 
-    Prerequisito: Un Motore di Combattimento completamente funzionante (che gestisce Hit, Miss, Danno, Healing, Condizioni).
+    Prerequisito: 
+    Un Motore di Combattimento completamente funzionante (che gestisce Hit, 
+    Miss, Danno, Healing, Condizioni)
 
-    Dev B si concentrerà prima sulla logica del Motore di Combattimento manuale. L'AI sarà un servizio aggiuntivo (IStrategyService) che sceglierà l'azione da un pool di azioni disponibili, rendendo lo sviluppo separato e testabile.
+    Dev B si concentrerà prima sulla logica del Motore di Combattimento manuale
+    L'AI sarà un servizio aggiuntivo (IStrategyService) che sceglierà l'azione
+    da un pool di azioni disponibili, rendendo lo sviluppo separato e
+    testabile
 
