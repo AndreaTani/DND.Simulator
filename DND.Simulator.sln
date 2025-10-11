@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.14.36518.9 d17.14
+VisualStudioVersion = 17.14.36518.9
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DND.Domain", "DND.Domain\DND.Domain.csproj", "{EE097908-3AA0-49F7-A771-5DA8BA448B77}"
 EndProject
@@ -25,6 +25,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "02 - Architechture", "02 - Architechture", "{ADCFA3B9-72CE-41CC-9C05-9C2E203CD73D}"
 	ProjectSection(SolutionItems) = preProject
 		Architechtural design.txt = Architechtural design.txt
+		Configurazione DI.txt = Configurazione DI.txt
 	EndProjectSection
 EndProject
 Global

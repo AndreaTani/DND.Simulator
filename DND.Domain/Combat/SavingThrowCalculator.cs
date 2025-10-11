@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DND.Domain.ValueObjects
+namespace DND.Domain.Combat
 {
-    internal class AbilityScore
+    internal class SavingThrowCalculator
     {
     }
 }

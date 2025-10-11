@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DND.Domain.Entities
+namespace DND.Domain.Characters
 {
-    internal class Equipment
+    internal class Charachter
     {
     }
 }

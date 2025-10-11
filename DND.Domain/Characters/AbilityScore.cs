@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DND.Domain.Aggregates
+namespace DND.Domain.Characters
 {
-    internal class Charachter
+    internal class AbilityScore
     {
     }
 }

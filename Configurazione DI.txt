@@ -1,0 +1,181 @@
+In qualità di **Software Architect**, definisco la strategia per la **Dependency Injection (DI)**, essenziale per la modularità e la testabilità dell'architettura DDD a strati.
+
+Utilizzeremo il contenitore di iniezione di dipendenza standard di .NET, **`Microsoft.Extensions.DependencyInjection`**, che è moderno, performante e ben integrato.
+
+L'obiettivo è rispettare la separazione dei livelli:
+
+1.  Il **Livello Dominio** non sa nulla della DI.
+2.  I livelli **Infrastruttura** e **Applicazione** espongono **metodi di estensione statici** per registrare i loro servizi.
+3.  Il **Livello Presentazione (UI)** è l'**"Composition Root"**, dove tutti i servizi vengono registrati e risolti.
+
+-----
+
+## 1\. Implementazione della DI per Livello
+
+### A. Livello Dominio (`DND.Domain`)
+
+Questo livello non ha dipendenze da registrare, in quanto contiene solo entità, oggetti di valore e interfacce. Tuttavia, i suoi *Domain Services* (es. `CombatResolver`) devono essere registrati nel *Composition Root*.
+
+  * **Registrazione:** Non c'è un metodo di estensione qui. I servizi saranno registrati nel livello UI.
+
+  * **Esempio di Servizio:**
+
+    ```csharp
+    // DND.Domain/Services/CombatResolver.cs
+    public class CombatResolver : ICombatResolver
+    {
+        public AttackResult ResolveAttack(Character attacker, Character target)
+        {
+            // Logica di attacco, tiri di dado, ecc.
+            // ...
+        }
+    }
+    ```
+
+### B. Livello Infrastruttura (`DND.Infrastructure`)
+
+Questo livello registra i servizi di persistenza (DbContext) e le implementazioni dei Repository. Espone un metodo di estensione.
+
+  * **Metodo di Estensione (`DND.Infrastructure/ServiceCollectionExtensions.cs`):**
+
+    ```csharp
+    using Microsoft.Extensions.DependencyInjection;
+    using DND.Domain.Interfaces; // Interfacce definite nel Dominio
+    using DND.Infrastructure.Data;
+    using DND.Infrastructure.Repositories;
+
+    public static class ServiceCollectionExtensions
+    {
+        public static IServiceCollection AddInfrastructure(this IServiceCollection services, string connectionString)
+        {
+            // 1. Registrazione del Database Context (come Scoped per richieste/sessioni)
+            services.AddDbContext<SimulatorDbContext>(options =>
+                options.UseSqlServer(connectionString) // Assumendo SQL Server per EF Core
+            );
+
+            // 2. Registrazione dei Repository (Implementazione delle interfacce di Dominio)
+            services.AddScoped<ICharacterRepository, CharacterRepository>();
+            services.AddScoped<IMonsterRepository, MonsterRepository>();
+            // ... altri repository
+
+            return services;
+        }
+    }
+    ```
+
+### C. Livello Applicazione (`DND.Application`)
+
+Questo livello registra gli Application Services (i *use case* dell'applicazione). Espone un altro metodo di estensione.
+
+  * **Metodo di Estensione (`DND.Application/ServiceCollectionExtensions.cs`):**
+
+    ```csharp
+    using Microsoft.Extensions.DependencyInjection;
+    using DND.Application.Services;
+    using DND.Domain.Services; // Servizi di Dominio utilizzati qui
+
+    public static class ServiceCollectionExtensions
+    {
+        public static IServiceCollection AddApplication(this IServiceCollection services)
+        {
+            // 1. Registrazione dei Domain Services (tipicamente Singleton o Scoped)
+            // Scegliamo Scoped per i servizi transazionali
+            services.AddScoped<ICombatResolver, CombatResolver>();
+            
+            // 2. Registrazione degli Application Services (tipicamente Scoped)
+            services.AddScoped<CharacterCreationService>();
+            services.AddScoped<CombatSessionService>();
+            // ... altri servizi applicativi
+
+            return services;
+        }
+    }
+    ```
+
+### D. Livello Presentazione (`DND.Simulator.UI`) (Composition Root)
+
+Questo è il punto di ingresso dell'applicazione (es. `App.xaml.cs` o `MainWindow.xaml.cs`). Qui vengono registrati tutti i servizi e vengono inizializzati i `ViewModel`.
+
+  * **Setup nel Composition Root (es. `App.xaml.cs`):**
+
+    ```csharp
+    using Microsoft.Extensions.Hosting;
+    using Microsoft.Extensions.DependencyInjection;
+    using DND.Simulator.UI.ViewModels;
+    using DND.Infrastructure; // Accesso all'estensione AddInfrastructure
+    using DND.Application;   // Accesso all'estensione AddApplication
+
+    public partial class App : Application
+    {
+        private IHost _host;
+
+        public App()
+        {
+            _host = Host.CreateDefaultBuilder()
+                .ConfigureServices((context, services) =>
+                {
+                    // 1. Configurazione: Leggere la Connection String
+                    // In un'app reale, si otterrebbe da appsettings.json
+                    string connectionString = "Server=(localdb)\\mssqllocaldb;Database=DndSimulatorDB;Trusted_Connection=True;";
+
+                    // 2. Registrazione a catena dei livelli
+                    services.AddInfrastructure(connectionString);
+                    services.AddApplication();
+
+                    // 3. Registrazione dei ViewModels (Singleton/Transient a seconda del ciclo di vita)
+                    // La finestra principale è tipicamente un Singleton per la sessione
+                    services.AddSingleton<MainViewModel>();
+                    services.AddTransient<CharacterCreatorViewModel>();
+                    services.AddTransient<CombatSimulatorViewModel>(); 
+
+                    // 4. Registrazione della Finestra Principale (Entry Point)
+                    services.AddSingleton<MainWindow>();
+                })
+                .Build();
+        }
+
+        protected override async void OnStartup(StartupEventArgs e)
+        {
+            await _host.StartAsync();
+
+            // Risolvi il servizio principale e visualizza la finestra
+            var mainWindow = _host.Services.GetRequiredService<MainWindow>();
+            mainWindow.Show();
+
+            base.OnStartup(e);
+        }
+        
+        // ... (Metodo OnExit per pulizia)
+    }
+    ```
+
+-----
+
+## 2\. Implementazione MVVM con DI
+
+Per utilizzare la DI nel pattern MVVM in WPF:
+
+1.  **Iniezione nel Costruttore dei ViewModels:** I ViewModels non conoscono le classi concrete dei servizi, ma solo le loro interfacce o le classi base.
+
+    ```csharp
+    // DND.Simulator.UI/ViewModels/CharacterCreatorViewModel.cs
+    public class CharacterCreatorViewModel : ViewModelBase
+    {
+        private readonly CharacterCreationService _characterService;
+        
+        // La DI fornisce automaticamente l'istanza di CharacterCreationService
+        public CharacterCreatorViewModel(CharacterCreationService characterService) 
+        {
+            _characterService = characterService;
+        }
+        
+        // ... Logica per il comando "SaveCharacterCommand" che chiama _characterService
+    }
+    ```
+
+2.  **Risoluzione delle View:** Nel *Composition Root* (l'App.xaml.cs), la finestra principale (`MainWindow`) viene risolta dal Service Provider. La sua proprietà `DataContext` può poi essere impostata sul `MainViewModel` risolto, oppure i controlli possono risolvere i ViewModel figli tramite la DI o un pattern *Locator*.
+
+Questo approccio garantisce che ogni componente riceva le sue dipendenze in modo pulito e che il **Core Rules Engine (Dominio)** sia totalmente isolato e testabile, poiché il suo codice non contiene riferimenti a WPF, EF Core o al Service Provider.
+
+
+

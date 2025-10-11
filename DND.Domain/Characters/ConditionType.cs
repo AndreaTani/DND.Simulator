@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DND.Domain.Services
+namespace DND.Domain.Characters
 {
-    internal class SavingThrowCalculator
+    internal enum ConditionType
     {
     }
 }
