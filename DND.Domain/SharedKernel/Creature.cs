@@ -9,22 +9,54 @@ namespace DND.Domain.SharedKernel
         public Guid Id { get; protected set; }
         public string Name { get; protected set; }
         public int Level { get; protected set; }
-        public virtual int Speed { get; protected set; }
 
+        // Base movement speed in feet per round, can be set for monsters/NPCs or computed for player characters using equipment, class, racial bonuses, etc.
+        public virtual Speed BaseSpeed { get; protected set; }
+
+        // Current movement speed in feet per round, can be set to base as a default or modified by conditions, spells, effects, etc.
+        public virtual Speed CurrentSpeed { get; protected set; } 
 
         // --- Value objects and stats ---
         public AbilityScore AbilityScores { get; protected set; }
         public virtual int TemporaryHitPoints { get; protected set; }
         public int MaxHitPoints { get; protected set; }
         public int CurrentHitPoints { get; protected set; }
-        public virtual int ArmorClass { get; protected set; }
+        public virtual int ArmorClass { get; protected set; } = 0; // Base AC, can be set for monsters/NPCs
 
         // Overridable property to return AC, can be customized in derived classes, calculated from Dexterity by default
+        // By default, if ArmorClass is set (e.g., for monsters/NPCs), use it directly. 
+        // Otherwise, calculate AC based on D&D rules: 10 + DexterityModifier (unarmored), or allow derived classes to override for custom logic.
         public virtual int DexterityModifier => AbilityScores.GetModifier(AbilityType.Dexterity);
+
+        /// <summary>
+        /// Returns the current Armor Class (AC) of the creature.
+        /// - If ArmorClass is explicitly set (e.g., for monsters/NPCs), use it.
+        /// - Otherwise, calculate AC as 10 + DexterityModifier (unarmored default).
+        /// - Derived classes (e.g., PlayerCharacter, special NPCs) should override this property to implement
+        ///   equipment, class, or racial bonuses, or other custom AC rules.
+        /// </summary>
+        public virtual int CurrentArmorClass
+        {
+            get
+            {
+                // If ArmorClass is set to a positive value, use it (for monsters/NPCs).
+                if (ArmorClass > 0)
+                    return ArmorClass;
+
+                // Default unarmored AC: 10 + Dex modifier
+                return 10 + DexterityModifier;
+            }
+        }
 
 
         // List  of conditions currently affecting the creature
         public List<ConditionType> Conditions { get; protected set; } = [];
+
+        // properties to check specific conditions (unconscious, dead, etc.)
+        // When a creature is unconscious either for a preexisting condition or for having negative hit points
+        public bool IsUnconscious => Conditions.Contains(ConditionType.Unconscious) || CurrentHitPoints <= 0;
+        // When a creature is dead either for a preexisting condition or for having hit points less than negative max hit points
+        public bool IsDead => Conditions.Contains(ConditionType.Dead) || CurrentHitPoints <= -MaxHitPoints; 
 
 
         // Prociencies
@@ -42,7 +74,7 @@ namespace DND.Domain.SharedKernel
         // Methoids for common behaviors can be added here
 
         // Constructor
-        protected Creature(string name, int level, AbilityScore abilityScores, int maxHitPoints, int armorClass, int speed)
+        protected Creature(string name, int level, AbilityScore abilityScores, int maxHitPoints, Speed speed, int armorClass = 0)
         {
             Id = Guid.NewGuid();
             Name = name;
@@ -50,8 +82,9 @@ namespace DND.Domain.SharedKernel
             AbilityScores = abilityScores;
             MaxHitPoints = maxHitPoints;
             CurrentHitPoints = maxHitPoints; // Start at full health
+            BaseSpeed = speed;
+            CurrentSpeed = speed; // Start with base speed
             ArmorClass = armorClass;
-            Speed = speed;
         }
 
 
@@ -74,10 +107,28 @@ namespace DND.Domain.SharedKernel
             // Apply any remaining damage to CurrentHitPoints
             if (finalDamage > 0)
             {
-                CurrentHitPoints = Math.Max(0, CurrentHitPoints - finalDamage);
+                CurrentHitPoints -= finalDamage;
             }
 
-            // generate domain events if needed (e.g., CreatureUnconscious, CreatureDied)
+            // When currrent hit points drop to 0 or below but stays over the
+            // max negative hit points, the creature becomes unconscious,
+            // if the current hit points drop below the max negative hit points, the creature dies
+            if (CurrentHitPoints <= 0 && CurrentHitPoints > -MaxHitPoints)
+            {
+                if (!Conditions.Contains(ConditionType.Unconscious))
+                {
+                    Conditions.Add(ConditionType.Unconscious);
+                }
+                // if needed generate domain event CreatureUnconscious
+            }
+            else if (CurrentHitPoints <= -MaxHitPoints)
+            {
+                if (!Conditions.Contains(ConditionType.Dead))
+                {
+                    Conditions.Add(ConditionType.Dead);
+                }
+                // if needed generate domain event CreatureDead
+            }
         }
 
 
@@ -91,6 +142,12 @@ namespace DND.Domain.SharedKernel
             }
             return modifier;
         }
+
+        // Propery to track successful and unsuccessful Death Saving Throws
+        public (int Successes, int Failures) DeathSavingThrows { get; protected set; } = (0, 0);
+
+        // Method to perform a death saving throw, updating the DeathSavingThrows property accordingly, left for the derived classes
+        public abstract (int Successes, int Failures) PerformDeathSavingThrow(int roll);
 
 
         // Method to calculate skill check modifier for a given skill keeping into account proficiencies and expertise

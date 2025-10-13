@@ -5,6 +5,7 @@
     /// </summary>
     public enum ConditionType
     {
+        Dead,
         Blinded,
         Charmed,
         Deafened,
