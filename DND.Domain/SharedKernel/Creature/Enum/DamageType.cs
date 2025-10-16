@@ -1,10 +1,11 @@
-﻿namespace DND.Domain.SharedKernel.Enum
+﻿namespace DND.Domain.SharedKernel
 {
     /// <summary>
     /// Differnet types of damage in DND
     /// </summary>
     public enum DamageType
     {
+        None = 0,
         Acid,
         Bludgeoning,
         Cold,

@@ -1,11 +1,10 @@
-﻿namespace DND.Domain.SharedKernel.Enum
+﻿namespace DND.Domain.SharedKernel
 {
     /// <summary>
-    /// Condition types a creature can be affected with, in DND
+    /// Condition a creature can be affected with, in DND
     /// </summary>
-    public enum ConditionType
+    public enum Condition
     {
-        Dead,
         Blinded,
         Charmed,
         Deafened,
@@ -19,6 +18,8 @@
         Prone,
         Restrained,
         Stunned,
-        Unconscious
+        Unconscious,
+        Dead,
+        Dying
     }
 }

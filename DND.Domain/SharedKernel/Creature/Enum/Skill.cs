@@ -1,9 +1,9 @@
-﻿namespace DND.Domain.SharedKernel.Enum
+﻿namespace DND.Domain.SharedKernel
 {
     /// <summary>
     /// All skills a character can be proficient in, in DND
     /// </summary>
-    public enum SkillType
+    public enum Skill
     {
         Acrobatics,     // Dexterity
         AnimalHandling, // Wisdom

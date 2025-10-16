@@ -1,4 +1,4 @@
-﻿namespace DND.Domain.SharedKernel.ValueObjects
+﻿namespace DND.Domain.SharedKernel
 {
     /// <summary>
     /// Speed value object representing movement speed in DND
