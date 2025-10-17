@@ -7,11 +7,12 @@ namespace DND.Domain.SharedKernel
         // Private fields
         private readonly List<Ability> _proficientSavingThrows = [];
         private readonly List<Condition> _conditions = [];
+        private readonly List<Condition> _conditionImmunities = [];
         private readonly List<DamageType> _damageImmunities = [];
         private readonly List<DamageType> _damageResistances = [];
         private readonly List<DamageType> _damageVulnerabilities = [];
-        private readonly List<Language> _languages = [Language.Common];
-        private readonly List<Sense> _senses = [Sense.NormalVision, Sense.Hearing, Sense.Speaking];
+        private readonly List<Language> _languages = [];
+        private readonly List<Sense> _senses = [];
         private readonly List<Skill> _expertSkills = [];
         private readonly List<Skill> _proficientSkills = [];
         private readonly List<IDomainEvent> _domainEvents = [];
@@ -20,7 +21,8 @@ namespace DND.Domain.SharedKernel
         public Guid Id { get; protected set; }
         public string Name { get; protected set; }
         public int Level { get; protected set; }
-        public double ChallengeRating { get; protected set; }
+
+        public CreatureType CreatureType { get; protected set; }
 
 
         // Base movement speed in feet per round, can be set for monsters/NPCs or computed for player characters using equipment, class, racial bonuses, etc.
@@ -29,12 +31,12 @@ namespace DND.Domain.SharedKernel
         public virtual Speed CurrentSpeed { get; protected set; }
 
         // Ability scores, can be set for monsters/NPCs or computed for player characters using point buy, standard array, or rolling
-        public AbilityScore AbilityScores { get; protected set; }
+        public AbilityScores AbilityScores { get; protected set; }
 
         // Hit points, can be set for monsters/NPCs or computed for player characters using class, level, Constitution modifier, and other bonuses
-        public virtual int TemporaryHitPoints { get; protected set; }
-        public virtual int MaxHitPoints { get; protected set; }
-        public int CurrentHitPoints { get; protected set; }
+        public virtual int TemporaryHitPoints { get; private set; }
+        public virtual int MaxHitPoints { get; private set; }
+        public int CurrentHitPoints { get; private set; }
 
         // Flags for spellcasting and concentration, can be set for monsters/NPCs or player characters
         public bool IsSpellcaster { get; protected set; } = false;
@@ -81,13 +83,16 @@ namespace DND.Domain.SharedKernel
         // List  of conditions currently affecting the creature
         public IReadOnlyList<Condition> Conditions => _conditions;
 
+        // List of condition immunities the creature possesses
+        public IReadOnlyList<Condition> ConditionImmunities => _conditionImmunities;
+
         // Languages the creature can speak and understand
         public IReadOnlyList<Language> Languages => _languages;
 
 
         // Properties to check if the creature is Unconcious or Dead based on conditions or hit points
-        public bool IsUnconscious => Conditions.Contains(Condition.Unconscious) || (CurrentHitPoints <= 0 && CurrentHitPoints > -MaxHitPoints);
-        public bool IsDead => Conditions.Contains(Condition.Dead) || CurrentHitPoints <= -MaxHitPoints;
+        public bool IsUnconscious => Conditions.Contains(Condition.Unconscious);
+        public bool IsDead => Conditions.Contains(Condition.Dead);
 
 
         // Proficiencies (skills, saving throws, etc.)
@@ -101,6 +106,13 @@ namespace DND.Domain.SharedKernel
         public IReadOnlyList<DamageType> DamageResistances => _damageResistances;
         public IReadOnlyList<DamageType> DamageImmunities => _damageImmunities;
         public IReadOnlyList<DamageType> DamageVulnerabilities => _damageVulnerabilities;
+
+
+        // Properties to check if the creature is resistant, immune, or vulnerable to a specific damage type
+        public bool IsResistantTo(DamageType damageType) => _damageResistances.Contains(damageType);
+        public bool IsImmuneTo(DamageType damageType) => _damageImmunities.Contains(damageType);
+        public bool IsVulnerableTo(DamageType damageType) => _damageVulnerabilities.Contains(damageType);
+
 
 
         // Domain events
@@ -126,19 +138,19 @@ namespace DND.Domain.SharedKernel
         }
 
 
-        // Constructor
-        protected Creature(string name, AbilityScore abilityScores, int maxHitPoints, Speed speed, int armorClass = 0, int level = 1, double challengeRating = 0.125 )
+        protected Creature(string name, CreatureType creatureType, Size size, AbilityScores abilityScores, int maxHitPoints, Speed speed, int armorClass = 0, int level = 1 )
         {
             Id = Guid.NewGuid();
             Name = name;
-            Level = level;
-            ChallengeRating = challengeRating;
+            CreatureType = creatureType;
+            Size = size;
             AbilityScores = abilityScores;
             MaxHitPoints = maxHitPoints;
             CurrentHitPoints = maxHitPoints; // Start at full health
             BaseSpeed = speed;
             CurrentSpeed = speed; // Start with base speed
             ArmorClass = armorClass;
+            Level = level;
         }
 
 
@@ -147,7 +159,7 @@ namespace DND.Domain.SharedKernel
         public bool HasExpertiseInSkill(Skill skill) => ExpertSkills.Contains(skill);
 
 
-        // Calculate final damage, complex logic is isolated here
+        // Calculate final damage, complex logic is isolated here, relegated to theimplementation in derived classes
         protected abstract int CalculateFinalDamage(int baseDamage, DamageType damageType);
 
 
@@ -296,9 +308,37 @@ namespace DND.Domain.SharedKernel
         }
 
 
+        // Add or remove a condition immunity to the creature, avoiding duplicates when adding
+        protected void AddConditionImmunities(IEnumerable<Condition> conditions)
+        {
+            _conditionImmunities.AddRange(conditions.Where(c => !_conditionImmunities.Contains(c)));
+        }
+        protected void AddConditionImmunity(Condition condition)
+        {
+            if (!_conditionImmunities.Contains(condition))
+            {
+                _conditionImmunities.Add(condition);
+            }
+        }
+        protected void RemoveConditionImmunity(Condition condition)
+        {
+            _conditionImmunities.Remove(condition);
+        }
+
         // Add or remove a condition to the creature, avoiding duplicates when adding
+        protected void AddConditions(IEnumerable<Condition> conditions)
+        {
+            _conditions.AddRange(conditions.Where(c => !_conditions.Contains(c)));
+        }
         protected void AddCondition(Condition condition)
         {
+            if(_conditionImmunities.Contains(condition))
+            {
+                var immuneEvent = new CreatureImmuneToConditionsEvent(Id, new List<Condition> { condition });
+                AddDomainEvent(immuneEvent);
+                return;
+            }
+
             if (!_conditions.Contains(condition))
             {
                 _conditions.Add(condition);
@@ -311,6 +351,10 @@ namespace DND.Domain.SharedKernel
 
 
         // Add or remove a sense to the creature, avoiding duplicates when adding
+        protected void AddSenses(IEnumerable<Sense> senses)
+        {
+            _senses.AddRange(senses.Where(s => !_senses.Contains(s)));
+        }
         protected void AddSense(Sense sense)
         {
             if (!_senses.Contains(sense))
@@ -325,6 +369,10 @@ namespace DND.Domain.SharedKernel
 
 
         // Add a or remove a language to the creature, avoiding duplicates when adding
+        protected void AddLanguages(IEnumerable<Language> languages)
+        {
+            _languages.AddRange(languages.Where(l => !_languages.Contains(l)));
+        }
         protected void AddLanguage(Language language)
         {
             if (!_languages.Contains(language))
@@ -346,6 +394,10 @@ namespace DND.Domain.SharedKernel
 
 
         // Add a or remove a proficient skill to the creature, avoiding duplicates when adding
+        protected void AddProficientSkills(IEnumerable<Skill> skills)
+        {
+            _proficientSkills.AddRange(skills.Where(s => !_proficientSkills.Contains(s) && !_expertSkills.Contains(s)));
+        }
         protected void AddProficientSkill(Skill skill)
         {
             if (!_proficientSkills.Contains(skill) && !_expertSkills.Contains(skill))
@@ -361,6 +413,14 @@ namespace DND.Domain.SharedKernel
 
         // Add or remove an expert skill to the creature, avoiding duplicates when adding
         // If the skill is already in proficient skills, remove it to avoid duplication
+        protected void AddExpertSkills(IEnumerable<Skill> skills)
+        {
+            _expertSkills.AddRange(skills.Where(s => !_expertSkills.Contains(s)).Select(s =>
+            {
+                _proficientSkills.Remove(s);
+                return s;
+            }));
+        }
         protected void AddExpertSkill(Skill skill)
         {
             if (!_expertSkills.Contains(skill))
@@ -376,6 +436,10 @@ namespace DND.Domain.SharedKernel
 
 
         // Add or remove a proficient saving throw to the creature, avoiding duplicates when adding
+        protected void AddProficientSavingThrows(IEnumerable<Ability> abilities)
+        {
+            _proficientSavingThrows.AddRange(abilities.Where(a => !_proficientSavingThrows.Contains(a)));
+        }
         protected void AddProficientSavingThrow(Ability ability)
         {
             if (!_proficientSavingThrows.Contains(ability))
@@ -390,6 +454,10 @@ namespace DND.Domain.SharedKernel
 
 
         // Add or remove  a damage resistance to the creature, avoiding duplicates when adding
+        protected void AddDamageResistances(IEnumerable<DamageType> damageTypes)
+        {
+            _damageResistances.AddRange(damageTypes.Where(dt => !_damageResistances.Contains(dt)));
+        }
         protected void AddDamageResistance(DamageType damageType)
         {
             if (!_damageResistances.Contains(damageType))
@@ -404,6 +472,10 @@ namespace DND.Domain.SharedKernel
 
 
         // Add or remove a damage immunity to the creature, avoiding duplicates when adding
+        protected void AddDamageImmunities(IEnumerable<DamageType> damageTypes)
+        {
+            _damageImmunities.AddRange(damageTypes.Where(dt => !_damageImmunities.Contains(dt)));
+        }
         protected void AddDamageImmunity(DamageType damageType)
         {
             if (!_damageImmunities.Contains(damageType))
@@ -418,6 +490,10 @@ namespace DND.Domain.SharedKernel
 
 
         // Add or remove a damage vulnerability to the creature, avoiding duplicates when adding
+        protected void AddDamageVulnerabilities(IEnumerable<DamageType> damageTypes)
+        {
+            _damageVulnerabilities.AddRange(damageTypes.Where(dt => !_damageVulnerabilities.Contains(dt)));
+        }
         protected void AddDamageVulnerability(DamageType damageType)
         {
             if (!_damageVulnerabilities.Contains(damageType))

@@ -1,6 +1,6 @@
 ﻿namespace DND.Domain.SharedKernel
 {
-    public class AbilityScore
+    public class AbilityScores
     {
         // Map of {Ability type, scores}
         public IReadOnlyDictionary<Ability, int> Scores { get; private set; }
@@ -17,7 +17,7 @@
         }
 
         // Constructor, initiazlizes all scores to 10
-        public AbilityScore()
+        public AbilityScores()
         {
             Scores = new Dictionary<Ability, int>
             {
@@ -32,7 +32,7 @@
 
         // Constructor that accepts a dictionary of scores
         // if some ability types are missing, assumes 10 as default
-        public AbilityScore(Dictionary<Ability, int> scores)
+        public AbilityScores(Dictionary<Ability, int> scores)
         {
             var defaultScores = new Dictionary<Ability, int>
             {
