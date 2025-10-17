@@ -1,4 +1,4 @@
-﻿namespace DND.Domain.SharedKernel
+﻿namespace DND.Domain.SharedKernel.Events
 {
     /// <summary>
     /// Interfaccia marker per tutti gli eventi di dominio generati dagli aggregati.

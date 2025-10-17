@@ -1,4 +1,6 @@
-﻿namespace DND.Domain.SharedKernel
+﻿using DND.Domain.SharedKernel.Events;
+
+namespace DND.Domain.SharedKernel
 {
     /// <summary>
     /// Event triggered when a creature's hit points (HP) change.
