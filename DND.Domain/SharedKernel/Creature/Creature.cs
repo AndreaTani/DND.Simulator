@@ -1,4 +1,6 @@
-﻿namespace DND.Domain.SharedKernel
+﻿using DND.Domain.SharedKernel.Events;
+
+namespace DND.Domain.SharedKernel
 {
     public abstract class Creature : IAggregateRoot
     {
@@ -18,6 +20,7 @@
         public Guid Id { get; protected set; }
         public string Name { get; protected set; }
         public int Level { get; protected set; }
+        public double ChallengeRating { get; protected set; }
 
 
         // Base movement speed in feet per round, can be set for monsters/NPCs or computed for player characters using equipment, class, racial bonuses, etc.
@@ -124,11 +127,12 @@
 
 
         // Constructor
-        protected Creature(string name, int level, AbilityScore abilityScores, int maxHitPoints, Speed speed, int armorClass = 0)
+        protected Creature(string name, AbilityScore abilityScores, int maxHitPoints, Speed speed, int armorClass = 0, int level = 1, double challengeRating = 0.125 )
         {
             Id = Guid.NewGuid();
             Name = name;
             Level = level;
+            ChallengeRating = challengeRating;
             AbilityScores = abilityScores;
             MaxHitPoints = maxHitPoints;
             CurrentHitPoints = maxHitPoints; // Start at full health

@@ -13,21 +13,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DND.Simulator.UI", "DND.Sim
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DND.Tests", "DND.Tests\DND.Tests.csproj", "{6CDDFD35-BB40-4F1C-84E5-A3C35C5D32C6}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Documentation", "Documentation", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Design", "Design", "{2F45EB61-7464-45A5-BACC-A2F3B8E12073}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "01 - General", "01 - General", "{0360FABC-DCE8-405A-AD33-F0CD1EA006C1}"
-	ProjectSection(SolutionItems) = preProject
-		General Design.txt = General Design.txt
-	EndProjectSection
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "02 - Architechture", "02 - Architechture", "{ADCFA3B9-72CE-41CC-9C05-9C2E203CD73D}"
-	ProjectSection(SolutionItems) = preProject
-		Architechtural design.txt = Architechtural design.txt
-		Configurazione DI.txt = Configurazione DI.txt
-	EndProjectSection
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -57,11 +42,6 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
-	EndGlobalSection
-	GlobalSection(NestedProjects) = preSolution
-		{2F45EB61-7464-45A5-BACC-A2F3B8E12073} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
-		{0360FABC-DCE8-405A-AD33-F0CD1EA006C1} = {2F45EB61-7464-45A5-BACC-A2F3B8E12073}
-		{ADCFA3B9-72CE-41CC-9C05-9C2E203CD73D} = {2F45EB61-7464-45A5-BACC-A2F3B8E12073}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {91823FAB-6DF8-4CE4-8736-55CF4EEDA2E9}
