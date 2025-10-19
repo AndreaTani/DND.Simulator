@@ -8,6 +8,9 @@ namespace DND.Domain.Bestiary
         // get it from the MonsterBuilder call to the Monster constructor
         public override int ProficiencyBonus { get; }
 
+        // Properties to store a hit dice expression for the maximum hit points calculation
+        public string? HitDiceExpression { get; private set; }
+
         internal Monster(
             string name,
             int proficiencyBonus,
@@ -15,6 +18,7 @@ namespace DND.Domain.Bestiary
             Size size,
             AbilityScores abilityScores,
             int maxHitPoints,
+            string? hitDiceExpression,
             int armorClass,
             Speed speed,
             IEnumerable<DamageType> immunities,
@@ -23,10 +27,14 @@ namespace DND.Domain.Bestiary
             IEnumerable<Condition> initialConditions,
             IEnumerable<Condition> conditionImmunities,
             IEnumerable<Sense> senses,
-            IEnumerable<Language> languages
+            IEnumerable<Language> languages,
+            IEnumerable<Skill> proficientSkills,
+            IEnumerable<Skill> expertSkills,
+            IEnumerable<Ability> proficientSavingThrows
         ) : base(name, creatureType, size, abilityScores, maxHitPoints, speed, armorClass)
         {
             ProficiencyBonus = proficiencyBonus;
+            HitDiceExpression = hitDiceExpression;
 
             AddConditionImmunities(conditionImmunities);
             AddDamageImmunities(immunities);
@@ -35,6 +43,9 @@ namespace DND.Domain.Bestiary
             AddConditions(initialConditions);
             AddSenses(senses);
             AddLanguages(languages);
+            AddProficientSkills(proficientSkills);
+            AddExpertSkills(expertSkills);
+            AddProficientSavingThrows(proficientSavingThrows);
         }
 
         // Calculates the final damage after applying immunities, resistances, and vulnerabilities
