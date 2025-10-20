@@ -19,7 +19,7 @@
         Restrained,
         Stunned,
         Unconscious,
-        Dead,
-        Dying
+        Dying,
+        Dead
     }
 }

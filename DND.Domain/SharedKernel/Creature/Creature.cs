@@ -17,6 +17,7 @@ namespace DND.Domain.SharedKernel
         private readonly List<Skill> _expertSkills = [];
         private readonly List<Skill> _proficientSkills = [];
         private readonly List<IDomainEvent> _domainEvents = [];
+        private readonly List<TemporaryDamageModification> _temporaryDamageModifications = [];
 
         // Identifications, basic Info and fundamental stata
         public Guid Id { get; protected set; }
@@ -194,6 +195,22 @@ namespace DND.Domain.SharedKernel
                 {
                     // this grants vulnerability
                     modifier = Math.Max(modifier, ruleModifier);
+                }
+            }
+
+            // Manages temporary damage modifier
+            var tempMod = _temporaryDamageModifications.FirstOrDefault(mod => mod.TypeOfDamage == damageType);
+            if (tempMod != null)
+            {
+                if (tempMod.Modifier < 1.0f)
+                {
+                    // this grants temporary resistance
+                    modifier = Math.Min(modifier, tempMod.Modifier);
+                }
+                else if (tempMod.Modifier > 1.0f)
+                {
+                    // this grants temporary vulnerability
+                    modifier = Math.Max(modifier, tempMod.Modifier);
                 }
             }
 
@@ -643,6 +660,24 @@ namespace DND.Domain.SharedKernel
 
                 // TODO: Trigger a domain event for the creature revival
             }
+        }
+
+        // Apply temporary damage modification (used by ApplicationService)
+        public virtual void ApplyTemporaryDamageModification(TemporaryDamageModification modification)
+        {
+            // TODO: Add logic for stacking rules
+
+            _temporaryDamageModifications.Add(modification);
+
+            //TODO: Add domainEvent for tracking by the combat service
+        }
+
+        // Remove temporary damage modifications (used by the CombatService)
+        public virtual void RemoveTempoDamageModification(Guid sourceId, DamageType damageType)
+        {
+            _temporaryDamageModifications.RemoveAll(mod => mod.SourceId == sourceId && mod.TypeOfDamage == damageType);
+
+            // TODO: Add domainEvent to notify when the effect is gone
         }
     }
 }
