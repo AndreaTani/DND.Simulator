@@ -11,6 +11,7 @@ namespace DND.Domain.SharedKernel
         private readonly List<DamageType> _damageImmunities = [];
         private readonly List<DamageType> _damageResistances = [];
         private readonly List<DamageType> _damageVulnerabilities = [];
+        private readonly List<IDamageAdjustmentRule> _damageAdjustmentRules = [];
         private readonly List<Language> _languages = [];
         private readonly List<Sense> _senses = [];
         private readonly List<Skill> _expertSkills = [];
@@ -113,6 +114,10 @@ namespace DND.Domain.SharedKernel
         public bool IsImmuneTo(DamageType damageType) => _damageImmunities.Contains(damageType);
         public bool IsVulnerableTo(DamageType damageType) => _damageVulnerabilities.Contains(damageType);
 
+        // List of damage adjustment rules applied to this creature
+        protected IReadOnlyList<IDamageAdjustmentRule> DamageAdjustmentRules => _damageAdjustmentRules;
+
+
 
 
         // Domain events
@@ -138,7 +143,7 @@ namespace DND.Domain.SharedKernel
         }
 
 
-        protected Creature(string name, CreatureType creatureType, Size size, AbilityScores abilityScores, int maxHitPoints, Speed speed, int armorClass = 0, int level = 1 )
+        protected Creature(string name, CreatureType creatureType, Size size, AbilityScores abilityScores, int maxHitPoints, Speed speed, int armorClass = 0, int level = 1)
         {
             Id = Guid.NewGuid();
             Name = name;
@@ -159,8 +164,43 @@ namespace DND.Domain.SharedKernel
         public bool HasExpertiseInSkill(Skill skill) => ExpertSkills.Contains(skill);
 
 
-        // Calculate final damage, complex logic is isolated here, relegated to theimplementation in derived classes
-        protected abstract int CalculateFinalDamage(int baseDamage, DamageType damageType);
+        // Calculate final damage using the damage adjustment rules
+        public virtual int CalculateFinalDamage(int baseDamage, DamageType damageType, DamageSource damageSource, bool isSilvered)
+        {
+            int finalDamage = baseDamage;
+
+            // Immunity check, if true no damage is received
+            foreach (var rule in DamageAdjustmentRules.OfType<IImmunityRule>())
+            {
+                if (rule.IsImmune(damageType, damageSource, isSilvered))
+                {
+                    return 0;
+                }
+            }
+
+            float modifier = 1.0f;
+
+            // Manages resistances and vulnerabilities
+            foreach (var rule in DamageAdjustmentRules.OfType<IModificationRule>())
+            {
+                float ruleModifier = rule.GetModificationFactor(damageType, damageSource, isSilvered);
+
+                if (ruleModifier < 1.0f)
+                {
+                    // this grants resistance
+                    modifier = Math.Min(modifier, ruleModifier);
+                }
+                else if (ruleModifier > 1.0f)
+                {
+                    // this grants vulnerability
+                    modifier = Math.Max(modifier, ruleModifier);
+                }
+            }
+
+            finalDamage = (int)Math.Round(finalDamage * modifier);
+
+            return Math.Max(0, finalDamage);
+        }
 
 
         /// <summary>
@@ -170,10 +210,8 @@ namespace DND.Domain.SharedKernel
         /// damage is then subtracted from the creature's current hit points. If the creature's current hit points drop
         /// to 0 or below, it may become unconscious or die, depending on the total damage taken relative to its maximum
         /// hit points.</remarks>
-        /// <param name="damage">The amount of damage to apply. Must be non-negative.</param>
-        /// <param name="damageType">The type of damage being applied, which may affect how the damage is calculated.</param>
         /// <exception cref="ArgumentOutOfRangeException">Thrown if <paramref name="damage"/> is less than 0.</exception>
-        public void TakeDamage(int damage, DamageType damageType)
+        public void TakeDamage(int damage, DamageType damageType, DamageSource damageSource, bool isSilvered)
         {
             if (damage < 0)
             {
@@ -181,7 +219,7 @@ namespace DND.Domain.SharedKernel
             }
 
             int initialHp = CurrentHitPoints;
-            int finalDamage = CalculateFinalDamage(damage, damageType);
+            int finalDamage = CalculateFinalDamage(damage, damageType, damageSource, isSilvered);
             int damageTaken = finalDamage; // Store the actual damage taken after calculations
 
             // Deplete TemporaryHitPoints first
@@ -200,7 +238,7 @@ namespace DND.Domain.SharedKernel
 
             int amountChanged = CurrentHitPoints - initialHp;
 
-            if (amountChanged !=0)
+            if (amountChanged != 0)
             {
                 // Create and add a domain event to notify about the HP change
                 var damagingEvent = new CreatureHPChangedEvent(
@@ -332,7 +370,7 @@ namespace DND.Domain.SharedKernel
         }
         protected void AddCondition(Condition condition)
         {
-            if(_conditionImmunities.Contains(condition))
+            if (_conditionImmunities.Contains(condition))
             {
                 var immuneEvent = new CreatureImmuneToConditionsEvent(Id, new List<Condition> { condition });
                 AddDomainEvent(immuneEvent);
@@ -457,17 +495,23 @@ namespace DND.Domain.SharedKernel
         protected void AddDamageResistances(IEnumerable<DamageType> damageTypes)
         {
             _damageResistances.AddRange(damageTypes.Where(dt => !_damageResistances.Contains(dt)));
+            _damageAdjustmentRules.AddRange(damageTypes
+                .Where(dt => !_damageResistances.Contains(dt))
+                .Select(dt => new SimpleDamageResisistanceRule(dt))
+            );
         }
         protected void AddDamageResistance(DamageType damageType)
         {
             if (!_damageResistances.Contains(damageType))
             {
                 _damageResistances.Add(damageType);
+                _damageAdjustmentRules.Add(new SimpleDamageResisistanceRule(damageType));
             }
         }
         protected void RemoveDamageResistance(DamageType damageType)
         {
             _damageResistances.Remove(damageType);
+            _damageAdjustmentRules.RemoveAll(rule => rule.GetDamageType() == damageType && rule is SimpleDamageResisistanceRule);
         }
 
 
@@ -475,17 +519,23 @@ namespace DND.Domain.SharedKernel
         protected void AddDamageImmunities(IEnumerable<DamageType> damageTypes)
         {
             _damageImmunities.AddRange(damageTypes.Where(dt => !_damageImmunities.Contains(dt)));
+            _damageAdjustmentRules.AddRange(damageTypes
+                .Where(dt => !_damageImmunities.Contains(dt))
+                .Select(dt => new SimpleDamageImmunityRule(dt))
+            );
         }
         protected void AddDamageImmunity(DamageType damageType)
         {
             if (!_damageImmunities.Contains(damageType))
             {
                 _damageImmunities.Add(damageType);
+                _damageAdjustmentRules.Add(new SimpleDamageImmunityRule(damageType));
             }
         }
         protected void RemoveDamageImmunity(DamageType damageType)
         {
             _damageImmunities.Remove(damageType);
+            _damageAdjustmentRules.RemoveAll(rule => rule.GetDamageType() == damageType && rule is SimpleDamageImmunityRule);
         }
 
 
@@ -493,17 +543,23 @@ namespace DND.Domain.SharedKernel
         protected void AddDamageVulnerabilities(IEnumerable<DamageType> damageTypes)
         {
             _damageVulnerabilities.AddRange(damageTypes.Where(dt => !_damageVulnerabilities.Contains(dt)));
+            _damageAdjustmentRules.AddRange(damageTypes
+                .Where(dt => !_damageVulnerabilities.Contains(dt))
+                .Select(dt => new SimpleDamageVulnerabilityRule(dt))
+            );
         }
         protected void AddDamageVulnerability(DamageType damageType)
         {
             if (!_damageVulnerabilities.Contains(damageType))
             {
                 _damageVulnerabilities.Add(damageType);
+                _damageAdjustmentRules.Add(new SimpleDamageVulnerabilityRule(damageType));
             }
         }
         protected void RemoveDamageVulnerability(DamageType damageType)
         {
             _damageVulnerabilities.Remove(damageType);
+            _damageAdjustmentRules.RemoveAll(rule => rule.GetDamageType() == damageType && rule is SimpleDamageVulnerabilityRule);
         }
 
 
@@ -528,7 +584,7 @@ namespace DND.Domain.SharedKernel
                 AddCondition(Condition.Prone);
 
                 // Drop concentration if unconscious
-                IsConcentrating = false; 
+                IsConcentrating = false;
 
                 //TODO: Drop held items
 
@@ -582,7 +638,7 @@ namespace DND.Domain.SharedKernel
                 // Revive with 1 HP if dead or unconscious with 0 or negative HP
                 if (CurrentHitPoints <= 0)
                 {
-                    CurrentHitPoints = 1; 
+                    CurrentHitPoints = 1;
                 }
 
                 // TODO: Trigger a domain event for the creature revival

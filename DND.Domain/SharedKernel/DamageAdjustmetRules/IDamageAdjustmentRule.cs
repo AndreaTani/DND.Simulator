@@ -19,7 +19,13 @@
         /// <param name="damageType"></param>
         /// <param name="damageSource"></param>
         /// <param name="isSilvered"></param>
-        /// <returns>Total number of Hit points calculated</returns>
-        int Apply(int baseDamage, DamageType damageType, DamageSource damageSource, bool isSilvered);
+        /// <returns>Total number of points of damage calculated</returns>
+        public int Apply(int baseDamage, DamageType damageType, DamageSource damageSource, bool isSilvered);
+
+        /// <summary>
+        /// Gets the damage type associated with this rule.
+        /// </summary>
+        /// <returns></returns>
+        public DamageType GetDamageType();
     }
 }

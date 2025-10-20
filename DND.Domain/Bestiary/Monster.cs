@@ -48,28 +48,7 @@ namespace DND.Domain.Bestiary
             AddProficientSavingThrows(proficientSavingThrows);
         }
 
-        // Calculates the final damage after applying immunities, resistances, and vulnerabilities
-        // For monsters it's sufficent to apply the immunities, resistances, and vulnerabilities directly
-        // without considering any special abilities or traits
-        protected override int CalculateFinalDamage(int baseDamage, DamageType damageType)
-        {
-            var finalDamage = baseDamage;
 
-            if (IsImmuneTo(damageType))
-            {
-                finalDamage = 0;
-            }
-            else if (IsResistantTo(damageType))
-            {
-                finalDamage /= 2;
-            }
-            else if (IsVulnerableTo(damageType))
-            {
-                finalDamage *= 2;
-            }
-
-            return finalDamage;
-        }
 
     }
 }

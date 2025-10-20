@@ -1,7 +1,10 @@
 ﻿namespace DND.Domain.SharedKernel.Events
 {
     /// <summary>
-    /// Interfaccia marker per tutti gli eventi di dominio generati dagli aggregati.
+    /// Marker interface to identify all domain events-
     /// </summary>
-    public interface IDomainEvent { }
+    public interface IDomainEvent 
+    {
+        // No members defined. Serves only as a Marker.
+    }
 }

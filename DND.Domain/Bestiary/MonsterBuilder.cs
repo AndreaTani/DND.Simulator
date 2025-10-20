@@ -140,6 +140,10 @@ namespace DND.Domain.Bestiary
         // Build method to create the Monster instance
         public Monster Build()
         {
+            // Immediately fail the build if a damage type is found in more
+            // than one list between immunities, resistance, and vulnerability
+            ValidateDamageExclusivity();
+
             int finalMaxHp;
 
             if (_customMaxHitPoints.HasValue)
@@ -179,6 +183,33 @@ namespace DND.Domain.Bestiary
                 expertSkills: _expertSkills,
                 proficientSavingThrows: _proficientSavingThrows
             );
+        }
+
+        /// <summary>
+        /// Validate immunities, resistances and vulnerabilities to ensure that
+        /// a damage type can be only added in one of these lists.
+        /// Throws an exception if conflicting damage types are found.
+        /// </summary>
+        /// <exception cref="InvalidOperationException"></exception>
+        private void ValidateDamageExclusivity()
+        {
+            var conflictingImmunityResistances = _immunities.Intersect(_resistances);
+            var conflictingImmunityVulnerabilities = _immunities.Intersect(_vulnerabilities);
+            var conflictingResistanceVulnerabilities = _resistances.Intersect(_vulnerabilities);
+
+            var allConflicts = conflictingImmunityResistances
+                .Concat(conflictingImmunityVulnerabilities)
+                .Concat(conflictingResistanceVulnerabilities)
+                .Distinct()
+                .ToList();
+
+            if (allConflicts.Count > 0)
+            {
+                var conflictString = string.Join(", ", allConflicts);
+                throw new InvalidOperationException(
+                    $"Invalid Monster data: The following damage types are listed as conflicting (Immunity, Resistance, or Vulnerability): {conflictString}. A damage type can only be in one category."
+                );
+            }
         }
     }
 }
