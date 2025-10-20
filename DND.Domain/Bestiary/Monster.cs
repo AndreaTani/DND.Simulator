@@ -47,8 +47,5 @@ namespace DND.Domain.Bestiary
             AddExpertSkills(expertSkills);
             AddProficientSavingThrows(proficientSavingThrows);
         }
-
-
-
     }
 }
