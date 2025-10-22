@@ -21,7 +21,10 @@
 
         public float GetModificationFactor(DamageType damageType, DamageSource damageSource = DamageSource.Mundane, bool isSilvered = false)
         {
-            return 0.5f;
+            if(damageType == _resistanceType)
+                return 0.5f;
+
+            return 1.0f;
         }
     }
 }

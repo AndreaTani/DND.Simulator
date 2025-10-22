@@ -4,7 +4,7 @@
     /// Implementation of damage adjustment rule for physical damage resistance
     /// when the source of damage is non magical and the weapon is not silvered.
     /// </summary>
-    public class PhysicalDamageNonMagicalNonSilveredResistanceRule : IDamageAdjustmentRule
+    public class PhysicalDamageNonMagicalNonSilveredResistanceRule : IDamageAdjustmentRule //IModificationRule???
     {
         public DamageType TypeOfDamage { get; protected set; }
 

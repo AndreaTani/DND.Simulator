@@ -1,6 +1,6 @@
 using DND.Domain.SharedKernel;
 
-namespace DND.Tests.CreatureValueObjectTests
+namespace DND.Tests.SharedKernel
 {
     public class AbilityScoresTest
     {
