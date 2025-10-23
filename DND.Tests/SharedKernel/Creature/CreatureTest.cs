@@ -33,21 +33,23 @@ namespace DND.Tests.SharedKernel
                 level: 5
                 );
 
-            sut.SetupImmunity(DamageType.Fire);
-            sut.SetupResistance(DamageType.Acid);
-            sut.SetupVulnerability(DamageType.Cold);
-
             return sut;
         }
 
-        [Fact]
-        public void CalculateFinalDamageOnLoneFighter_WhenPlainDamage_ReturnBaseDamage()
+        [Theory]
+        [InlineData(DamageType.Slashing, 14, 14)]
+        [InlineData(DamageType.Fire, 0, 14)]
+        [InlineData(DamageType.Acid, 7, 14)]
+        [InlineData(DamageType.Cold, 28, 14)]
+        public void CalculateFinalDamageOnLoneFighter_WhenDamage_ReturnCalculatedDamage(DamageType damageType, int expectedDamage, int baseDamage)
         {
             // Arrange
             var sut = SetupTargetCreatureLoneFighter();
 
-            int baseDamage = 14;
-            var damageType = DamageType.Slashing;
+            sut.SetupImmunity(DamageType.Fire);
+            sut.SetupResistance(DamageType.Acid);
+            sut.SetupVulnerability(DamageType.Cold);
+
             var damageSource = DamageSource.Mundane;
             bool isSilvered = false;
 
@@ -55,7 +57,13 @@ namespace DND.Tests.SharedKernel
             int finalDamage = sut.CalculateFinalDamage(baseDamage, damageType, damageSource, isSilvered);
 
             // Assert
-            Assert.Equal(baseDamage, finalDamage);
+            Assert.Equal(expectedDamage, finalDamage);
+            Assert.True(sut.IsImmuneTo(DamageType.Fire));
+            Assert.True(sut.IsResistantTo(DamageType.Acid));
+            Assert.True(sut.IsVulnerableTo(DamageType.Cold));
+            Assert.False(sut.IsImmuneTo(DamageType.Acid));
+            Assert.False(sut.IsResistantTo(DamageType.Cold));
+            Assert.False(sut.IsVulnerableTo(DamageType.Fire));
         }
     }
 }
