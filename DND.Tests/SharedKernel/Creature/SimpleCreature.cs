@@ -31,5 +31,10 @@ namespace DND.Tests.SharedKernel
         {
             AddDamageVulnerability(damageType);
         }
+
+        public void SetupSpecialRule(IDamageAdjustmentRule rule)
+        {
+            AddSpecialDamageRule(rule);
+        }
     }
 }

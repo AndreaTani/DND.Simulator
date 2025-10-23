@@ -389,7 +389,7 @@ namespace DND.Domain.SharedKernel
         {
             if (_conditionImmunities.Contains(condition))
             {
-                var immuneEvent = new CreatureImmuneToConditionsEvent(Id, new List<Condition> { condition });
+                var immuneEvent = new CreatureImmuneToConditionsEvent(Id, [condition]);
                 AddDomainEvent(immuneEvent);
                 return;
             }
@@ -579,6 +579,12 @@ namespace DND.Domain.SharedKernel
             _damageAdjustmentRules.RemoveAll(rule => rule.GetDamageType() == damageType && rule is SimpleDamageVulnerabilityRule);
         }
 
+        // Add or remove a special damage rule
+        protected void AddSpecialDamageRule(IDamageAdjustmentRule rule)
+        {
+            _damageAdjustmentRules.RemoveAll(r => r.Name == rule.Name);
+            _damageAdjustmentRules.Add(rule);
+        }
 
         /// <summary>
         /// Applies the unconscious condition to the creature if it's not dead
