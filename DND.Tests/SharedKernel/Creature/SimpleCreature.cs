@@ -10,10 +10,11 @@ namespace DND.Tests.SharedKernel
             Size size, 
             AbilityScores abilityScores, 
             int maxHitPoints, 
+            int currentHitPoints,
             Speed speed, 
             int armorClass = 0,
             int level = 1
-        ) : base(name, creatureType, size, abilityScores, maxHitPoints, speed, armorClass, level)
+        ) : base(name, creatureType, size, abilityScores, maxHitPoints, currentHitPoints, speed, armorClass, level)
         {
         }
 

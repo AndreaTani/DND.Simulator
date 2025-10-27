@@ -144,7 +144,7 @@ namespace DND.Domain.SharedKernel
         }
 
 
-        protected Creature(string name, CreatureType creatureType, Size size, AbilityScores abilityScores, int maxHitPoints, Speed speed, int armorClass = 0, int level = 1)
+        protected Creature(string name, CreatureType creatureType, Size size, AbilityScores abilityScores, int maxHitPoints, int currentHitPoints, Speed speed, int armorClass = 0, int level = 1)
         {
             Id = Guid.NewGuid();
             Name = name;
@@ -152,7 +152,7 @@ namespace DND.Domain.SharedKernel
             Size = size;
             AbilityScores = abilityScores;
             MaxHitPoints = maxHitPoints;
-            CurrentHitPoints = maxHitPoints; // Start at full health
+            CurrentHitPoints = currentHitPoints;
             BaseSpeed = speed;
             CurrentSpeed = speed; // Start with base speed
             ArmorClass = armorClass;

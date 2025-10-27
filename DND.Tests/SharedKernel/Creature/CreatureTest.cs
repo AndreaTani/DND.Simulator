@@ -28,6 +28,7 @@ namespace DND.Tests.SharedKernel
                 size: Size.Medium,
                 abilityScores: new AbilityScores(fighterScores),
                 maxHitPoints: 49,
+                currentHitPoints: 49,
                 speed: new Speed(),
                 level: 5
                 );
@@ -82,6 +83,7 @@ namespace DND.Tests.SharedKernel
                 size: Size.Medium,
                 abilityScores: new AbilityScores(fighterScores),
                 maxHitPoints: 49,
+                currentHitPoints: 49,
                 speed: new Speed(),
                 level: 5
                 );
@@ -118,6 +120,7 @@ namespace DND.Tests.SharedKernel
                 size: Size.Medium,
                 abilityScores: new AbilityScores(fighterScores),
                 maxHitPoints: 49,
+                currentHitPoints: 49,
                 speed: new Speed(),
                 level: 5
                 );
@@ -192,6 +195,7 @@ namespace DND.Tests.SharedKernel
                 size: Size.Medium,
                 abilityScores: new AbilityScores(fighterScores),
                 maxHitPoints: 49,
+                currentHitPoints: 49,
                 speed: new Speed(),
                 level: 5
                 );
@@ -245,6 +249,7 @@ namespace DND.Tests.SharedKernel
                 size: Size.Medium,
                 abilityScores: new AbilityScores(fighterScores),
                 maxHitPoints: 49,
+                currentHitPoints: 49,
                 speed: new Speed(),
                 level: 5
                 );
@@ -298,6 +303,7 @@ namespace DND.Tests.SharedKernel
                 size: Size.Medium,
                 abilityScores: new AbilityScores(fighterScores),
                 maxHitPoints: 49,
+                currentHitPoints: 49,
                 speed: new Speed(),
                 level: 5
                 );
@@ -354,6 +360,7 @@ namespace DND.Tests.SharedKernel
                 size: Size.Medium,
                 abilityScores: new AbilityScores(fighterScores),
                 maxHitPoints: 49,
+                currentHitPoints: 49,
                 speed: new Speed(),
                 level: 5
                 );
@@ -400,6 +407,7 @@ namespace DND.Tests.SharedKernel
                 size: Size.Medium,
                 abilityScores: new AbilityScores(fighterScores),
                 maxHitPoints: assignedHitPoints,
+                currentHitPoints: assignedHitPoints,
                 speed: new Speed(),
                 level: 5
                 );
@@ -425,6 +433,7 @@ namespace DND.Tests.SharedKernel
         [InlineData(49, 20, 29)]
         [InlineData(39, 20, 19)]
         [InlineData(157, 38, 119)]
+        [InlineData(50, 60, -10)]
         public void TakeDamage_WhenBasicDamage_ReduceHitPoints(int assignedHitPoints, int damageTaken, int expectedHitPoints)
         {
             // Arrange
@@ -434,6 +443,7 @@ namespace DND.Tests.SharedKernel
                 size: Size.Medium,
                 abilityScores: new AbilityScores(fighterScores),
                 maxHitPoints: assignedHitPoints,
+                currentHitPoints: assignedHitPoints,
                 speed: new Speed(),
                 level: 5
                 );
@@ -448,6 +458,33 @@ namespace DND.Tests.SharedKernel
             Assert.Equal(initialHitPoints, assignedHitPoints);
             Assert.Equal(expectedHitPoints, currentHitPoints);
 
+        }
+
+        [Fact]
+        public void TakeDamage_WhenBasicDamage_DamageApplyAndEventIsTriggered()
+        {
+            // Arrange
+            var sut = new SimpleCreature(
+                name: "Lone Fighter",
+                creatureType: CreatureType.Humanoid,
+                size: Size.Medium,
+                abilityScores: new AbilityScores(fighterScores),
+                maxHitPoints: 50,
+                currentHitPoints: 50,
+                speed: new Speed(),
+                level: 5
+                );
+
+            int initialHitPoints = sut.CurrentHitPoints;
+
+            // Act
+            sut.TakeDamage(40, DamageType.Bludgeoning, DamageSource.Mundane, false);
+            var currentHitPoints = sut.CurrentHitPoints;
+            var eventType = sut.DomainEvents.OfType<CreatureHPChangedEvent>().FirstOrDefault();
+
+            // Assert
+            Assert.True(currentHitPoints < initialHitPoints);
+            Assert.NotNull(eventType);
         }
 
     }
