@@ -171,31 +171,56 @@ namespace DND.Domain.SharedKernel
             int finalDamage = baseDamage;
 
             // Immunity check, if true no damage is received
-            foreach (var rule in DamageAdjustmentRules.OfType<IImmunityRule>())
+            if (DamageAdjustmentRules.OfType<IImmunityRule>().Any(rule => rule.IsImmune(damageType, damageSource, isSilvered)))
             {
-                if (rule.IsImmune(damageType, damageSource, isSilvered))
-                {
-                    return 0;
-                }
+                return 0;
             }
 
             float modifier = 1.0f;
 
-            // Manages resistances and vulnerabilities
+            // Manages resistances and vulnerabilities:
+            // check if there are vulnerabilities and resistances for the same
+            // damage type and if both are present, they cancel each other out
+            // according to D&D 5e rules, by collecting all modifiers which are
+            // of type resistance or vulnerability, then cancellation and
+            // hierarchy rules are applied
+
+            bool hasResistance = false;
+            bool hasVulnerability = false;
+            float bestResistance = 1.0f;
+            float worstVulnerability = 1.0f;
+
             foreach (var rule in DamageAdjustmentRules.OfType<IModificationRule>())
             {
                 float ruleModifier = rule.GetModificationFactor(damageType, damageSource, isSilvered);
 
-                if (ruleModifier < 1.0f)
+                if (ruleModifier < 1.0f) // Found a Resistance
                 {
-                    // this grants resistance
-                    modifier = Math.Min(modifier, ruleModifier);
+                    hasResistance = true;
+                    bestResistance = Math.Min(bestResistance, ruleModifier);
                 }
-                else if (ruleModifier > 1.0f)
+                else if (ruleModifier > 1.0f) // Found a Vulnerability
                 {
-                    // this grants vulnerability
-                    modifier = Math.Max(modifier, ruleModifier);
+                    hasVulnerability = true;
+                    worstVulnerability = Math.Max(worstVulnerability, ruleModifier);
                 }
+            }
+
+            if (hasResistance && hasVulnerability)
+            {
+                modifier = 1.0f; // R and V cancel out! (This is the D&D rule)
+            }
+            else if (hasResistance)
+            {
+                modifier = bestResistance; // Only resistance applies
+            }
+            else if (hasVulnerability)
+            {
+                modifier = worstVulnerability; // Only vulnerability applies
+            }
+            else
+            {
+                modifier = 1.0f; // No R/V applies
             }
 
             // Manages temporary damage modifier
@@ -214,7 +239,7 @@ namespace DND.Domain.SharedKernel
                 }
             }
 
-            finalDamage = (int)Math.Round(finalDamage * modifier);
+            finalDamage = (int)(finalDamage * modifier);
 
             return Math.Max(0, finalDamage);
         }
@@ -699,8 +724,6 @@ namespace DND.Domain.SharedKernel
         // Apply temporary damage modification (used by ApplicationService)
         public virtual void ApplyTemporaryDamageModification(TemporaryDamageModification modification)
         {
-            // TODO: Add logic for stacking rules
-
             _temporaryDamageModifications.Add(modification);
 
             //TODO: Add domainEvent for tracking by the combat service

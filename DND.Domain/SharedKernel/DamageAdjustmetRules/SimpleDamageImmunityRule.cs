@@ -11,11 +11,6 @@
 
         public string Name => $"Simple Immunity {_immunityType}";
 
-        public int Apply(int baseDamage, DamageType damageType, DamageSource damageSource, bool isSilvered)
-        {
-            return damageType == _immunityType ? 0 : baseDamage;
-        }
-
         public DamageType GetDamageType()
         {
             return _immunityType;

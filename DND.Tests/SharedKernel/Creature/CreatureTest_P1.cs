@@ -2,7 +2,7 @@
 
 namespace DND.Tests.SharedKernel
 {
-    public class CreatureTest
+    public partial class CreatureTest
     {
         private static readonly Dictionary<Ability, int> fighterScores = new Dictionary<Ability, int>
         {
@@ -540,6 +540,144 @@ namespace DND.Tests.SharedKernel
             // Assert
             Assert.True(currentHitPoints > assignedHitPoints);
             Assert.NotNull(eventType);
+        }
+
+        [Theory]
+        [InlineData(10, 10)]
+        public void CalculateFinalDamage_WhenCreatureIsBothResistantAndVulnerable_DamageCancelsToNormal(int expectedDamage, int baseDamage)
+        {
+            // Arrange
+            var sut = new SimpleCreature(
+                name: "Lone Fighter",
+                creatureType: CreatureType.Humanoid,
+                size: Size.Medium,
+                abilityScores: new AbilityScores(fighterScores),
+                maxHitPoints: 50,
+                currentHitPoints: 20,
+                speed: new Speed(),
+                level: 5
+                );
+
+            sut.SetupResistance(DamageType.Fire);
+            sut.SetupVulnerability(DamageType.Fire);
+
+            // Act
+            int finalDamage = sut.CalculateFinalDamage(baseDamage, DamageType.Fire, DamageSource.Magical, false);
+
+            // Assert
+            Assert.Equal(expectedDamage, finalDamage);
+            Assert.True(sut.IsResistantTo(DamageType.Fire));
+            Assert.True(sut.IsVulnerableTo(DamageType.Fire));
+
+        }
+
+        [Theory]
+        [InlineData(10, 10)]
+        public void CalculateFinalDamage_WhenBarbarianRageResistanceConflictsWithSimpleVulnerability_TheyCancelOut(int expectedDamage, int baseDamage)
+        {
+            // Arrange
+            var sut = new SimpleCreature(
+                name: "Lone Fighter",
+                creatureType: CreatureType.Humanoid,
+                size: Size.Medium,
+                abilityScores: new AbilityScores(fighterScores),
+                maxHitPoints: 50,
+                currentHitPoints: 30,
+                speed: new Speed(),
+                level: 5
+                );
+
+            sut.SetupSpecialRule(new BarbarianRagingResistanceRule());
+            sut.SetupVulnerability(DamageType.Slashing);
+
+            // Act
+            int finalDamage = sut.CalculateFinalDamage(baseDamage, DamageType.Slashing, DamageSource.Mundane, false);
+
+            // Assert
+            Assert.Equal(expectedDamage, finalDamage);
+        }
+
+        [Theory]
+        [InlineData(5, 10, DamageType.Fire, 0.5f)]
+        public void CalculateFinalDamage_WhenTempResistanceOverridesPermanentVulnerability_ResistanceWins(int expectedDamage, int baseDamage, DamageType damageType, float tempModifier)
+        {
+            // Arrange
+            var sut = new SimpleCreature(
+                name: "Lone Fighter",
+                creatureType: CreatureType.Humanoid,
+                size: Size.Medium,
+                abilityScores: new AbilityScores(fighterScores),
+                maxHitPoints: 50,
+                currentHitPoints: 30,
+                speed: new Speed(),
+                level: 5
+                );
+
+            sut.SetupVulnerability(damageType);
+            var temporaryResistance = new TemporaryDamageModification(damageType, tempModifier, new Guid(), 47, ExpirationType.AtTheBeginning);
+            sut.ApplyTemporaryDamageModification(temporaryResistance);
+
+            // Act
+            int finalDamage = sut.CalculateFinalDamage(baseDamage, damageType, DamageSource.Magical, false);
+
+            // Assert
+            Assert.True(sut.IsVulnerableTo(damageType));
+            Assert.Equal(expectedDamage, finalDamage);
+        }
+
+        [Theory]
+        [InlineData(20, 10, DamageType.Fire, 2f)]
+        public void CalculateFinalDamage_WhenTempVulnmerabilityOverridesPermanentResistance_VulnerabilityWins(int expectedDamage, int baseDamage, DamageType damageType, float tempModifier)
+        {
+            // Arrange
+            var sut = new SimpleCreature(
+                name: "Lone Fighter",
+                creatureType: CreatureType.Humanoid,
+                size: Size.Medium,
+                abilityScores: new AbilityScores(fighterScores),
+                maxHitPoints: 50,
+                currentHitPoints: 30,
+                speed: new Speed(),
+                level: 5
+                );
+
+            sut.SetupResistance(damageType);
+            var temporaryResistance = new TemporaryDamageModification(damageType, tempModifier, new Guid(), 47, ExpirationType.AtTheBeginning);
+            sut.ApplyTemporaryDamageModification(temporaryResistance);
+
+            // Act
+            int finalDamage = sut.CalculateFinalDamage(baseDamage, damageType, DamageSource.Magical, false);
+
+            // Assert
+            Assert.True(sut.IsResistantTo(damageType));
+            Assert.Equal(expectedDamage, finalDamage);
+        }
+
+        [Theory]
+        [InlineData(50, 20, DamageType.Acid, 40)]
+        public void TakeDamage_WhenCreatureIsResistant_AppliesCalculatedDamageToHitPoints(int initialHitPoints, int baseDamage, DamageType damageType, int expectedFinalHitPoints)
+        {
+            // Arrange
+            var sut = new SimpleCreature(
+                name: "Lone Fighter",
+                creatureType: CreatureType.Humanoid,
+                size: Size.Medium,
+                abilityScores: new AbilityScores(fighterScores), // Assuming fighterScores is available
+                maxHitPoints: initialHitPoints,
+                currentHitPoints: initialHitPoints,
+                speed: new Speed(),
+                level: 5
+            );
+
+            sut.SetupResistance(DamageType.Acid);
+
+            // Act
+            sut.TakeDamage(baseDamage, damageType, DamageSource.Magical, false);
+            int currentHitPoints = sut.CurrentHitPoints;
+
+            // Assert
+            Assert.True(sut.IsResistantTo(DamageType.Acid));
+            Assert.Equal(expectedFinalHitPoints, currentHitPoints);
         }
     }
 }
