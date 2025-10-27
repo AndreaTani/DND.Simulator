@@ -389,6 +389,8 @@ namespace DND.Tests.SharedKernel
 
         [Theory]
         [InlineData(49, 15, 10, 49, 5)]
+        [InlineData(49, 15, 15, 49, 0)]
+        [InlineData(49, 15, 20, 44, 0)]
         public void TakeDamage_WhenCreatureHasTemporaryHitPoints_ReduceTemporaryHitPointsFirst(int assignedHitPoints, int addedTemporatyHitpoints, int damageTaken, int expectedHitPoints, int expectedTemporaryHitpoints)
         {
             // Arrange
@@ -418,5 +420,35 @@ namespace DND.Tests.SharedKernel
             Assert.Equal(expectedTemporaryHitpoints, currentTemporaryHitPoints);
 
         }
+
+        [Theory]
+        [InlineData(49, 20, 29)]
+        [InlineData(39, 20, 19)]
+        [InlineData(157, 38, 119)]
+        public void TakeDamage_WhenBasicDamage_ReduceHitPoints(int assignedHitPoints, int damageTaken, int expectedHitPoints)
+        {
+            // Arrange
+            var sut = new SimpleCreature(
+                name: "Lone Fighter",
+                creatureType: CreatureType.Humanoid,
+                size: Size.Medium,
+                abilityScores: new AbilityScores(fighterScores),
+                maxHitPoints: assignedHitPoints,
+                speed: new Speed(),
+                level: 5
+                );
+
+            int initialHitPoints = sut.CurrentHitPoints;
+
+            // Act
+            sut.TakeDamage(damageTaken, DamageType.Bludgeoning, DamageSource.Mundane, false);
+            int currentHitPoints = sut.CurrentHitPoints;
+
+            // Assert
+            Assert.Equal(initialHitPoints, assignedHitPoints);
+            Assert.Equal(expectedHitPoints, currentHitPoints);
+
+        }
+
     }
 }
