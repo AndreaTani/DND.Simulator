@@ -116,7 +116,7 @@ namespace DND.Domain.SharedKernel
         public bool IsVulnerableTo(DamageType damageType) => _damageVulnerabilities.Contains(damageType);
 
         // List of damage adjustment rules applied to this creature
-        protected IReadOnlyList<IDamageAdjustmentRule> DamageAdjustmentRules => _damageAdjustmentRules;
+        public IReadOnlyList<IDamageAdjustmentRule> DamageAdjustmentRules => _damageAdjustmentRules;
 
 
 
@@ -259,12 +259,12 @@ namespace DND.Domain.SharedKernel
             {
                 // Create and add a domain event to notify about the HP change
                 var damagingEvent = new CreatureHPChangedEvent(
-                    creatureId: Id,
-                    previousHp: initialHp,
-                    currentHp: CurrentHitPoints,
-                    maxHp: MaxHitPoints,
-                    amount: amountChanged,  // negative value if damage taken
-                    damageType: damageType
+                    CreatureId: Id,
+                    PreviousHp: initialHp,
+                    CurrentHp: CurrentHitPoints,
+                    MaxHp: MaxHitPoints,
+                    Amount: amountChanged,  // negative value if damage taken
+                    Type: damageType
                 );
                 AddDomainEvent(damagingEvent);
             }
@@ -335,11 +335,11 @@ namespace DND.Domain.SharedKernel
             // Create and add a domain event to notify about the HP change
             // the negative amount value is for damage
             var healingEvent = new CreatureHPChangedEvent(
-                creatureId: Id,
-                previousHp: initialHp,
-                currentHp: CurrentHitPoints,
-                maxHp: MaxHitPoints,
-                amount: amount
+                CreatureId: Id,
+                PreviousHp: initialHp,
+                CurrentHp: CurrentHitPoints,
+                MaxHp: MaxHitPoints,
+                Amount: amount
             );
             AddDomainEvent(healingEvent);
         }
@@ -508,31 +508,8 @@ namespace DND.Domain.SharedKernel
         }
 
 
-        // Add or remove  a damage resistance to the creature, avoiding duplicates when adding
-        protected void AddDamageResistances(IEnumerable<DamageType> damageTypes)
-        {
-            _damageResistances.AddRange(damageTypes.Where(dt => !_damageResistances.Contains(dt)));
-            _damageAdjustmentRules.AddRange(damageTypes
-                .Where(dt => !_damageResistances.Contains(dt))
-                .Select(dt => new SimpleDamageResisistanceRule(dt))
-            );
-        }
-        protected void AddDamageResistance(DamageType damageType)
-        {
-            if (!_damageResistances.Contains(damageType))
-            {
-                _damageResistances.Add(damageType);
-                _damageAdjustmentRules.Add(new SimpleDamageResisistanceRule(damageType));
-            }
-        }
-        protected void RemoveDamageResistance(DamageType damageType)
-        {
-            _damageResistances.Remove(damageType);
-            _damageAdjustmentRules.RemoveAll(rule => rule.GetDamageType() == damageType && rule is SimpleDamageResisistanceRule);
-        }
-
-
-        // Add or remove a damage immunity to the creature, avoiding duplicates when adding
+        // Add or remove a damage immunity to the creature, avoiding duplicates
+        // and granting mutual exlusivity when adding
         protected void AddDamageImmunities(IEnumerable<DamageType> damageTypes)
         {
             _damageImmunities.AddRange(damageTypes.Where(dt => !_damageImmunities.Contains(dt)));
@@ -543,11 +520,20 @@ namespace DND.Domain.SharedKernel
         }
         protected void AddDamageImmunity(DamageType damageType)
         {
-            if (!_damageImmunities.Contains(damageType))
+            if (_damageImmunities.Contains(damageType))
             {
-                _damageImmunities.Add(damageType);
-                _damageAdjustmentRules.Add(new SimpleDamageImmunityRule(damageType));
+                return;
             }
+
+            RemoveDamageResistance(damageType);
+            AddDomainEvent(new CreatureDamageResistanceRemovedEvent(Id, damageType, RemovalReason.OverridenByExculsivity));
+
+            RemoveDamageVulnerability(damageType);
+            AddDomainEvent(new CreatureDamageVulnerabilityRemovedEvent(Id, damageType, RemovalReason.OverridenByExculsivity));
+
+            _damageImmunities.Add(damageType);
+            _damageAdjustmentRules.Add(new SimpleDamageImmunityRule(damageType));
+            AddDomainEvent(new CreatureDamageImmunityAddedEvent(Id, damageType));
         }
         protected void RemoveDamageImmunity(DamageType damageType)
         {
@@ -556,7 +542,39 @@ namespace DND.Domain.SharedKernel
         }
 
 
-        // Add or remove a damage vulnerability to the creature, avoiding duplicates when adding
+        // Add or remove  a damage resistance to the creature, avoiding
+        // duplicates and granting mutual exlusivity when adding
+        protected void AddDamageResistances(IEnumerable<DamageType> damageTypes)
+        {
+            _damageResistances.AddRange(damageTypes.Where(dt => !_damageResistances.Contains(dt)));
+            _damageAdjustmentRules.AddRange(damageTypes
+                .Where(dt => !_damageResistances.Contains(dt))
+                .Select(dt => new SimpleDamageResisistanceRule(dt))
+            );
+        }
+        protected void AddDamageResistance(DamageType damageType)
+        {
+            if (_damageResistances.Contains(damageType))
+            {
+                return;
+            }
+
+            RemoveDamageImmunity (damageType);
+            AddDomainEvent(new CreatureDamageImmunityRemovedEvent(Id, damageType, RemovalReason.OverridenByExculsivity));
+
+            _damageResistances.Add(damageType);
+            _damageAdjustmentRules.Add(new SimpleDamageResisistanceRule(damageType));
+            AddDomainEvent(new CreatureDamageResistanceAddedEvent(Id, damageType));
+        }
+        protected void RemoveDamageResistance(DamageType damageType)
+        {
+            _damageResistances.Remove(damageType);
+            _damageAdjustmentRules.RemoveAll(rule => rule.GetDamageType() == damageType && rule is SimpleDamageResisistanceRule);
+        }
+
+
+        // Add or remove a damage vulnerability to the creature, avoiding
+        // duplicates and granting mutual exlusivity when adding
         protected void AddDamageVulnerabilities(IEnumerable<DamageType> damageTypes)
         {
             _damageVulnerabilities.AddRange(damageTypes.Where(dt => !_damageVulnerabilities.Contains(dt)));
@@ -567,11 +585,17 @@ namespace DND.Domain.SharedKernel
         }
         protected void AddDamageVulnerability(DamageType damageType)
         {
-            if (!_damageVulnerabilities.Contains(damageType))
+            if (_damageVulnerabilities.Contains(damageType))
             {
-                _damageVulnerabilities.Add(damageType);
-                _damageAdjustmentRules.Add(new SimpleDamageVulnerabilityRule(damageType));
+                return;
             }
+
+            RemoveDamageImmunity(damageType);
+            AddDomainEvent(new CreatureDamageImmunityRemovedEvent(Id,damageType, RemovalReason.OverridenByExculsivity));
+
+            _damageVulnerabilities.Add(damageType);
+            _damageAdjustmentRules.Add(new SimpleDamageVulnerabilityRule(damageType));
+            AddDomainEvent(new CreatureDamageVulnerabilityAddedEvent(Id, damageType));
         }
         protected void RemoveDamageVulnerability(DamageType damageType)
         {
@@ -582,9 +606,13 @@ namespace DND.Domain.SharedKernel
         // Add or remove a special damage rule
         protected void AddSpecialDamageRule(IDamageAdjustmentRule rule)
         {
-            _damageAdjustmentRules.RemoveAll(r => r.Name == rule.Name);
+            if(_damageAdjustmentRules.Any(r => r.Name == rule.Name))
+            {
+                return;
+            }
+
             _damageAdjustmentRules.Add(rule);
-        }
+        } 
 
         /// <summary>
         /// Applies the unconscious condition to the creature if it's not dead

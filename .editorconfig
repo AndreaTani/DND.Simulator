@@ -14,3 +14,8 @@ dotnet_diagnostic.IDE0130.severity = none
 dotnet_diagnostic.IDE0290.severity = none
 dotnet_diagnostic.IDE0090.severity = none
 
+# Forces all new files to use the block-scoped format
+dotnet_style_namespace_declaration = block_scoped:suggestion
+
+# Prevents the editor from correcting existing files to file-scoped
+csharp_style_namespace_declaration = block_scoped:suggestion

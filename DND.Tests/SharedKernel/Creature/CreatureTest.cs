@@ -94,5 +94,329 @@ namespace DND.Tests.SharedKernel
             // Assert
             Assert.Equal(expectedDamage, finalDamage);
         }
+
+        [Theory]
+        [InlineData(DamageType.Acid, "Simple Resistance Acid", "Simple Vulnerability Acid", "Simple Immunity Acid")]
+        [InlineData(DamageType.Bludgeoning, "Simple Resistance Bludgeoning", "Simple Vulnerability Bludgeoning", "Simple Immunity Bludgeoning")]
+        [InlineData(DamageType.Cold, "Simple Resistance Cold", "Simple Vulnerability Cold", "Simple Immunity Cold")]
+        [InlineData(DamageType.Fire, "Simple Resistance Fire", "Simple Vulnerability Fire", "Simple Immunity Fire")]
+        [InlineData(DamageType.Force, "Simple Resistance Force", "Simple Vulnerability Force", "Simple Immunity Force")]
+        [InlineData(DamageType.Lightning, "Simple Resistance Lightning", "Simple Vulnerability Lightning", "Simple Immunity Lightning")]
+        [InlineData(DamageType.Necrotic, "Simple Resistance Necrotic", "Simple Vulnerability Necrotic", "Simple Immunity Necrotic")]
+        [InlineData(DamageType.Piercing, "Simple Resistance Piercing", "Simple Vulnerability Piercing", "Simple Immunity Piercing")]
+        [InlineData(DamageType.Poison, "Simple Resistance Poison", "Simple Vulnerability Poison", "Simple Immunity Poison")]
+        [InlineData(DamageType.Psychic, "Simple Resistance Psychic", "Simple Vulnerability Psychic", "Simple Immunity Psychic")]
+        [InlineData(DamageType.Radiant, "Simple Resistance Radiant", "Simple Vulnerability Radiant", "Simple Immunity Radiant")]
+        [InlineData(DamageType.Slashing, "Simple Resistance Slashing", "Simple Vulnerability Slashing", "Simple Immunity Slashing")]
+        [InlineData(DamageType.Thunder, "Simple Resistance Thunder", "Simple Vulnerability Thunder", "Simple Immunity Thunder")]
+        public void AddDamageImmunity_WhenAddingImmunity_RemovesResistanceAndVulnerabilityOfTheSameDamageType(DamageType type, string resistanceName, string vulnerabilityName, string immunityName)
+        {
+            // Arrange
+            var sut = new SimpleCreature(
+                name: "Lone Fighter",
+                creatureType: CreatureType.Humanoid,
+                size: Size.Medium,
+                abilityScores: new AbilityScores(fighterScores),
+                maxHitPoints: 49,
+                speed: new Speed(),
+                level: 5
+                );
+
+            sut.SetupResistance(type);
+            bool InitialIsResistant = sut.IsResistantTo(type);
+            List<DamageType> InitialResistances = [.. sut.DamageResistances];
+            List<IDamageAdjustmentRule> InitialResistanceAdjustmetRules = [.. sut.DamageAdjustmentRules.OfType<SimpleDamageResisistanceRule>().Where(rule => rule.GetDamageType().Equals(type))];
+
+            sut.SetupVulnerability(type);
+            bool InitialIsVulnerable = sut.IsVulnerableTo(type);
+            List<DamageType> InitialVulnerabilities = [.. sut.DamageVulnerabilities];
+
+            List<IDamageAdjustmentRule> InitialVulnerabilityAdjustmetRules = [.. sut.DamageAdjustmentRules.OfType<SimpleDamageVulnerabilityRule>().Where(rule => rule.GetDamageType().Equals(type))];
+
+
+            // Act
+            sut.SetupImmunity(type);
+            bool CurrentIsResistant = sut.IsResistantTo(type);
+            bool CurrentIsVulnerable = sut.IsVulnerableTo(type);
+            bool IsImmune = sut.IsImmuneTo(type);
+            var Immunities = sut.DamageImmunities;
+            var ImmunityRules = sut.DamageAdjustmentRules.OfType<IImmunityRule>().Where(rule => rule.GetDamageType() == type);
+            List<DamageType> CurrentResistances = [.. sut.DamageResistances];
+            List<DamageType> CurrentVulnerabilities = [.. sut.DamageVulnerabilities];
+            List<IDamageAdjustmentRule> CurrentResistanceAdjustmetRules = [.. sut.DamageAdjustmentRules.OfType<SimpleDamageResisistanceRule>().Where(rule => rule.GetDamageType().Equals(type))];
+            List<IDamageAdjustmentRule> CurrentVulnerabilityAdjustmetRules = [.. sut.DamageAdjustmentRules.OfType<SimpleDamageVulnerabilityRule>().Where(rule => rule.GetDamageType().Equals(type))];
+
+            // Assert
+            Assert.Empty(CurrentResistances);
+            Assert.Empty(CurrentVulnerabilities);
+            Assert.NotEqual(InitialResistances, CurrentResistances);
+            Assert.NotEqual(InitialVulnerabilities, CurrentVulnerabilities);
+            Assert.Contains(Immunities, item => item.Equals(type));
+            Assert.DoesNotContain(CurrentResistances, item => item.Equals(type));
+            Assert.DoesNotContain(CurrentVulnerabilities, item => item.Equals(type));
+            Assert.NotEqual(InitialResistanceAdjustmetRules, CurrentResistanceAdjustmetRules);
+            Assert.NotEqual(InitialVulnerabilityAdjustmetRules, CurrentVulnerabilityAdjustmetRules);
+            Assert.Contains(ImmunityRules, item => item.Name == immunityName);
+            Assert.Single(ImmunityRules);
+            Assert.Contains(InitialResistanceAdjustmetRules, item => item.Name == resistanceName);
+            Assert.Contains(InitialVulnerabilityAdjustmetRules, item => item.Name == vulnerabilityName);
+            Assert.DoesNotContain(CurrentResistanceAdjustmetRules, item => item.Name == resistanceName);
+            Assert.DoesNotContain(CurrentVulnerabilityAdjustmetRules, item => item.Name == vulnerabilityName);
+            Assert.True(InitialIsResistant);
+            Assert.True(InitialIsVulnerable);
+            Assert.False(CurrentIsResistant);
+            Assert.False(CurrentIsVulnerable);
+            Assert.True(IsImmune);
+        }
+
+        [Theory]
+        [InlineData(DamageType.Acid)]
+        [InlineData(DamageType.Bludgeoning)]
+        [InlineData(DamageType.Cold)]
+        [InlineData(DamageType.Fire)]
+        [InlineData(DamageType.Force)]
+        [InlineData(DamageType.Lightning)]
+        [InlineData(DamageType.Necrotic)]
+        [InlineData(DamageType.Piercing)]
+        [InlineData(DamageType.Poison)]
+        [InlineData(DamageType.Psychic)]
+        [InlineData(DamageType.Radiant)]
+        [InlineData(DamageType.Slashing)]
+        [InlineData(DamageType.Thunder)]
+        public void AddDamageResistance_WhenAddingResistance_RemoveImmunityOfTHeSamaDamageType(DamageType damageType)
+        {
+            // Arrange
+            var sut = new SimpleCreature(
+                name: "Lone Fighter",
+                creatureType: CreatureType.Humanoid,
+                size: Size.Medium,
+                abilityScores: new AbilityScores(fighterScores),
+                maxHitPoints: 49,
+                speed: new Speed(),
+                level: 5
+                );
+
+            sut.SetupImmunity(damageType);
+            bool InitialIsImmune = sut.IsImmuneTo(damageType);
+            List<DamageType> InitialImmunities = [.. sut.DamageImmunities];
+            List<IDamageAdjustmentRule> InitialImmunityAdjustmetRules = [.. sut.DamageAdjustmentRules.OfType<IImmunityRule>().Where(rule => rule.GetDamageType().Equals(damageType))];
+
+            // Act
+            sut.SetupResistance(damageType);
+            bool CurrentIsImmune = sut.IsImmuneTo(damageType);
+            var currentImmunities = sut.DamageImmunities;
+            List<DamageType> CurrentImmunities = [.. sut.DamageImmunities];
+            List<IDamageAdjustmentRule> CurrentImmunityAdjustmetRules = [.. sut.DamageAdjustmentRules.OfType<IImmunityRule>().Where(rule => rule.GetDamageType().Equals(damageType))];
+            bool IsResistant = sut.IsResistantTo(damageType);
+            List<DamageType> resistances = [.. sut.DamageResistances];
+            List<IDamageAdjustmentRule> ResistanceAdjustmetRules = [.. sut.DamageAdjustmentRules.OfType<SimpleDamageResisistanceRule>().Where(rule => rule.GetDamageType().Equals(damageType))];
+
+            // Assert
+            Assert.Empty(CurrentImmunities);
+            Assert.NotEqual(InitialImmunities, CurrentImmunities);
+            Assert.DoesNotContain(CurrentImmunities, item => item.Equals(damageType));
+            Assert.DoesNotContain(CurrentImmunityAdjustmetRules, item => item.GetDamageType().Equals(damageType));
+            Assert.False(CurrentIsImmune);
+            Assert.True(IsResistant);
+            Assert.Contains(resistances, item => item.Equals(damageType));
+            Assert.Contains(ResistanceAdjustmetRules, item => item.GetDamageType().Equals(damageType));
+        }
+
+        [Theory]
+        [InlineData(DamageType.Acid)]
+        [InlineData(DamageType.Bludgeoning)]
+        [InlineData(DamageType.Cold)]
+        [InlineData(DamageType.Fire)]
+        [InlineData(DamageType.Force)]
+        [InlineData(DamageType.Lightning)]
+        [InlineData(DamageType.Necrotic)]
+        [InlineData(DamageType.Piercing)]
+        [InlineData(DamageType.Poison)]
+        [InlineData(DamageType.Psychic)]
+        [InlineData(DamageType.Radiant)]
+        [InlineData(DamageType.Slashing)]
+        [InlineData(DamageType.Thunder)]
+        public void AddDamageVulnerability_WhenAddingVulnerability_RemoveImmunityOfTheSamaDamageType(DamageType damageType)
+        {
+            // Arrange
+            var sut = new SimpleCreature(
+                name: "Lone Fighter",
+                creatureType: CreatureType.Humanoid,
+                size: Size.Medium,
+                abilityScores: new AbilityScores(fighterScores),
+                maxHitPoints: 49,
+                speed: new Speed(),
+                level: 5
+                );
+
+            sut.SetupImmunity(damageType);
+            bool InitialIsImmune = sut.IsImmuneTo(damageType);
+            List<DamageType> InitialImmunities = [.. sut.DamageImmunities];
+            List<IDamageAdjustmentRule> InitialImmunityAdjustmetRules = [.. sut.DamageAdjustmentRules.OfType<IImmunityRule>().Where(rule => rule.GetDamageType().Equals(damageType))];
+
+            // Act
+            sut.SetupVulnerability(damageType);
+            bool CurrentIsImmune = sut.IsImmuneTo(damageType);
+            var currentImmunities = sut.DamageImmunities;
+            List<DamageType> CurrentImmunities = [.. sut.DamageImmunities];
+            List<IDamageAdjustmentRule> CurrentImmunityAdjustmetRules = [.. sut.DamageAdjustmentRules.OfType<IImmunityRule>().Where(rule => rule.GetDamageType().Equals(damageType))];
+            bool IsVulnerabile = sut.IsVulnerableTo(damageType);
+            List<DamageType> vulnerabilities = [.. sut.DamageVulnerabilities];
+            List<IDamageAdjustmentRule> VulnerabilityAdjustmetRules = [.. sut.DamageAdjustmentRules.OfType<SimpleDamageVulnerabilityRule>().Where(rule => rule.GetDamageType().Equals(damageType))];
+
+            // Assert
+            Assert.Empty(CurrentImmunities);
+            Assert.NotEqual(InitialImmunities, CurrentImmunities);
+            Assert.DoesNotContain(CurrentImmunities, item => item.Equals(damageType));
+            Assert.DoesNotContain(CurrentImmunityAdjustmetRules, item => item.GetDamageType().Equals(damageType));
+            Assert.False(CurrentIsImmune);
+            Assert.True(IsVulnerabile);
+            Assert.Contains(vulnerabilities, item => item.Equals(damageType));
+            Assert.Contains(VulnerabilityAdjustmetRules, item => item.GetDamageType().Equals(damageType));
+        }
+
+        [Theory]
+        [InlineData(DamageType.Acid)]
+        [InlineData(DamageType.Bludgeoning)]
+        [InlineData(DamageType.Cold)]
+        [InlineData(DamageType.Fire)]
+        [InlineData(DamageType.Force)]
+        [InlineData(DamageType.Lightning)]
+        [InlineData(DamageType.Necrotic)]
+        [InlineData(DamageType.Piercing)]
+        [InlineData(DamageType.Poison)]
+        [InlineData(DamageType.Psychic)]
+        [InlineData(DamageType.Radiant)]
+        [InlineData(DamageType.Slashing)]
+        [InlineData(DamageType.Thunder)]
+        public void AddDamageResistance_WhenVulnerableAddingResistance_DoesntRemoveVulnerabilityOfTheSamaDamageType(DamageType damageType)
+        {
+            // Arrange
+            var sut = new SimpleCreature(
+                name: "Lone Fighter",
+                creatureType: CreatureType.Humanoid,
+                size: Size.Medium,
+                abilityScores: new AbilityScores(fighterScores),
+                maxHitPoints: 49,
+                speed: new Speed(),
+                level: 5
+                );
+
+            sut.SetupVulnerability(damageType);
+
+            bool InitialIsVulnerable = sut.IsVulnerableTo(damageType);
+            List<DamageType> InitialVulnerabilities = [.. sut.DamageVulnerabilities];
+            List<IDamageAdjustmentRule> InitialVulneraqbilityAdjustmetRules = [.. sut.DamageAdjustmentRules.OfType<SimpleDamageVulnerabilityRule>().Where(rule => rule.GetDamageType().Equals(damageType))];
+
+            // Act
+            sut.SetupResistance(damageType);
+
+            bool CurrentIsVulnerable = sut.IsVulnerableTo(damageType);
+            List<DamageType> CurrentVulnerabilities = [.. sut.DamageVulnerabilities];
+            List<IDamageAdjustmentRule> CurrentVulneraqbilityAdjustmetRules = [.. sut.DamageAdjustmentRules.OfType<SimpleDamageVulnerabilityRule>().Where(rule => rule.GetDamageType().Equals(damageType))];
+
+            bool IsResistant = sut.IsResistantTo(damageType);
+            List<DamageType> resistances = [.. sut.DamageResistances];
+            List<IDamageAdjustmentRule> ResistanceAdjustmetRules = [.. sut.DamageAdjustmentRules.OfType<SimpleDamageResisistanceRule>().Where(rule => rule.GetDamageType().Equals(damageType))];
+
+            // Assert
+            Assert.True(InitialIsVulnerable);
+            Assert.True(CurrentIsVulnerable);
+            Assert.Contains(InitialVulnerabilities, item => item.Equals(damageType));   
+            Assert.Contains(CurrentVulnerabilities, item => item.Equals(damageType));
+            Assert.Contains(InitialVulneraqbilityAdjustmetRules, item => item.GetDamageType().Equals(damageType));
+            Assert.Contains(CurrentVulneraqbilityAdjustmetRules, item => item.GetDamageType().Equals(damageType));
+            Assert.True(IsResistant);
+            Assert.Contains(resistances, item => item.Equals(damageType));
+            Assert.Contains(ResistanceAdjustmetRules, item => item.GetDamageType().Equals(damageType));
+        }
+
+        [Theory]
+        [InlineData(DamageType.Acid)]
+        [InlineData(DamageType.Bludgeoning)]
+        [InlineData(DamageType.Cold)]
+        [InlineData(DamageType.Fire)]
+        [InlineData(DamageType.Force)]
+        [InlineData(DamageType.Lightning)]
+        [InlineData(DamageType.Necrotic)]
+        [InlineData(DamageType.Piercing)]
+        [InlineData(DamageType.Poison)]
+        [InlineData(DamageType.Psychic)]
+        [InlineData(DamageType.Radiant)]
+        [InlineData(DamageType.Slashing)]
+        [InlineData(DamageType.Thunder)]
+        public void AddDamageVulnerability_WhenResistantAddingVulnerability_DoesntRemoveReisstanceOfTheSamaDamageType(DamageType damageType)
+        {
+            // Arrange
+            var sut = new SimpleCreature(
+                name: "Lone Fighter",
+                creatureType: CreatureType.Humanoid,
+                size: Size.Medium,
+                abilityScores: new AbilityScores(fighterScores),
+                maxHitPoints: 49,
+                speed: new Speed(),
+                level: 5
+                );
+            
+            sut.SetupResistance(damageType);
+
+            bool InitialIsResistant = sut.IsResistantTo(damageType);
+            List<DamageType> InitialResistances = [.. sut.DamageResistances];
+            List<IDamageAdjustmentRule> InitialResistanceAdjustmetRules = [.. sut.DamageAdjustmentRules.OfType<SimpleDamageResisistanceRule>().Where(rule => rule.GetDamageType().Equals(damageType))];
+
+            // Act
+            sut.SetupVulnerability(damageType);
+
+            bool CurrentIsResistant = sut.IsResistantTo(damageType);
+            List<DamageType> CurrentResistances = [.. sut.DamageResistances];
+            List<IDamageAdjustmentRule> CurrentResistanceAdjustmetRules = [.. sut.DamageAdjustmentRules.OfType<SimpleDamageResisistanceRule>().Where(rule => rule.GetDamageType().Equals(damageType))];
+
+            bool IsVulnerabile = sut.IsVulnerableTo(damageType);
+            List<DamageType> vulnerabilities = [.. sut.DamageVulnerabilities];
+            List<IDamageAdjustmentRule> VulnerabilityAdjustmetRules = [.. sut.DamageAdjustmentRules.OfType<SimpleDamageVulnerabilityRule>().Where(rule => rule.GetDamageType().Equals(damageType))];
+
+            // Assert
+            Assert.True(InitialIsResistant);
+            Assert.True(CurrentIsResistant);
+            Assert.Contains(InitialResistances, item => item.Equals(damageType));
+            Assert.Contains(CurrentResistances, item => item.Equals(damageType));
+            Assert.Contains(InitialResistanceAdjustmetRules, item => item.GetDamageType().Equals(damageType));
+            Assert.Contains(CurrentResistanceAdjustmetRules, item => item.GetDamageType().Equals(damageType));
+            Assert.True(IsVulnerabile);
+            Assert.Contains(vulnerabilities, item => item.Equals(damageType));
+            Assert.Contains(VulnerabilityAdjustmetRules, item => item.GetDamageType().Equals(damageType));
+        }
+
+        [Theory]
+        [InlineData(49, 15, 10, 49, 5)]
+        public void TakeDamage_WhenCreatureHasTemporaryHitPoints_ReduceTemporaryHitPointsFirst(int assignedHitPoints, int addedTemporatyHitpoints, int damageTaken, int expectedHitPoints, int expectedTemporaryHitpoints)
+        {
+            // Arrange
+            var sut = new SimpleCreature(
+                name: "Lone Fighter",
+                creatureType: CreatureType.Humanoid,
+                size: Size.Medium,
+                abilityScores: new AbilityScores(fighterScores),
+                maxHitPoints: assignedHitPoints,
+                speed: new Speed(),
+                level: 5
+                );
+
+            sut.AddTemporaryHitPoints(addedTemporatyHitpoints);
+
+            int initialHitPoints = sut.CurrentHitPoints;
+            int initialTemporaryHitPoints = sut.TemporaryHitPoints;
+
+            // Act
+            sut.TakeDamage(damageTaken, DamageType.Bludgeoning, DamageSource.Mundane, false);
+
+            int currentHitPoints = sut.CurrentHitPoints;
+            int currentTemporaryHitPoints = sut.TemporaryHitPoints;
+
+            // Assert
+            Assert.Equal(expectedHitPoints, currentHitPoints);
+            Assert.Equal(expectedTemporaryHitpoints, currentTemporaryHitPoints);
+
+        }
     }
 }
