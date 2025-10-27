@@ -487,5 +487,34 @@ namespace DND.Tests.SharedKernel
             Assert.NotNull(eventType);
         }
 
+        [Theory]
+        [InlineData(50, 20, 20)]
+        [InlineData(50, 20, 30)]
+        [InlineData(50, 20, 40)]
+        public void Heal_WhenBasicHeal_IncreaseHitPointsUntilMaxHitPoints(int maxHitPoints, int assignedHitPoints, int healPOints)
+        {
+            // Arrange
+            var sut = new SimpleCreature(
+                name: "Lone Fighter",
+                creatureType: CreatureType.Humanoid,
+                size: Size.Medium,
+                abilityScores: new AbilityScores(fighterScores),
+                maxHitPoints: maxHitPoints,
+                currentHitPoints: assignedHitPoints,
+                speed: new Speed(),
+                level: 5
+                );
+
+            // Act
+            sut.Heal(healPOints);
+            int currentHitPoints = sut.CurrentHitPoints;
+
+            // Assert
+            Assert.True(currentHitPoints > assignedHitPoints);
+            Assert.True(currentHitPoints <= maxHitPoints);
+
+        }
+
+
     }
 }
