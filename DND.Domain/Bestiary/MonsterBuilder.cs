@@ -169,6 +169,7 @@ namespace DND.Domain.Bestiary
                 size: _size,
                 abilityScores: _abilityScores,
                 maxHitPoints: finalMaxHp,
+                currentHitPoints: finalMaxHp,
                 hitDiceExpression: _hitDiceExpression,
                 armorClass: _armorClass,
                 speed: _speed,

@@ -9,6 +9,8 @@
 
         public SimpleDamageResisistanceRule(DamageType resistanceType) => _resistanceType = resistanceType;
 
+        public string Name => $"Simple Resistance {_resistanceType}";
+
         public int Apply(int baseDamage, DamageType damageType, DamageSource damageSource, bool isSilvered)
         {
             return damageType == _resistanceType ? baseDamage / 2 : baseDamage;
@@ -21,7 +23,10 @@
 
         public float GetModificationFactor(DamageType damageType, DamageSource damageSource = DamageSource.Mundane, bool isSilvered = false)
         {
-            return 0.5f;
+            if(damageType == _resistanceType)
+                return 0.5f;
+
+            return 1.0f;
         }
     }
 }

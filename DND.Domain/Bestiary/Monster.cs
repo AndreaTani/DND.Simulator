@@ -18,6 +18,7 @@ namespace DND.Domain.Bestiary
             Size size,
             AbilityScores abilityScores,
             int maxHitPoints,
+            int currentHitPoints,
             string? hitDiceExpression,
             int armorClass,
             Speed speed,
@@ -31,7 +32,7 @@ namespace DND.Domain.Bestiary
             IEnumerable<Skill> proficientSkills,
             IEnumerable<Skill> expertSkills,
             IEnumerable<Ability> proficientSavingThrows
-        ) : base(name, creatureType, size, abilityScores, maxHitPoints, speed, armorClass)
+        ) : base(name, creatureType, size, abilityScores, maxHitPoints, currentHitPoints, speed, armorClass)
         {
             ProficiencyBonus = proficiencyBonus;
             HitDiceExpression = hitDiceExpression;

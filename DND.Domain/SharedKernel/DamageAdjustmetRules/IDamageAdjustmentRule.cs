@@ -27,5 +27,10 @@
         /// </summary>
         /// <returns></returns>
         public DamageType GetDamageType();
+
+        /// <summary>
+        /// Identifies a rule by a mnemonic
+        /// </summary>
+        public string Name { get; }
     }
 }
