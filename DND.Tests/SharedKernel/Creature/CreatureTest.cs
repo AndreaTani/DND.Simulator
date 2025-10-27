@@ -515,6 +515,31 @@ namespace DND.Tests.SharedKernel
 
         }
 
+        [Fact]
+        public void Heal_WhenBasicHeal_HealAppliesAndEventTriggers()
+        {
+            // Arrange
+            var sut = new SimpleCreature(
+                name: "Lone Fighter",
+                creatureType: CreatureType.Humanoid,
+                size: Size.Medium,
+                abilityScores: new AbilityScores(fighterScores),
+                maxHitPoints: 50,
+                currentHitPoints: 20,
+                speed: new Speed(),
+                level: 5
+                );
 
+            int assignedHitPoints = sut.CurrentHitPoints;
+
+            // Act
+            sut.Heal(14);
+            int currentHitPoints = sut.CurrentHitPoints;
+            var eventType = sut.DomainEvents.OfType<CreatureHPChangedEvent>().FirstOrDefault();
+
+            // Assert
+            Assert.True(currentHitPoints > assignedHitPoints);
+            Assert.NotNull(eventType);
+        }
     }
 }
