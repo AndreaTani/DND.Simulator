@@ -4,6 +4,7 @@ namespace DND.Tests.SharedKernel
 {
     public partial class CreatureTest
     {
+        // Test data for a fighter's ability scores
         private static readonly Dictionary<Ability, int> fighterScores = new Dictionary<Ability, int>
         {
             { Ability.Strength, 18 },
@@ -13,6 +14,27 @@ namespace DND.Tests.SharedKernel
             { Ability.Wisdom, 8 },
             { Ability.Charisma, 8 }
         };
+
+        // Test data for all conditions
+        public static TheoryData<Condition> AllConditions => [.. Enum.GetValues(typeof(Condition)).Cast<Condition>().ToArray()];
+
+        // Test data for all damage types
+        public static TheoryData<DamageType> AllDamageTypes => [.. Enum.GetValues(typeof(DamageType)).Cast<DamageType>().ToArray()];
+
+        // Test data for all rules with damage types and rule names
+        public static TheoryData<DamageType, string, string, string> DamageTypeRuleNames
+        {
+            get
+            {
+                var data = new TheoryData<DamageType, string, string, string>();
+                foreach (var dt in Enum.GetValues(typeof(DamageType)).Cast<DamageType>())
+                {
+                    data.Add(dt, $"Simple Resistance {dt}", $"Simple Vulnerability {dt}", $"Simple Immunity {dt}");
+                }
+                return data;
+            }
+        }
+
 
         [Theory]
         [InlineData(DamageType.Slashing, 14, 14)]
@@ -98,19 +120,7 @@ namespace DND.Tests.SharedKernel
         }
 
         [Theory]
-        [InlineData(DamageType.Acid, "Simple Resistance Acid", "Simple Vulnerability Acid", "Simple Immunity Acid")]
-        [InlineData(DamageType.Bludgeoning, "Simple Resistance Bludgeoning", "Simple Vulnerability Bludgeoning", "Simple Immunity Bludgeoning")]
-        [InlineData(DamageType.Cold, "Simple Resistance Cold", "Simple Vulnerability Cold", "Simple Immunity Cold")]
-        [InlineData(DamageType.Fire, "Simple Resistance Fire", "Simple Vulnerability Fire", "Simple Immunity Fire")]
-        [InlineData(DamageType.Force, "Simple Resistance Force", "Simple Vulnerability Force", "Simple Immunity Force")]
-        [InlineData(DamageType.Lightning, "Simple Resistance Lightning", "Simple Vulnerability Lightning", "Simple Immunity Lightning")]
-        [InlineData(DamageType.Necrotic, "Simple Resistance Necrotic", "Simple Vulnerability Necrotic", "Simple Immunity Necrotic")]
-        [InlineData(DamageType.Piercing, "Simple Resistance Piercing", "Simple Vulnerability Piercing", "Simple Immunity Piercing")]
-        [InlineData(DamageType.Poison, "Simple Resistance Poison", "Simple Vulnerability Poison", "Simple Immunity Poison")]
-        [InlineData(DamageType.Psychic, "Simple Resistance Psychic", "Simple Vulnerability Psychic", "Simple Immunity Psychic")]
-        [InlineData(DamageType.Radiant, "Simple Resistance Radiant", "Simple Vulnerability Radiant", "Simple Immunity Radiant")]
-        [InlineData(DamageType.Slashing, "Simple Resistance Slashing", "Simple Vulnerability Slashing", "Simple Immunity Slashing")]
-        [InlineData(DamageType.Thunder, "Simple Resistance Thunder", "Simple Vulnerability Thunder", "Simple Immunity Thunder")]
+        [MemberData(nameof(DamageTypeRuleNames))]
         public void AddDamageImmunity_WhenAddingImmunity_RemovesResistanceAndVulnerabilityOfTheSameDamageType(DamageType type, string resistanceName, string vulnerabilityName, string immunityName)
         {
             // Arrange
@@ -173,19 +183,7 @@ namespace DND.Tests.SharedKernel
         }
 
         [Theory]
-        [InlineData(DamageType.Acid)]
-        [InlineData(DamageType.Bludgeoning)]
-        [InlineData(DamageType.Cold)]
-        [InlineData(DamageType.Fire)]
-        [InlineData(DamageType.Force)]
-        [InlineData(DamageType.Lightning)]
-        [InlineData(DamageType.Necrotic)]
-        [InlineData(DamageType.Piercing)]
-        [InlineData(DamageType.Poison)]
-        [InlineData(DamageType.Psychic)]
-        [InlineData(DamageType.Radiant)]
-        [InlineData(DamageType.Slashing)]
-        [InlineData(DamageType.Thunder)]
+        [MemberData(nameof(AllDamageTypes))]
         public void AddDamageResistance_WhenAddingResistance_RemoveImmunityOfTHeSamaDamageType(DamageType damageType)
         {
             // Arrange
@@ -227,19 +225,7 @@ namespace DND.Tests.SharedKernel
         }
 
         [Theory]
-        [InlineData(DamageType.Acid)]
-        [InlineData(DamageType.Bludgeoning)]
-        [InlineData(DamageType.Cold)]
-        [InlineData(DamageType.Fire)]
-        [InlineData(DamageType.Force)]
-        [InlineData(DamageType.Lightning)]
-        [InlineData(DamageType.Necrotic)]
-        [InlineData(DamageType.Piercing)]
-        [InlineData(DamageType.Poison)]
-        [InlineData(DamageType.Psychic)]
-        [InlineData(DamageType.Radiant)]
-        [InlineData(DamageType.Slashing)]
-        [InlineData(DamageType.Thunder)]
+        [MemberData(nameof(AllDamageTypes))]
         public void AddDamageVulnerability_WhenAddingVulnerability_RemoveImmunityOfTheSamaDamageType(DamageType damageType)
         {
             // Arrange
@@ -281,19 +267,7 @@ namespace DND.Tests.SharedKernel
         }
 
         [Theory]
-        [InlineData(DamageType.Acid)]
-        [InlineData(DamageType.Bludgeoning)]
-        [InlineData(DamageType.Cold)]
-        [InlineData(DamageType.Fire)]
-        [InlineData(DamageType.Force)]
-        [InlineData(DamageType.Lightning)]
-        [InlineData(DamageType.Necrotic)]
-        [InlineData(DamageType.Piercing)]
-        [InlineData(DamageType.Poison)]
-        [InlineData(DamageType.Psychic)]
-        [InlineData(DamageType.Radiant)]
-        [InlineData(DamageType.Slashing)]
-        [InlineData(DamageType.Thunder)]
+        [MemberData(nameof(AllDamageTypes))]
         public void AddDamageResistance_WhenVulnerableAddingResistance_DoesntRemoveVulnerabilityOfTheSamaDamageType(DamageType damageType)
         {
             // Arrange
@@ -338,19 +312,7 @@ namespace DND.Tests.SharedKernel
         }
 
         [Theory]
-        [InlineData(DamageType.Acid)]
-        [InlineData(DamageType.Bludgeoning)]
-        [InlineData(DamageType.Cold)]
-        [InlineData(DamageType.Fire)]
-        [InlineData(DamageType.Force)]
-        [InlineData(DamageType.Lightning)]
-        [InlineData(DamageType.Necrotic)]
-        [InlineData(DamageType.Piercing)]
-        [InlineData(DamageType.Poison)]
-        [InlineData(DamageType.Psychic)]
-        [InlineData(DamageType.Radiant)]
-        [InlineData(DamageType.Slashing)]
-        [InlineData(DamageType.Thunder)]
+        [MemberData(nameof(AllDamageTypes))]
         public void AddDamageVulnerability_WhenResistantAddingVulnerability_DoesntRemoveReisstanceOfTheSamaDamageType(DamageType damageType)
         {
             // Arrange
