@@ -15,9 +15,6 @@ namespace DND.Tests.SharedKernel
             { Ability.Charisma, 8 }
         };
 
-        // Test data for all conditions
-        public static TheoryData<Condition> AllConditions => [.. Enum.GetValues(typeof(Condition)).Cast<Condition>().ToArray()];
-
         // Test data for all damage types
         public static TheoryData<DamageType> AllDamageTypes => [.. Enum.GetValues(typeof(DamageType)).Cast<DamageType>().ToArray()];
 

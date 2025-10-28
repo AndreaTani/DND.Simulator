@@ -1,4 +1,5 @@
 ﻿using DND.Domain.SharedKernel.Events;
+using System.ComponentModel.DataAnnotations;
 
 namespace DND.Domain.SharedKernel
 {
@@ -405,10 +406,29 @@ namespace DND.Domain.SharedKernel
             _conditionImmunities.Remove(condition);
         }
 
-        // Add or remove a condition to the creature, avoiding duplicates when adding
+        /// <summary>
+        /// gather conditions that are present in the immunity list, 
+        /// gather conditions that are not in ther immunity list, 
+        /// add the conditions that are not in the immunity list ang trigger the appropriate event, 
+        /// trigger the immunitycondition event for the immine conditions
+        /// </summary>
         protected void AddConditions(IEnumerable<Condition> conditions)
         {
-            _conditions.AddRange(conditions.Where(c => !_conditions.Contains(c)));
+            var immuneConditions = conditions.Where(c => _conditionImmunities.Contains(c)).ToList();
+            var newConditions = conditions.Where(c => !_conditionImmunities.Contains(c) && !_conditions.Contains(c)).ToList();
+
+            if (immuneConditions.Count != 0)
+            {
+                var immuneEvent = new CreatureImmuneToConditionsEvent(Id, immuneConditions);
+                AddDomainEvent(immuneEvent);
+            }
+
+            if (newConditions.Count != 0)
+            {
+                _conditions.AddRange(newConditions);
+                var conditionAddedEvent = new CreatureAddConditionEvent(Id, newConditions);
+                AddDomainEvent(conditionAddedEvent);
+            }
         }
         protected void AddCondition(Condition condition)
         {
@@ -421,7 +441,9 @@ namespace DND.Domain.SharedKernel
 
             if (!_conditions.Contains(condition))
             {
+                var conditionAddedEvent = new CreatureAddConditionEvent(Id, [condition]);
                 _conditions.Add(condition);
+                AddDomainEvent(conditionAddedEvent);
             }
         }
         protected void RemoveCondition(Condition condition)
@@ -656,10 +678,6 @@ namespace DND.Domain.SharedKernel
 
             if (!IsUnconscious)
             {
-                AddCondition(Condition.Unconscious);
-                AddCondition(Condition.Prone);
-
-                // Drop concentration if unconscious
                 IsConcentrating = false;
 
                 //TODO: Drop held items
@@ -667,37 +685,50 @@ namespace DND.Domain.SharedKernel
                 if (isDying)
                 {
                     AddCondition(Condition.Dying);
+                    var isDyingEvent = new CreatureIsDyingEvent(Id);
+                    AddDomainEvent(isDyingEvent);
                 }
 
-                // TODO: Trigger a domain event for the creature unconscious state
+                AddCondition(Condition.Unconscious);
+                var unconsciousEvent = new CreatureBecameUnconsciousEvent(Id);
+                AddDomainEvent(unconsciousEvent);
+
+                AddCondition(Condition.Prone);
+                var proneEvent = new CreatureAddConditionEvent(Id, [Condition.Prone]);
+                AddDomainEvent(proneEvent);
             }
         }
 
         /// <summary>
         /// Applies the dead condition to the creature, removing unconscious and dying conditions if present.
-        /// The dead creature automatically falls prone and drops any held items.
+        /// The dead creature automatically falls prone and drops any held items. It's no longer uncoscious or dying.
         /// Called by the Event Handler that has already verified that CurrentHitPoints <= -MaxHitPoints.
         /// </summary>
         public void ApplyDeath()
         {
             if (!IsDead)
             {
-                AddCondition(Condition.Dead);
-                AddCondition(Condition.Prone);
-
-                // Remove conditions that are no longer relevant
-                RemoveCondition(Condition.Unconscious);
-                RemoveCondition(Condition.Dying);
-
-                // Drop concentration if dead
                 IsConcentrating = false;
 
                 //TODO: Drop held items
 
-                // Ensure CurrentHitPoints is not positive
                 CurrentHitPoints = Math.Min(0, CurrentHitPoints);
 
-                // TODO: Trigger a domain event for the creature death
+                AddCondition(Condition.Dead);
+                var deathEvent = new CreatureDiedEvent(Id);
+                AddDomainEvent(deathEvent);
+
+                AddCondition(Condition.Prone);
+                var proneEvent = new CreatureAddConditionEvent(Id, [Condition.Prone]);
+                AddDomainEvent(proneEvent);
+
+                RemoveCondition(Condition.Unconscious);
+                var removeUnconsciousEvent = new CreatureRemoveConditionEvent(Id, [Condition.Unconscious]);
+                AddDomainEvent(removeUnconsciousEvent);
+
+                RemoveCondition(Condition.Dying);
+                var removeDyingEvent = new CreatureRemoveConditionEvent(Id, [Condition.Dying]);
+                AddDomainEvent(removeDyingEvent);
             }
         }
 
