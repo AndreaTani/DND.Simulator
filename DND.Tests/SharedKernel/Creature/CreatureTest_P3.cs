@@ -36,9 +36,12 @@ namespace DND.Tests.SharedKernel
             }
         }
 
+        // Test data for all abilities
+        public static TheoryData<Ability> AllAbilities => [.. Enum.GetValues(typeof(Ability)).Cast<Ability>().ToArray()];
+
         [Theory]
         [MemberData(nameof(ProficencyBonusTable))]
-        public void CreatureProficiencyBonus_ShouldReturn_CorrectValue_BasedOnLevel(int level, int expectedProficiencyBonus)
+        public void CreatureProficiencyBonus_WhenProficiencyBonus_ShouldReturnCorrectValueBasedOnLevel(int level, int expectedProficiencyBonus)
         {
             // Arrange
             var creature = new SimpleCreature(
@@ -57,6 +60,37 @@ namespace DND.Tests.SharedKernel
 
             // Assert
             Assert.Equal(expectedProficiencyBonus, proficiencyBonus);
+        }
+
+        [Theory]
+        [MemberData(nameof(AllAbilities))]
+        public void GetSavingThrowModifier_WhenAbilityProficient_ShouldReturnAbilityModifierAddedToProficiencyBonus(Ability ability)
+        {
+            // Arrange
+            var sut = new SimpleCreature(
+                name: "Lone Fighter",
+                creatureType: CreatureType.Humanoid,
+                size: Size.Medium,
+                abilityScores: new AbilityScores(fighterScores),
+                maxHitPoints: 50,
+                currentHitPoints: 50,
+                speed: new Speed(30),
+                level: 5 // Level 5 gives a proficiency bonus of +3
+            );
+
+            int expectedProficiencyBonus = 3; // Level 5 proficiency bonus
+
+            sut.SetupProficientySavingThrow(ability);
+            int abilityModifier = sut.AbilityScores.GetModifier(ability);
+            int proficiencyBonus = sut.ProficiencyBonus;
+            int expectedModifier = abilityModifier + proficiencyBonus;
+
+            // Act
+            int savingThrowModifier = sut.GetSavingThrowModifier(ability);
+            
+            // Assert
+            Assert.Equal(expectedProficiencyBonus, proficiencyBonus);
+            Assert.Equal(expectedModifier, savingThrowModifier);
         }
     }
 }

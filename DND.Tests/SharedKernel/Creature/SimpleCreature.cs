@@ -46,6 +46,11 @@ namespace DND.Tests.SharedKernel
         public void SetupCondition(Condition condition)
         {
             AddCondition(condition);
-        }   
+        }
+
+        public void SetupProficientySavingThrow(Ability ability)
+        {
+            AddProficientSavingThrow(ability);
+        }
     }
 }
