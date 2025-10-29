@@ -92,6 +92,32 @@ namespace DND.Tests.SharedKernel
             Assert.Equal(expectedProficiencyBonus, proficiencyBonus);
             Assert.Equal(expectedModifier, savingThrowModifier);
         }
+
+        [Theory]
+        [MemberData(nameof(AllAbilities))]
+        public void GetSavingThrowModifier_WhenAbilityNotProficient_ShouldReturnOnlyAbilityModifier(Ability ability)
+        {
+            // Arrange
+            var sut = new SimpleCreature(
+                name: "Lone Fighter",
+                creatureType: CreatureType.Humanoid,
+                size: Size.Medium,
+                abilityScores: new AbilityScores(fighterScores),
+                maxHitPoints: 50,
+                currentHitPoints: 50,
+                speed: new Speed(30),
+                level: 5 // Level 5 gives a proficiency bonus of +3
+            );
+
+            int abilityModifier = sut.AbilityScores.GetModifier(ability);
+            int expectedModifier = abilityModifier;
+
+            // Act
+            int savingThrowModifier = sut.GetSavingThrowModifier(ability);
+            
+            // Assert
+            Assert.Equal(expectedModifier, savingThrowModifier);
+        }
     }
 }
 
