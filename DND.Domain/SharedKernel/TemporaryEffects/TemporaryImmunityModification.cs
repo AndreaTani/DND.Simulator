@@ -2,11 +2,10 @@
 {
     /// <summary>
     /// Value Object that stores the data that helps the service manage 
-    /// the duration of the temporaty effect
+    /// the duration of the temporary effect
     /// </summary>
-    public record TemporaryDamageModification(
+    public record TemporaryImmunityModification(
         DamageType TypeOfDamage,
-        float Modifier,
         Guid SourceId,
         int ExpiresOnTurn,
         ExpirationType ExpiresAt

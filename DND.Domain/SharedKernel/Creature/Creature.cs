@@ -19,6 +19,7 @@ namespace DND.Domain.SharedKernel
         private readonly List<Skill> _proficientSkills = [];
         private readonly List<IDomainEvent> _domainEvents = [];
         private readonly List<TemporaryDamageModification> _temporaryDamageModifications = [];
+        private readonly List<TemporaryImmunityModification> _temporaryDamageImmunities = [];
 
         // Identifications, basic Info and fundamental stata
         public Guid Id { get; protected set; }
@@ -112,9 +113,17 @@ namespace DND.Domain.SharedKernel
 
 
         // Properties to check if the creature is resistant, immune, or vulnerable to a specific damage type
-        public bool IsResistantTo(DamageType damageType) => _damageResistances.Contains(damageType);
-        public bool IsImmuneTo(DamageType damageType) => _damageImmunities.Contains(damageType);
-        public bool IsVulnerableTo(DamageType damageType) => _damageVulnerabilities.Contains(damageType);
+        public bool IsResistantTo(DamageType damageType) =>
+            _damageResistances.Contains(damageType) ||
+            _temporaryDamageModifications.Any(tm => tm.TypeOfDamage == damageType && tm.Modifier < 1.0f);
+
+        public bool IsImmuneTo(DamageType damageType) =>
+            _damageImmunities.Contains(damageType) ||
+            _temporaryDamageImmunities.Any(tm => tm.TypeOfDamage == damageType);
+
+        public bool IsVulnerableTo(DamageType damageType) =>
+            _damageVulnerabilities.Contains(damageType) ||
+            _temporaryDamageModifications.Any(tm => tm.TypeOfDamage == damageType && tm.Modifier > 1.0f);
 
         // List of damage adjustment rules applied to this creature
         public IReadOnlyList<IDamageAdjustmentRule> DamageAdjustmentRules => _damageAdjustmentRules;
@@ -172,7 +181,8 @@ namespace DND.Domain.SharedKernel
             int finalDamage = baseDamage;
 
             // Immunity check, if true no damage is received
-            if (DamageAdjustmentRules.OfType<IImmunityRule>().Any(rule => rule.IsImmune(damageType, damageSource, isSilvered)))
+            if (DamageAdjustmentRules.OfType<IImmunityRule>().Any(rule => rule.IsImmune(damageType, damageSource, isSilvered)) ||
+                _temporaryDamageImmunities.Any(ti => ti.TypeOfDamage == damageType))
             {
                 return 0;
             }
@@ -606,7 +616,7 @@ namespace DND.Domain.SharedKernel
                 return;
             }
 
-            RemoveDamageImmunity (damageType);
+            RemoveDamageImmunity(damageType);
             AddDomainEvent(new CreatureDamageImmunityRemovedEvent(Id, damageType, RemovalReason.OverridenByExculsivity));
 
             _damageResistances.Add(damageType);
@@ -638,7 +648,7 @@ namespace DND.Domain.SharedKernel
             }
 
             RemoveDamageImmunity(damageType);
-            AddDomainEvent(new CreatureDamageImmunityRemovedEvent(Id,damageType, RemovalReason.OverridenByExculsivity));
+            AddDomainEvent(new CreatureDamageImmunityRemovedEvent(Id, damageType, RemovalReason.OverridenByExculsivity));
 
             _damageVulnerabilities.Add(damageType);
             _damageAdjustmentRules.Add(new SimpleDamageVulnerabilityRule(damageType));
@@ -653,13 +663,13 @@ namespace DND.Domain.SharedKernel
         // Add or remove a special damage rule
         protected void AddSpecialDamageRule(IDamageAdjustmentRule rule)
         {
-            if(_damageAdjustmentRules.Any(r => r.Name == rule.Name))
+            if (_damageAdjustmentRules.Any(r => r.Name == rule.Name))
             {
                 return;
             }
 
             _damageAdjustmentRules.Add(rule);
-        } 
+        }
 
         /// <summary>
         /// Applies the unconscious condition to the creature if it's not dead
@@ -760,11 +770,27 @@ namespace DND.Domain.SharedKernel
             //TODO: Add domainEvent for tracking by the combat service
         }
 
+        // Apply temporary damage immunity (used by ApplicationService)
+        public virtual void ApplyTemporaryDamageImmunity(TemporaryImmunityModification modification)
+        {
+            _temporaryDamageImmunities.Add(modification);
+
+            //TODO: Add domainEvent for tracking by the combat service
+        }
+
         // Remove temporary damage modifications (used by the CombatService)
         public virtual void RemoveTempoDamageModification(Guid sourceId, DamageType damageType)
         {
             _temporaryDamageModifications.RemoveAll(mod => mod.SourceId == sourceId && mod.TypeOfDamage == damageType);
 
+            // TODO: Add domainEvent to notify when the effect is gone
+        }
+
+        // Remove temporary damage immunities (used by the CombatService)
+        public virtual void RemoveTempoDamageImmunity(Guid sourceId, DamageType damageType)
+        {
+            _temporaryDamageImmunities.RemoveAll(mod => mod.SourceId == sourceId && mod.TypeOfDamage == damageType);
+            
             // TODO: Add domainEvent to notify when the effect is gone
         }
     }

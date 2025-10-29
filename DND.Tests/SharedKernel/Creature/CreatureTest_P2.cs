@@ -7,6 +7,34 @@ namespace DND.Tests.SharedKernel
         // Test data for all conditions
         public static TheoryData<Condition> AllConditions => [.. Enum.GetValues(typeof(Condition)).Cast<Condition>().ToArray()];
 
+        // Test data for vulnerability to all damage type calculations
+        public static TheoryData<DamageType, int, int> VulnerabilityDamageTypeExpectedAndBaseDamage
+        {
+            get
+            {
+                var data = new TheoryData<DamageType, int, int>();
+                foreach (var dt in Enum.GetValues(typeof(DamageType)).Cast<DamageType>())
+                {
+                    data.Add(dt, 24, 12);
+                }
+                return data;
+            }
+        }
+
+        // Test data for resistance to all damage type calculations
+        public static TheoryData<DamageType, int, int> ResistanceDamageTypeExpectedAndBaseDamage
+        {
+            get
+            {
+                var data = new TheoryData<DamageType, int, int>();
+                foreach (var dt in Enum.GetValues(typeof(DamageType)).Cast<DamageType>())
+                {
+                    data.Add(dt, 6, 12);
+                }
+                return data;
+            }
+        }
+
 
         [Theory]
         [MemberData(nameof(AllDamageTypes))]
@@ -146,5 +174,96 @@ namespace DND.Tests.SharedKernel
             Assert.NotNull(unconsciousEvent);
             Assert.NotNull(dyingEvent);
         }
+
+        [Theory]
+        [MemberData(nameof(VulnerabilityDamageTypeExpectedAndBaseDamage))]
+        public void CalculateFinalDamage_WhenTemporaryVulnerability_CorrectDamageIsComputed(DamageType damageType, int expectedDamage, int baseDamage)
+        {
+            // Arrange
+            var sut = new SimpleCreature(
+                name: "Lone Fighter",
+                creatureType: CreatureType.Humanoid,
+                size: Size.Medium,
+                abilityScores: new AbilityScores(fighterScores),
+                maxHitPoints: 49,
+                currentHitPoints: 49,
+                speed: new Speed(),
+                level: 5
+                );
+
+            var temporaryVulnerability = new TemporaryDamageModification(damageType, 2.0f, new Guid(), 47, ExpirationType.AtTheEnd);
+            sut.ApplyTemporaryDamageModification(temporaryVulnerability);
+            var initialIsVulnerable = sut.IsVulnerableTo(damageType);
+
+            // Act
+            var damageTaken = sut.CalculateFinalDamage(baseDamage, damageType, DamageSource.Magical, false);
+            var finalIsVulnerable = sut.IsVulnerableTo(damageType);
+
+            // Assert
+            Assert.True(initialIsVulnerable);
+            Assert.True(finalIsVulnerable);
+            Assert.Equal(expectedDamage, damageTaken);
+        }
+
+        [Theory]
+        [MemberData(nameof(ResistanceDamageTypeExpectedAndBaseDamage))]
+        public void CalculateFinalDamage_WhenTemporaryResistance_CorrectDamageIsComputed(DamageType damageType, int expectedDamage, int baseDamage)
+        {
+            // Arrange
+            var sut = new SimpleCreature(
+                name: "Lone Fighter",
+                creatureType: CreatureType.Humanoid,
+                size: Size.Medium,
+                abilityScores: new AbilityScores(fighterScores),
+                maxHitPoints: 49,
+                currentHitPoints: 49,
+                speed: new Speed(),
+                level: 5
+                );
+
+            var temporaryResistance = new TemporaryDamageModification(damageType, 0.5f, new Guid(), 47, ExpirationType.AtTheEnd);
+            sut.ApplyTemporaryDamageModification(temporaryResistance);
+            var initialIsResistant = sut.IsResistantTo(damageType);
+
+            // Act
+            var damageTaken = sut.CalculateFinalDamage(baseDamage, damageType, DamageSource.Magical, false);
+            var finalIsResistant = sut.IsResistantTo(damageType);
+
+            // Assert
+            Assert.True(initialIsResistant);
+            Assert.True(finalIsResistant);
+            Assert.Equal(expectedDamage, damageTaken);
+        }
+
+        [Theory]
+        [MemberData(nameof(AllDamageTypes))]
+        public void CalculateFinalDamage_WhenTemporaryImmunty_DamageIsZero(DamageType damageType)
+        {
+            // Arrange
+            var sut = new SimpleCreature(
+                name: "Lone Fighter",
+                creatureType: CreatureType.Humanoid,
+                size: Size.Medium,
+                abilityScores: new AbilityScores(fighterScores),
+                maxHitPoints: 49,
+                currentHitPoints: 49,
+                speed: new Speed(),
+                level: 5
+                );
+
+            var temporaryImmunity = new TemporaryImmunityModification(damageType, new Guid(), 47, ExpirationType.AtTheEnd);
+            sut.ApplyTemporaryDamageImmunity(temporaryImmunity);
+            var initialIsImmune = sut.IsImmuneTo(damageType);
+
+            // Act
+            var damageTaken = sut.CalculateFinalDamage(50, damageType, DamageSource.Magical, false);
+            var finalIsImmune = sut.IsImmuneTo(damageType);
+
+            // Assert
+            Assert.True(initialIsImmune);
+            Assert.True(finalIsImmune);
+            Assert.Equal(0, damageTaken);
+        }
     }
 }
+
