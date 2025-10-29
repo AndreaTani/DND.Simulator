@@ -264,6 +264,65 @@ namespace DND.Tests.SharedKernel
             Assert.True(finalIsImmune);
             Assert.Equal(0, damageTaken);
         }
+
+        [Theory]
+        [MemberData(nameof(AllDamageTypes))]
+        public void CalculateFinalDamage_WhenPemanentlyVulnerableAndAddTemporaryResistance_DamageMustBeResistance(DamageType damageType)
+        {
+            // Arrange
+            var sut = new SimpleCreature(
+                name: "Lone Fighter",
+                creatureType: CreatureType.Humanoid,
+                size: Size.Medium,
+                abilityScores: new AbilityScores(fighterScores),
+                maxHitPoints: 49,
+                currentHitPoints: 49,
+                speed: new Speed(),
+                level: 5
+                );
+
+            sut.SetupVulnerability(damageType);
+            int baseDamage = 20;
+            int expectedDamage = 10;
+
+            // Act
+            var temporaryDamageResistance = new TemporaryDamageModification(damageType, 0.5f, new Guid(), 47, ExpirationType.AtTheBeginning);
+            sut.ApplyTemporaryDamageModification(temporaryDamageResistance);
+            var damageTaken = sut.CalculateFinalDamage(baseDamage, damageType, DamageSource.Magical, false);
+
+            // Assert
+            Assert.Equal(expectedDamage, damageTaken);
+        }
+
+        [Theory]
+        [MemberData(nameof(AllDamageTypes))]
+        public void CalculateFinalDamage_WhenPemanentlyResistantAndAddTemporaryVulnerable_DamageMustBeVulnerable(DamageType damageType)
+        {
+            // Arrange
+            var sut = new SimpleCreature(
+                name: "Lone Fighter",
+                creatureType: CreatureType.Humanoid,
+                size: Size.Medium,
+                abilityScores: new AbilityScores(fighterScores),
+                maxHitPoints: 49,
+                currentHitPoints: 49,
+                speed: new Speed(),
+                level: 5
+                );
+
+            sut.SetupResistance(damageType);
+            int baseDamage = 20;
+            int expectedDamage = 40;
+
+            // Act
+            var temporaryDamageVulnerability = new TemporaryDamageModification(damageType, 2.0f, new Guid(), 47, ExpirationType.AtTheBeginning);
+            sut.ApplyTemporaryDamageModification(temporaryDamageVulnerability);
+            var damageTaken = sut.CalculateFinalDamage(baseDamage, damageType, DamageSource.Magical, false);
+
+            // Assert
+            Assert.Equal(expectedDamage, damageTaken);
+        }
+
     }
 }
 
