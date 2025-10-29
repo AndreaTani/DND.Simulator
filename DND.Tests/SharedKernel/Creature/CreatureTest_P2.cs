@@ -323,6 +323,67 @@ namespace DND.Tests.SharedKernel
             Assert.Equal(expectedDamage, damageTaken);
         }
 
+        [Theory]
+        [MemberData(nameof(AllDamageTypes))]
+        public void CalculateFinalDamage_WhenTemporaryDamageAdded_TemporarydamageSuccessfullyRemovedAndAllCalculationsCorrect(DamageType damageType)
+        {
+            // Arrange
+            var sut = new SimpleCreature(
+                name: "Lone Fighter",
+                creatureType: CreatureType.Humanoid,
+                size: Size.Medium,
+                abilityScores: new AbilityScores(fighterScores),
+                maxHitPoints: 60,
+                currentHitPoints: 60,
+                speed: new Speed(),
+                level: 5
+                );
+
+            var TemporaryDamageMoidicficationId = Guid.NewGuid();
+            var temporaryDamageResistance = new TemporaryDamageModification(damageType, 0.5f, TemporaryDamageMoidicficationId, 47, ExpirationType.AtTheBeginning);
+            sut.ApplyTemporaryDamageModification(temporaryDamageResistance);
+            int baseDamage = 30;
+
+            // Act
+            var firstDamageTaken = sut.CalculateFinalDamage(baseDamage, damageType, DamageSource.Magical, false);
+            sut.RemoveTempoDamageModification(TemporaryDamageMoidicficationId, damageType);
+            var secondDamageTaken = sut.CalculateFinalDamage(baseDamage, damageType, DamageSource.Magical, false);
+
+            // Assert
+            Assert.Equal(baseDamage / 2, firstDamageTaken);
+            Assert.Equal(baseDamage, secondDamageTaken);
+        }
+
+        [Theory]
+        [MemberData(nameof(AllDamageTypes))]
+        public void CalculateFinalDamage_WhenTemporaryImmunityAdded_TemporaryImmunitySuccessfullyRemovedAndAllCalculationsCorrect(DamageType damageType)
+        {
+            // Arrange
+            var sut = new SimpleCreature(
+                name: "Lone Fighter",
+                creatureType: CreatureType.Humanoid,
+                size: Size.Medium,
+                abilityScores: new AbilityScores(fighterScores),
+                maxHitPoints: 60,
+                currentHitPoints: 60,
+                speed: new Speed(),
+                level: 5
+                );
+
+            var TemporaryImmunityModificationId = Guid.NewGuid();
+            var temporaryImmunity = new TemporaryImmunityModification(damageType, TemporaryImmunityModificationId, 47, ExpirationType.AtTheBeginning);
+            sut.ApplyTemporaryDamageImmunity(temporaryImmunity);
+            int baseDamage = 30;
+            
+            // Act
+            var firstDamageTaken = sut.CalculateFinalDamage(baseDamage, damageType, DamageSource.Magical, false);
+            sut.RemoveTempoDamageImmunity(TemporaryImmunityModificationId, damageType);
+            var secondDamageTaken = sut.CalculateFinalDamage(baseDamage, damageType, DamageSource.Magical, false);
+            
+            // Assert
+            Assert.Equal(0, firstDamageTaken);
+            Assert.Equal(baseDamage, secondDamageTaken);
+        }
     }
 }
 
