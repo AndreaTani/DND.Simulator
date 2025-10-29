@@ -13,16 +13,6 @@
     public interface IDamageAdjustmentRule
     {
         /// <summary>
-        /// Common method to apply the damage adjustment rule.
-        /// </summary>
-        /// <param name="baseDamage"></param>
-        /// <param name="damageType"></param>
-        /// <param name="damageSource"></param>
-        /// <param name="isSilvered"></param>
-        /// <returns>Total number of points of damage calculated</returns>
-        public int Apply(int baseDamage, DamageType damageType, DamageSource damageSource, bool isSilvered);
-
-        /// <summary>
         /// Gets the damage type associated with this rule.
         /// </summary>
         /// <returns></returns>

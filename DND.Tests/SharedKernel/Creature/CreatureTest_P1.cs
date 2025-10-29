@@ -2,8 +2,9 @@
 
 namespace DND.Tests.SharedKernel
 {
-    public class CreatureTest
+    public partial class CreatureTest
     {
+        // Test data for a fighter's ability scores
         private static readonly Dictionary<Ability, int> fighterScores = new Dictionary<Ability, int>
         {
             { Ability.Strength, 18 },
@@ -13,6 +14,24 @@ namespace DND.Tests.SharedKernel
             { Ability.Wisdom, 8 },
             { Ability.Charisma, 8 }
         };
+
+        // Test data for all damage types
+        public static TheoryData<DamageType> AllDamageTypes => [.. Enum.GetValues(typeof(DamageType)).Cast<DamageType>().ToArray()];
+
+        // Test data for all rules with damage types and rule names
+        public static TheoryData<DamageType, string, string, string> DamageTypeRuleNames
+        {
+            get
+            {
+                var data = new TheoryData<DamageType, string, string, string>();
+                foreach (var dt in Enum.GetValues(typeof(DamageType)).Cast<DamageType>())
+                {
+                    data.Add(dt, $"Simple Resistance {dt}", $"Simple Vulnerability {dt}", $"Simple Immunity {dt}");
+                }
+                return data;
+            }
+        }
+
 
         [Theory]
         [InlineData(DamageType.Slashing, 14, 14)]
@@ -98,19 +117,7 @@ namespace DND.Tests.SharedKernel
         }
 
         [Theory]
-        [InlineData(DamageType.Acid, "Simple Resistance Acid", "Simple Vulnerability Acid", "Simple Immunity Acid")]
-        [InlineData(DamageType.Bludgeoning, "Simple Resistance Bludgeoning", "Simple Vulnerability Bludgeoning", "Simple Immunity Bludgeoning")]
-        [InlineData(DamageType.Cold, "Simple Resistance Cold", "Simple Vulnerability Cold", "Simple Immunity Cold")]
-        [InlineData(DamageType.Fire, "Simple Resistance Fire", "Simple Vulnerability Fire", "Simple Immunity Fire")]
-        [InlineData(DamageType.Force, "Simple Resistance Force", "Simple Vulnerability Force", "Simple Immunity Force")]
-        [InlineData(DamageType.Lightning, "Simple Resistance Lightning", "Simple Vulnerability Lightning", "Simple Immunity Lightning")]
-        [InlineData(DamageType.Necrotic, "Simple Resistance Necrotic", "Simple Vulnerability Necrotic", "Simple Immunity Necrotic")]
-        [InlineData(DamageType.Piercing, "Simple Resistance Piercing", "Simple Vulnerability Piercing", "Simple Immunity Piercing")]
-        [InlineData(DamageType.Poison, "Simple Resistance Poison", "Simple Vulnerability Poison", "Simple Immunity Poison")]
-        [InlineData(DamageType.Psychic, "Simple Resistance Psychic", "Simple Vulnerability Psychic", "Simple Immunity Psychic")]
-        [InlineData(DamageType.Radiant, "Simple Resistance Radiant", "Simple Vulnerability Radiant", "Simple Immunity Radiant")]
-        [InlineData(DamageType.Slashing, "Simple Resistance Slashing", "Simple Vulnerability Slashing", "Simple Immunity Slashing")]
-        [InlineData(DamageType.Thunder, "Simple Resistance Thunder", "Simple Vulnerability Thunder", "Simple Immunity Thunder")]
+        [MemberData(nameof(DamageTypeRuleNames))]
         public void AddDamageImmunity_WhenAddingImmunity_RemovesResistanceAndVulnerabilityOfTheSameDamageType(DamageType type, string resistanceName, string vulnerabilityName, string immunityName)
         {
             // Arrange
@@ -173,19 +180,7 @@ namespace DND.Tests.SharedKernel
         }
 
         [Theory]
-        [InlineData(DamageType.Acid)]
-        [InlineData(DamageType.Bludgeoning)]
-        [InlineData(DamageType.Cold)]
-        [InlineData(DamageType.Fire)]
-        [InlineData(DamageType.Force)]
-        [InlineData(DamageType.Lightning)]
-        [InlineData(DamageType.Necrotic)]
-        [InlineData(DamageType.Piercing)]
-        [InlineData(DamageType.Poison)]
-        [InlineData(DamageType.Psychic)]
-        [InlineData(DamageType.Radiant)]
-        [InlineData(DamageType.Slashing)]
-        [InlineData(DamageType.Thunder)]
+        [MemberData(nameof(AllDamageTypes))]
         public void AddDamageResistance_WhenAddingResistance_RemoveImmunityOfTHeSamaDamageType(DamageType damageType)
         {
             // Arrange
@@ -227,19 +222,7 @@ namespace DND.Tests.SharedKernel
         }
 
         [Theory]
-        [InlineData(DamageType.Acid)]
-        [InlineData(DamageType.Bludgeoning)]
-        [InlineData(DamageType.Cold)]
-        [InlineData(DamageType.Fire)]
-        [InlineData(DamageType.Force)]
-        [InlineData(DamageType.Lightning)]
-        [InlineData(DamageType.Necrotic)]
-        [InlineData(DamageType.Piercing)]
-        [InlineData(DamageType.Poison)]
-        [InlineData(DamageType.Psychic)]
-        [InlineData(DamageType.Radiant)]
-        [InlineData(DamageType.Slashing)]
-        [InlineData(DamageType.Thunder)]
+        [MemberData(nameof(AllDamageTypes))]
         public void AddDamageVulnerability_WhenAddingVulnerability_RemoveImmunityOfTheSamaDamageType(DamageType damageType)
         {
             // Arrange
@@ -281,19 +264,7 @@ namespace DND.Tests.SharedKernel
         }
 
         [Theory]
-        [InlineData(DamageType.Acid)]
-        [InlineData(DamageType.Bludgeoning)]
-        [InlineData(DamageType.Cold)]
-        [InlineData(DamageType.Fire)]
-        [InlineData(DamageType.Force)]
-        [InlineData(DamageType.Lightning)]
-        [InlineData(DamageType.Necrotic)]
-        [InlineData(DamageType.Piercing)]
-        [InlineData(DamageType.Poison)]
-        [InlineData(DamageType.Psychic)]
-        [InlineData(DamageType.Radiant)]
-        [InlineData(DamageType.Slashing)]
-        [InlineData(DamageType.Thunder)]
+        [MemberData(nameof(AllDamageTypes))]
         public void AddDamageResistance_WhenVulnerableAddingResistance_DoesntRemoveVulnerabilityOfTheSamaDamageType(DamageType damageType)
         {
             // Arrange
@@ -338,19 +309,7 @@ namespace DND.Tests.SharedKernel
         }
 
         [Theory]
-        [InlineData(DamageType.Acid)]
-        [InlineData(DamageType.Bludgeoning)]
-        [InlineData(DamageType.Cold)]
-        [InlineData(DamageType.Fire)]
-        [InlineData(DamageType.Force)]
-        [InlineData(DamageType.Lightning)]
-        [InlineData(DamageType.Necrotic)]
-        [InlineData(DamageType.Piercing)]
-        [InlineData(DamageType.Poison)]
-        [InlineData(DamageType.Psychic)]
-        [InlineData(DamageType.Radiant)]
-        [InlineData(DamageType.Slashing)]
-        [InlineData(DamageType.Thunder)]
+        [MemberData(nameof(AllDamageTypes))]
         public void AddDamageVulnerability_WhenResistantAddingVulnerability_DoesntRemoveReisstanceOfTheSamaDamageType(DamageType damageType)
         {
             // Arrange
@@ -540,6 +499,144 @@ namespace DND.Tests.SharedKernel
             // Assert
             Assert.True(currentHitPoints > assignedHitPoints);
             Assert.NotNull(eventType);
+        }
+
+        [Theory]
+        [InlineData(10, 10)]
+        public void CalculateFinalDamage_WhenCreatureIsBothResistantAndVulnerable_DamageCancelsToNormal(int expectedDamage, int baseDamage)
+        {
+            // Arrange
+            var sut = new SimpleCreature(
+                name: "Lone Fighter",
+                creatureType: CreatureType.Humanoid,
+                size: Size.Medium,
+                abilityScores: new AbilityScores(fighterScores),
+                maxHitPoints: 50,
+                currentHitPoints: 20,
+                speed: new Speed(),
+                level: 5
+                );
+
+            sut.SetupResistance(DamageType.Fire);
+            sut.SetupVulnerability(DamageType.Fire);
+
+            // Act
+            int finalDamage = sut.CalculateFinalDamage(baseDamage, DamageType.Fire, DamageSource.Magical, false);
+
+            // Assert
+            Assert.Equal(expectedDamage, finalDamage);
+            Assert.True(sut.IsResistantTo(DamageType.Fire));
+            Assert.True(sut.IsVulnerableTo(DamageType.Fire));
+
+        }
+
+        [Theory]
+        [InlineData(10, 10)]
+        public void CalculateFinalDamage_WhenBarbarianRageResistanceConflictsWithSimpleVulnerability_TheyCancelOut(int expectedDamage, int baseDamage)
+        {
+            // Arrange
+            var sut = new SimpleCreature(
+                name: "Lone Fighter",
+                creatureType: CreatureType.Humanoid,
+                size: Size.Medium,
+                abilityScores: new AbilityScores(fighterScores),
+                maxHitPoints: 50,
+                currentHitPoints: 30,
+                speed: new Speed(),
+                level: 5
+                );
+
+            sut.SetupSpecialRule(new BarbarianRagingResistanceRule());
+            sut.SetupVulnerability(DamageType.Slashing);
+
+            // Act
+            int finalDamage = sut.CalculateFinalDamage(baseDamage, DamageType.Slashing, DamageSource.Mundane, false);
+
+            // Assert
+            Assert.Equal(expectedDamage, finalDamage);
+        }
+
+        [Theory]
+        [InlineData(5, 10, DamageType.Fire, 0.5f)]
+        public void CalculateFinalDamage_WhenTempResistanceOverridesPermanentVulnerability_ResistanceWins(int expectedDamage, int baseDamage, DamageType damageType, float tempModifier)
+        {
+            // Arrange
+            var sut = new SimpleCreature(
+                name: "Lone Fighter",
+                creatureType: CreatureType.Humanoid,
+                size: Size.Medium,
+                abilityScores: new AbilityScores(fighterScores),
+                maxHitPoints: 50,
+                currentHitPoints: 30,
+                speed: new Speed(),
+                level: 5
+                );
+
+            sut.SetupVulnerability(damageType);
+            var temporaryResistance = new TemporaryDamageModification(damageType, tempModifier, new Guid(), 47, ExpirationType.AtTheBeginning);
+            sut.ApplyTemporaryDamageModification(temporaryResistance);
+
+            // Act
+            int finalDamage = sut.CalculateFinalDamage(baseDamage, damageType, DamageSource.Magical, false);
+
+            // Assert
+            Assert.True(sut.IsVulnerableTo(damageType));
+            Assert.Equal(expectedDamage, finalDamage);
+        }
+
+        [Theory]
+        [InlineData(20, 10, DamageType.Fire, 2f)]
+        public void CalculateFinalDamage_WhenTempVulnmerabilityOverridesPermanentResistance_VulnerabilityWins(int expectedDamage, int baseDamage, DamageType damageType, float tempModifier)
+        {
+            // Arrange
+            var sut = new SimpleCreature(
+                name: "Lone Fighter",
+                creatureType: CreatureType.Humanoid,
+                size: Size.Medium,
+                abilityScores: new AbilityScores(fighterScores),
+                maxHitPoints: 50,
+                currentHitPoints: 30,
+                speed: new Speed(),
+                level: 5
+                );
+
+            sut.SetupResistance(damageType);
+            var temporaryResistance = new TemporaryDamageModification(damageType, tempModifier, new Guid(), 47, ExpirationType.AtTheBeginning);
+            sut.ApplyTemporaryDamageModification(temporaryResistance);
+
+            // Act
+            int finalDamage = sut.CalculateFinalDamage(baseDamage, damageType, DamageSource.Magical, false);
+
+            // Assert
+            Assert.True(sut.IsResistantTo(damageType));
+            Assert.Equal(expectedDamage, finalDamage);
+        }
+
+        [Theory]
+        [InlineData(50, 20, DamageType.Acid, 40)]
+        public void TakeDamage_WhenCreatureIsResistant_AppliesCalculatedDamageToHitPoints(int initialHitPoints, int baseDamage, DamageType damageType, int expectedFinalHitPoints)
+        {
+            // Arrange
+            var sut = new SimpleCreature(
+                name: "Lone Fighter",
+                creatureType: CreatureType.Humanoid,
+                size: Size.Medium,
+                abilityScores: new AbilityScores(fighterScores), // Assuming fighterScores is available
+                maxHitPoints: initialHitPoints,
+                currentHitPoints: initialHitPoints,
+                speed: new Speed(),
+                level: 5
+            );
+
+            sut.SetupResistance(DamageType.Acid);
+
+            // Act
+            sut.TakeDamage(baseDamage, damageType, DamageSource.Magical, false);
+            int currentHitPoints = sut.CurrentHitPoints;
+
+            // Assert
+            Assert.True(sut.IsResistantTo(DamageType.Acid));
+            Assert.Equal(expectedFinalHitPoints, currentHitPoints);
         }
     }
 }

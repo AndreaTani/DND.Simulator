@@ -11,11 +11,6 @@
 
         public string Name => $"Simple Resistance {_resistanceType}";
 
-        public int Apply(int baseDamage, DamageType damageType, DamageSource damageSource, bool isSilvered)
-        {
-            return damageType == _resistanceType ? baseDamage / 2 : baseDamage;
-        }
-
         public DamageType GetDamageType()
         {
             return _resistanceType;

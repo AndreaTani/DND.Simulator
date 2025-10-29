@@ -1,4 +1,5 @@
 ﻿using DND.Domain.SharedKernel.Events;
+using System.ComponentModel.DataAnnotations;
 
 namespace DND.Domain.SharedKernel
 {
@@ -18,6 +19,7 @@ namespace DND.Domain.SharedKernel
         private readonly List<Skill> _proficientSkills = [];
         private readonly List<IDomainEvent> _domainEvents = [];
         private readonly List<TemporaryDamageModification> _temporaryDamageModifications = [];
+        private readonly List<TemporaryImmunityModification> _temporaryDamageImmunities = [];
 
         // Identifications, basic Info and fundamental stata
         public Guid Id { get; protected set; }
@@ -111,9 +113,17 @@ namespace DND.Domain.SharedKernel
 
 
         // Properties to check if the creature is resistant, immune, or vulnerable to a specific damage type
-        public bool IsResistantTo(DamageType damageType) => _damageResistances.Contains(damageType);
-        public bool IsImmuneTo(DamageType damageType) => _damageImmunities.Contains(damageType);
-        public bool IsVulnerableTo(DamageType damageType) => _damageVulnerabilities.Contains(damageType);
+        public bool IsResistantTo(DamageType damageType) =>
+            _damageResistances.Contains(damageType) ||
+            _temporaryDamageModifications.Any(tm => tm.TypeOfDamage == damageType && tm.Modifier < 1.0f);
+
+        public bool IsImmuneTo(DamageType damageType) =>
+            _damageImmunities.Contains(damageType) ||
+            _temporaryDamageImmunities.Any(tm => tm.TypeOfDamage == damageType);
+
+        public bool IsVulnerableTo(DamageType damageType) =>
+            _damageVulnerabilities.Contains(damageType) ||
+            _temporaryDamageModifications.Any(tm => tm.TypeOfDamage == damageType && tm.Modifier > 1.0f);
 
         // List of damage adjustment rules applied to this creature
         public IReadOnlyList<IDamageAdjustmentRule> DamageAdjustmentRules => _damageAdjustmentRules;
@@ -171,31 +181,57 @@ namespace DND.Domain.SharedKernel
             int finalDamage = baseDamage;
 
             // Immunity check, if true no damage is received
-            foreach (var rule in DamageAdjustmentRules.OfType<IImmunityRule>())
+            if (DamageAdjustmentRules.OfType<IImmunityRule>().Any(rule => rule.IsImmune(damageType, damageSource, isSilvered)) ||
+                _temporaryDamageImmunities.Any(ti => ti.TypeOfDamage == damageType))
             {
-                if (rule.IsImmune(damageType, damageSource, isSilvered))
-                {
-                    return 0;
-                }
+                return 0;
             }
 
             float modifier = 1.0f;
 
-            // Manages resistances and vulnerabilities
+            // Manages resistances and vulnerabilities:
+            // check if there are vulnerabilities and resistances for the same
+            // damage type and if both are present, they cancel each other out
+            // according to D&D 5e rules, by collecting all modifiers which are
+            // of type resistance or vulnerability, then cancellation and
+            // hierarchy rules are applied
+
+            bool hasResistance = false;
+            bool hasVulnerability = false;
+            float bestResistance = 1.0f;
+            float worstVulnerability = 1.0f;
+
             foreach (var rule in DamageAdjustmentRules.OfType<IModificationRule>())
             {
                 float ruleModifier = rule.GetModificationFactor(damageType, damageSource, isSilvered);
 
-                if (ruleModifier < 1.0f)
+                if (ruleModifier < 1.0f) // Found a Resistance
                 {
-                    // this grants resistance
-                    modifier = Math.Min(modifier, ruleModifier);
+                    hasResistance = true;
+                    bestResistance = Math.Min(bestResistance, ruleModifier);
                 }
-                else if (ruleModifier > 1.0f)
+                else if (ruleModifier > 1.0f) // Found a Vulnerability
                 {
-                    // this grants vulnerability
-                    modifier = Math.Max(modifier, ruleModifier);
+                    hasVulnerability = true;
+                    worstVulnerability = Math.Max(worstVulnerability, ruleModifier);
                 }
+            }
+
+            if (hasResistance && hasVulnerability)
+            {
+                modifier = 1.0f; // R and V cancel out! (This is the D&D rule)
+            }
+            else if (hasResistance)
+            {
+                modifier = bestResistance; // Only resistance applies
+            }
+            else if (hasVulnerability)
+            {
+                modifier = worstVulnerability; // Only vulnerability applies
+            }
+            else
+            {
+                modifier = 1.0f; // No R/V applies
             }
 
             // Manages temporary damage modifier
@@ -214,7 +250,7 @@ namespace DND.Domain.SharedKernel
                 }
             }
 
-            finalDamage = (int)Math.Round(finalDamage * modifier);
+            finalDamage = (int)(finalDamage * modifier);
 
             return Math.Max(0, finalDamage);
         }
@@ -380,10 +416,29 @@ namespace DND.Domain.SharedKernel
             _conditionImmunities.Remove(condition);
         }
 
-        // Add or remove a condition to the creature, avoiding duplicates when adding
+        /// <summary>
+        /// gather conditions that are present in the immunity list, 
+        /// gather conditions that are not in ther immunity list, 
+        /// add the conditions that are not in the immunity list ang trigger the appropriate event, 
+        /// trigger the immunitycondition event for the immine conditions
+        /// </summary>
         protected void AddConditions(IEnumerable<Condition> conditions)
         {
-            _conditions.AddRange(conditions.Where(c => !_conditions.Contains(c)));
+            var immuneConditions = conditions.Where(c => _conditionImmunities.Contains(c)).ToList();
+            var newConditions = conditions.Where(c => !_conditionImmunities.Contains(c) && !_conditions.Contains(c)).ToList();
+
+            if (immuneConditions.Count != 0)
+            {
+                var immuneEvent = new CreatureImmuneToConditionsEvent(Id, immuneConditions);
+                AddDomainEvent(immuneEvent);
+            }
+
+            if (newConditions.Count != 0)
+            {
+                _conditions.AddRange(newConditions);
+                var conditionAddedEvent = new CreatureAddConditionEvent(Id, newConditions);
+                AddDomainEvent(conditionAddedEvent);
+            }
         }
         protected void AddCondition(Condition condition)
         {
@@ -396,7 +451,9 @@ namespace DND.Domain.SharedKernel
 
             if (!_conditions.Contains(condition))
             {
+                var conditionAddedEvent = new CreatureAddConditionEvent(Id, [condition]);
                 _conditions.Add(condition);
+                AddDomainEvent(conditionAddedEvent);
             }
         }
         protected void RemoveCondition(Condition condition)
@@ -525,11 +582,17 @@ namespace DND.Domain.SharedKernel
                 return;
             }
 
-            RemoveDamageResistance(damageType);
-            AddDomainEvent(new CreatureDamageResistanceRemovedEvent(Id, damageType, RemovalReason.OverridenByExculsivity));
+            if(_damageResistances.Contains(damageType))
+            {
+                RemoveDamageResistance(damageType);
+                AddDomainEvent(new CreatureDamageResistanceRemovedEvent(Id, damageType, RemovalReason.OverridenByExculsivity));
+            }
 
-            RemoveDamageVulnerability(damageType);
-            AddDomainEvent(new CreatureDamageVulnerabilityRemovedEvent(Id, damageType, RemovalReason.OverridenByExculsivity));
+            if (_damageVulnerabilities.Contains(damageType))
+            {
+                RemoveDamageVulnerability(damageType);
+                AddDomainEvent(new CreatureDamageVulnerabilityRemovedEvent(Id, damageType, RemovalReason.OverridenByExculsivity));
+            }
 
             _damageImmunities.Add(damageType);
             _damageAdjustmentRules.Add(new SimpleDamageImmunityRule(damageType));
@@ -559,8 +622,11 @@ namespace DND.Domain.SharedKernel
                 return;
             }
 
-            RemoveDamageImmunity (damageType);
-            AddDomainEvent(new CreatureDamageImmunityRemovedEvent(Id, damageType, RemovalReason.OverridenByExculsivity));
+            if(_damageImmunities.Contains(damageType))
+            {
+                RemoveDamageImmunity(damageType);
+                AddDomainEvent(new CreatureDamageImmunityRemovedEvent(Id, damageType, RemovalReason.OverridenByExculsivity));
+            } 
 
             _damageResistances.Add(damageType);
             _damageAdjustmentRules.Add(new SimpleDamageResisistanceRule(damageType));
@@ -590,8 +656,11 @@ namespace DND.Domain.SharedKernel
                 return;
             }
 
-            RemoveDamageImmunity(damageType);
-            AddDomainEvent(new CreatureDamageImmunityRemovedEvent(Id,damageType, RemovalReason.OverridenByExculsivity));
+            if(_damageImmunities.Contains(damageType))
+            {
+                RemoveDamageImmunity(damageType);
+                AddDomainEvent(new CreatureDamageImmunityRemovedEvent(Id, damageType, RemovalReason.OverridenByExculsivity));
+            }
 
             _damageVulnerabilities.Add(damageType);
             _damageAdjustmentRules.Add(new SimpleDamageVulnerabilityRule(damageType));
@@ -606,13 +675,13 @@ namespace DND.Domain.SharedKernel
         // Add or remove a special damage rule
         protected void AddSpecialDamageRule(IDamageAdjustmentRule rule)
         {
-            if(_damageAdjustmentRules.Any(r => r.Name == rule.Name))
+            if (_damageAdjustmentRules.Any(r => r.Name == rule.Name))
             {
                 return;
             }
 
             _damageAdjustmentRules.Add(rule);
-        } 
+        }
 
         /// <summary>
         /// Applies the unconscious condition to the creature if it's not dead
@@ -631,10 +700,6 @@ namespace DND.Domain.SharedKernel
 
             if (!IsUnconscious)
             {
-                AddCondition(Condition.Unconscious);
-                AddCondition(Condition.Prone);
-
-                // Drop concentration if unconscious
                 IsConcentrating = false;
 
                 //TODO: Drop held items
@@ -642,37 +707,50 @@ namespace DND.Domain.SharedKernel
                 if (isDying)
                 {
                     AddCondition(Condition.Dying);
+                    var isDyingEvent = new CreatureIsDyingEvent(Id);
+                    AddDomainEvent(isDyingEvent);
                 }
 
-                // TODO: Trigger a domain event for the creature unconscious state
+                AddCondition(Condition.Unconscious);
+                var unconsciousEvent = new CreatureBecameUnconsciousEvent(Id);
+                AddDomainEvent(unconsciousEvent);
+
+                AddCondition(Condition.Prone);
+                var proneEvent = new CreatureAddConditionEvent(Id, [Condition.Prone]);
+                AddDomainEvent(proneEvent);
             }
         }
 
         /// <summary>
         /// Applies the dead condition to the creature, removing unconscious and dying conditions if present.
-        /// The dead creature automatically falls prone and drops any held items.
+        /// The dead creature automatically falls prone and drops any held items. It's no longer uncoscious or dying.
         /// Called by the Event Handler that has already verified that CurrentHitPoints <= -MaxHitPoints.
         /// </summary>
         public void ApplyDeath()
         {
             if (!IsDead)
             {
-                AddCondition(Condition.Dead);
-                AddCondition(Condition.Prone);
-
-                // Remove conditions that are no longer relevant
-                RemoveCondition(Condition.Unconscious);
-                RemoveCondition(Condition.Dying);
-
-                // Drop concentration if dead
                 IsConcentrating = false;
 
                 //TODO: Drop held items
 
-                // Ensure CurrentHitPoints is not positive
                 CurrentHitPoints = Math.Min(0, CurrentHitPoints);
 
-                // TODO: Trigger a domain event for the creature death
+                AddCondition(Condition.Dead);
+                var deathEvent = new CreatureDiedEvent(Id);
+                AddDomainEvent(deathEvent);
+
+                AddCondition(Condition.Prone);
+                var proneEvent = new CreatureAddConditionEvent(Id, [Condition.Prone]);
+                AddDomainEvent(proneEvent);
+
+                RemoveCondition(Condition.Unconscious);
+                var removeUnconsciousEvent = new CreatureRemoveConditionEvent(Id, [Condition.Unconscious]);
+                AddDomainEvent(removeUnconsciousEvent);
+
+                RemoveCondition(Condition.Dying);
+                var removeDyingEvent = new CreatureRemoveConditionEvent(Id, [Condition.Dying]);
+                AddDomainEvent(removeDyingEvent);
             }
         }
 
@@ -699,9 +777,15 @@ namespace DND.Domain.SharedKernel
         // Apply temporary damage modification (used by ApplicationService)
         public virtual void ApplyTemporaryDamageModification(TemporaryDamageModification modification)
         {
-            // TODO: Add logic for stacking rules
-
             _temporaryDamageModifications.Add(modification);
+
+            //TODO: Add domainEvent for tracking by the combat service
+        }
+
+        // Apply temporary damage immunity (used by ApplicationService)
+        public virtual void ApplyTemporaryDamageImmunity(TemporaryImmunityModification modification)
+        {
+            _temporaryDamageImmunities.Add(modification);
 
             //TODO: Add domainEvent for tracking by the combat service
         }
@@ -711,6 +795,14 @@ namespace DND.Domain.SharedKernel
         {
             _temporaryDamageModifications.RemoveAll(mod => mod.SourceId == sourceId && mod.TypeOfDamage == damageType);
 
+            // TODO: Add domainEvent to notify when the effect is gone
+        }
+
+        // Remove temporary damage immunities (used by the CombatService)
+        public virtual void RemoveTempoDamageImmunity(Guid sourceId, DamageType damageType)
+        {
+            _temporaryDamageImmunities.RemoveAll(mod => mod.SourceId == sourceId && mod.TypeOfDamage == damageType);
+            
             // TODO: Add domainEvent to notify when the effect is gone
         }
     }

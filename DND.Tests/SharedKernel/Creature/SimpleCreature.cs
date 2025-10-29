@@ -37,5 +37,15 @@ namespace DND.Tests.SharedKernel
         {
             AddSpecialDamageRule(rule);
         }
+
+        public void SetupConditionImmunity(Condition condition)
+        {
+            AddConditionImmunity(condition);
+        }
+
+        public void SetupCondition(Condition condition)
+        {
+            AddCondition(condition);
+        }   
     }
 }

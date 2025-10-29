@@ -1,14 +1,10 @@
 ﻿namespace DND.Domain.SharedKernel
 {
-    /// <summary>
-    /// Implementation of damage adjustment rule for physical damage resistance
-    /// when the source of damage is non magical and the weapon is not silvered.
-    /// </summary>
-    public class PhysicalDamageNonMagicalNonSilveredResistanceRule : IModificationRule
+    public class BarbarianRagingResistanceRule : IModificationRule
     {
         public DamageType TypeOfDamage { get; protected set; }
 
-        public string Name => "Werewolf-style Resistance";
+        public string Name => "BarbarianRage Resistance";
 
         public DamageType GetDamageType()
         {
@@ -19,9 +15,7 @@
         {
             if ((damageType == DamageType.Bludgeoning ||
                  damageType == DamageType.Piercing ||
-                 damageType == DamageType.Slashing) &&
-                 damageSource != DamageSource.Magical &&
-                 !isSilvered)
+                 damageType == DamageType.Slashing))
             {
                 TypeOfDamage = damageType;
                 return 0.5f;
@@ -29,5 +23,6 @@
 
             return 1.0f;
         }
+
     }
 }
