@@ -39,6 +39,10 @@ namespace DND.Tests.SharedKernel
         // Test data for all abilities
         public static TheoryData<Ability> AllAbilities => [.. Enum.GetValues(typeof(Ability)).Cast<Ability>().ToArray()];
 
+        // Test data for all skills
+        public static TheoryData<Skill> AllSkills => [.. Enum.GetValues(typeof(Skill)).Cast<Skill>().ToArray()];
+
+
         [Theory]
         [MemberData(nameof(ProficencyBonusTable))]
         public void CreatureProficiencyBonus_WhenProficiencyBonus_ShouldReturnCorrectValueBasedOnLevel(int level, int expectedProficiencyBonus)
@@ -87,7 +91,7 @@ namespace DND.Tests.SharedKernel
 
             // Act
             int savingThrowModifier = sut.GetSavingThrowModifier(ability);
-            
+
             // Assert
             Assert.Equal(expectedProficiencyBonus, proficiencyBonus);
             Assert.Equal(expectedModifier, savingThrowModifier);
@@ -114,9 +118,112 @@ namespace DND.Tests.SharedKernel
 
             // Act
             int savingThrowModifier = sut.GetSavingThrowModifier(ability);
-            
+
             // Assert
             Assert.Equal(expectedModifier, savingThrowModifier);
+        }
+
+        [Theory]
+        [MemberData(nameof(AllSkills))]
+        public void GetSkillModifier_WhenSkillProficient_ShouldReturnAbilityModifierAddedToProficiencyBonus(Skill skill)
+        {
+            // Arrange
+            var sut = new SimpleCreature(
+                name: "Lone Fighter",
+                creatureType: CreatureType.Humanoid,
+                size: Size.Medium,
+                abilityScores: new AbilityScores(fighterScores),
+                maxHitPoints: 50,
+                currentHitPoints: 50,
+                speed: new Speed(30),
+                level: 5 // Level 5 gives a proficiency bonus of +3
+            );
+
+            int expectedProficiencyBonus = 3; // Level 5 proficiency bonus
+            sut.SetupProficientSkill(skill);
+            Ability associatedAbility = SkillExtensions.GetAbility(skill);
+            int abilityModifier = sut.AbilityScores.GetModifier(associatedAbility);
+            int proficiencyBonus = sut.ProficiencyBonus;
+            int expectedModifier = abilityModifier + proficiencyBonus;
+            bool isProficient = sut.IsProficientInSkill(skill);
+            bool isExpert = sut.HasExpertiseInSkill(skill);
+
+            // Act
+            int skillModifier = sut.GetSkillCheckModifier(skill);
+
+            // Assert
+            Assert.Equal(expectedProficiencyBonus, proficiencyBonus);
+            Assert.Equal(expectedModifier, skillModifier);
+            Assert.True(isProficient);
+            Assert.False(isExpert);
+        }
+
+        [Theory]
+        [MemberData(nameof(AllSkills))]
+        public void GetSkillModifier_WhenSkillNotProficient_ShouldReturnOnlyAbilityModifier(Skill skill)
+        {
+            // Arrange
+            var sut = new SimpleCreature(
+                name: "Lone Fighter",
+                creatureType: CreatureType.Humanoid,
+                size: Size.Medium,
+                abilityScores: new AbilityScores(fighterScores),
+                maxHitPoints: 50,
+                currentHitPoints: 50,
+                speed: new Speed(30),
+                level: 5 // Level 5 gives a proficiency bonus of +3
+            );
+
+            Ability associatedAbility = SkillExtensions.GetAbility(skill);
+            int abilityModifier = sut.AbilityScores.GetModifier(associatedAbility);
+            int expectedModifier = abilityModifier;
+            bool isProficient = sut.IsProficientInSkill(skill);
+            bool isExpert = sut.HasExpertiseInSkill(skill);
+
+            // Act
+            int skillModifier = sut.GetSkillCheckModifier(skill);
+
+            // Assert
+            Assert.Equal(expectedModifier, skillModifier);
+            Assert.False(isProficient);
+            Assert.False(isExpert);
+
+        }
+
+        [Theory]
+        [MemberData(nameof(AllSkills))]
+        public void GetSkillModifier_WhenSkillExpert_ShouldReturnAbilityModifierAddedToDoubleProficiencyBonus(Skill skill)
+        {
+            // Arrange
+            var sut = new SimpleCreature(
+                name: "Lone Fighter",
+                creatureType: CreatureType.Humanoid,
+                size: Size.Medium,
+                abilityScores: new AbilityScores(fighterScores),
+                maxHitPoints: 50,
+                currentHitPoints: 50,
+                speed: new Speed(30),
+                level: 5 // Level 5 gives a proficiency bonus of +3
+            );
+
+            int expectedProficiencyBonus = 3; // Level 5 proficiency bonus
+            sut.SetupExpertSkill(skill);
+            Ability associatedAbility = SkillExtensions.GetAbility(skill);
+            int abilityModifier = sut.AbilityScores.GetModifier(associatedAbility);
+            int proficiencyBonus = sut.ProficiencyBonus * 2; // Double proficiency for expertise
+            int expectedModifier = abilityModifier + proficiencyBonus;
+            bool isProficient = sut.IsProficientInSkill(skill);
+            bool isExpert = sut.HasExpertiseInSkill(skill);
+
+
+            // Act
+            int skillModifier = sut.GetSkillCheckModifier(skill);
+
+            // Assert
+            Assert.Equal(expectedProficiencyBonus * 2, proficiencyBonus);
+            Assert.Equal(expectedModifier, skillModifier);
+            Assert.False(isProficient);
+            Assert.True(isExpert);
         }
     }
 }
