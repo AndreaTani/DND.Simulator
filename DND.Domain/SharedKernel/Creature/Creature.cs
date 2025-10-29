@@ -171,8 +171,8 @@ namespace DND.Domain.SharedKernel
 
 
         // Helper method to check if the creature is proficient in a skill or even an expert in it
-        public bool IsProficientInSkill(Skill skill) => ProficientSkills.Contains(skill) || ExpertSkills.Contains(skill);
-        public bool HasExpertiseInSkill(Skill skill) => ExpertSkills.Contains(skill);
+        public bool IsProficientInSkill(Skill skill) => ProficientSkills.Contains(skill) && !ExpertSkills.Contains(skill);
+        public bool HasExpertiseInSkill(Skill skill) => ExpertSkills.Contains(skill) && !ProficientSkills.Contains(skill);
 
 
         // Calculate final damage using the damage adjustment rules

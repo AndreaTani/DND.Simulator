@@ -5,13 +5,13 @@ namespace DND.Tests.SharedKernel
     public class SimpleCreature : Creature
     {
         public SimpleCreature(
-            string name, 
-            CreatureType creatureType, 
-            Size size, 
-            AbilityScores abilityScores, 
-            int maxHitPoints, 
+            string name,
+            CreatureType creatureType,
+            Size size,
+            AbilityScores abilityScores,
+            int maxHitPoints,
             int currentHitPoints,
-            Speed speed, 
+            Speed speed,
             int armorClass = 0,
             int level = 1
         ) : base(name, creatureType, size, abilityScores, maxHitPoints, currentHitPoints, speed, armorClass, level)
@@ -46,6 +46,21 @@ namespace DND.Tests.SharedKernel
         public void SetupCondition(Condition condition)
         {
             AddCondition(condition);
-        }   
+        }
+
+        public void SetupProficientySavingThrow(Ability ability)
+        {
+            AddProficientSavingThrow(ability);
+        }
+
+        public void SetupProficientSkill(Skill skill)
+        {
+            AddProficientSkill(skill);
+        }
+
+        public void SetupExpertSkill(Skill skill)
+        {
+            AddExpertSkill(skill);
+        }
     }
 }
