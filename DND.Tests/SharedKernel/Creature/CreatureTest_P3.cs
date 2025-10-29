@@ -225,6 +225,53 @@ namespace DND.Tests.SharedKernel
             Assert.False(isProficient);
             Assert.True(isExpert);
         }
+
+        [Fact]
+        public void CreatureCurrentArmorClass_WhenArmorClassIsZero_ShouldReturn10PlusDexterityModifier()
+        {
+            // Arrange
+            var sut = new SimpleCreature(
+                name: "Lone Fighter",
+                creatureType: CreatureType.Humanoid,
+                size: Size.Medium,
+                abilityScores: new AbilityScores(fighterScores), // Dexterity score of 12 (+1 modifier)
+                maxHitPoints: 40,
+                currentHitPoints: 40,
+                speed: new Speed(30),
+                armorClass: 0 // Base armor class is set to 0
+            );
+
+            int expectedArmorClass = 10 + sut.AbilityScores.GetModifier(Ability.Dexterity); // 10 + 1 = 11
+
+            // Act
+            int actualArmorClass = sut.CurrentArmorClass;
+
+            // Assert
+            Assert.Equal(expectedArmorClass, actualArmorClass);
+        }
+
+        [Fact]
+        public void CreatureCurrentArmorClass_WhenArmorClassIsSet_ShouldReturnSetValue()
+        {
+            // Arrange
+            int setArmorClass = 16;
+            var sut = new SimpleCreature(
+                name: "Lone Fighter",
+                creatureType: CreatureType.Humanoid,
+                size: Size.Medium,
+                abilityScores: new AbilityScores(fighterScores),
+                maxHitPoints: 40,
+                currentHitPoints: 40,
+                speed: new Speed(30),
+                armorClass: setArmorClass // Base armor class is set to 16
+            );
+
+            // Act
+            int actualArmorClass = sut.CurrentArmorClass;
+
+            // Assert
+            Assert.Equal(setArmorClass, actualArmorClass);
+        }
     }
 }
 
