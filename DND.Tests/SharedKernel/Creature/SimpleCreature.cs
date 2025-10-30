@@ -48,6 +48,11 @@ namespace DND.Tests.SharedKernel
             AddConditionImmunity(condition);
         }
 
+        public void SetupConditions(params Condition[] conditions)
+        {
+            AddConditions(conditions);
+        }
+
         public void SetupCondition(Condition condition)
         {
             AddCondition(condition);

@@ -427,7 +427,7 @@ namespace DND.Domain.SharedKernel
         protected void AddConditions(IEnumerable<Condition> conditions)
         {
             var immuneConditions = conditions.Where(c => _conditionImmunities.Contains(c)).ToList();
-            var newConditions = conditions.Where(c => !_conditionImmunities.Contains(c) && !_conditions.Contains(c)).ToList();
+            var newConditions = conditions.Where(c => !_conditionImmunities.Contains(c) && !_conditions.Contains(c)).Distinct().ToList();
 
             if (immuneConditions.Count != 0)
             {
