@@ -68,6 +68,16 @@ namespace DND.Tests.SharedKernel
             AddSense(sense);
         }
 
+        public void SetupLanguages(params Language[] languages)
+        {
+            AddLanguages(languages);
+        }
+
+        public void SetupLanguage(Language language)
+        {
+            AddLanguage(language);
+        }
+
         public void SetupProficientySavingThrow(Ability ability)
         {
             AddProficientSavingThrow(ability);

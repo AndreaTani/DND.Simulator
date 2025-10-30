@@ -485,9 +485,10 @@ namespace DND.Domain.SharedKernel
 
 
         // Add a or remove a language to the creature, avoiding duplicates when adding
+        // TODO: Add domain events for adding/removing languages
         protected void AddLanguages(IEnumerable<Language> languages)
         {
-            _languages.AddRange(languages.Where(l => !_languages.Contains(l)));
+            _languages.AddRange(languages.Where(l => !_languages.Contains(l)).Distinct());
         }
         protected void AddLanguage(Language language)
         {
