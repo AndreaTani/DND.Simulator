@@ -58,6 +58,16 @@ namespace DND.Tests.SharedKernel
             AddCondition(condition);
         }
 
+        public void SetupSenses(params Sense[] senses)
+        {
+            AddSenses(senses);
+        }
+
+        public void SetupSense(Sense sense)
+        {
+            AddSense(sense);
+        }
+
         public void SetupProficientySavingThrow(Ability ability)
         {
             AddProficientSavingThrow(ability);

@@ -469,7 +469,7 @@ namespace DND.Domain.SharedKernel
         // TODO: Add domain events for adding/removing senses
         protected void AddSenses(IEnumerable<Sense> senses)
         {
-            _senses.AddRange(senses.Where(s => !_senses.Contains(s)));
+            _senses.AddRange(senses.Where(s => !_senses.Contains(s)).Distinct());
         }
         protected void AddSense(Sense sense)
         {

@@ -4,6 +4,10 @@ namespace DND.Tests.SharedKernel
 {
     public partial class CreatureTest
     {
+        // Test data for all senses
+        public static TheoryData<Sense> AllSenses => [.. Enum.GetValues(typeof(Sense)).Cast<Sense>().ToArray()];
+
+
         [Theory]
         [MemberData(nameof(AllConditions))]
         public void AddConditionImmunities_WhenAddingConditionImmunities_ShouldAddThemWithoutDuplicates(Condition condition)
@@ -104,6 +108,57 @@ namespace DND.Tests.SharedKernel
             // Assert
             Assert.Contains(condition, conditions);
             Assert.Equal(1, conditions.Count(c => c == condition));
+        }
+
+        [Theory]
+        [MemberData(nameof(AllSenses))]
+        public void AddSenses_WhenAddingSenses_ShouldAddThemWithoutDuplicates(Sense sense)
+        {
+            // Arrange
+            var sut = new SimpleCreature(
+                name: "Lone Fighter",
+                creatureType: CreatureType.Humanoid,
+                size: Size.Medium,
+                abilityScores: new AbilityScores(fighterScores),
+                maxHitPoints: 49,
+                currentHitPoints: 49,
+                speed: new Speed(),
+                level: 5
+                );
+
+            // Act
+            sut.SetupSenses([sense, sense]);
+            var senses = sut.Senses;
+
+            // Assert
+            Assert.Contains(sense, senses);
+            Assert.Equal(1, senses.Count(s => s == sense));
+        }
+
+        [Theory]
+        [MemberData(nameof(AllSenses))]
+        public void AddSense_WhenAddingSense_ShouldAddItWithoutDuplicates(Sense sense)
+        {
+            // Arrange
+            var sut = new SimpleCreature(
+                name: "Lone Fighter",
+                creatureType: CreatureType.Humanoid,
+                size: Size.Medium,
+                abilityScores: new AbilityScores(fighterScores),
+                maxHitPoints: 49,
+                currentHitPoints: 49,
+                speed: new Speed(),
+                level: 5
+                );
+
+            // Act
+            sut.SetupSense(sense);
+            sut.SetupSense(sense);
+            var senses = sut.Senses;
+
+            // Assert
+            Assert.Contains(sense, senses);
+            Assert.Equal(1, senses.Count(s => s == sense));
         }
     }
 }
