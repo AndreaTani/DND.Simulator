@@ -396,10 +396,12 @@ namespace DND.Domain.SharedKernel
                 throw new ArgumentOutOfRangeException(nameof(amount), "Temporary hit points must be non-negative.");
             }
             TemporaryHitPoints = Math.Max(TemporaryHitPoints, amount);
+            // TODO: Add domain event for temporary hit points change
         }
 
 
         // Add or remove a condition immunity to the creature, avoiding duplicates when adding
+        // TODO: Add domain events for adding/removing condition immunities
         protected void AddConditionImmunities(IEnumerable<Condition> conditions)
         {
             _conditionImmunities.AddRange(conditions.Where(c => !_conditionImmunities.Contains(c)));
@@ -459,10 +461,12 @@ namespace DND.Domain.SharedKernel
         protected void RemoveCondition(Condition condition)
         {
             _conditions.Remove(condition);
+            // TODO: Add domain event for condition removal
         }
 
 
         // Add or remove a sense to the creature, avoiding duplicates when adding
+        // TODO: Add domain events for adding/removing senses
         protected void AddSenses(IEnumerable<Sense> senses)
         {
             _senses.AddRange(senses.Where(s => !_senses.Contains(s)));
