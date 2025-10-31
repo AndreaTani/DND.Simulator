@@ -530,13 +530,14 @@ namespace DND.Domain.SharedKernel
 
         // Add or remove an expert skill to the creature, avoiding duplicates when adding
         // If the skill is already in proficient skills, remove it to avoid duplication
+        // TODO: Add domain events for adding/removing expert skills
         protected void AddExpertSkills(IEnumerable<Skill> skills)
         {
             _expertSkills.AddRange(skills.Where(s => !_expertSkills.Contains(s)).Select(s =>
             {
                 _proficientSkills.Remove(s);
                 return s;
-            }));
+            }).Distinct());
         }
         protected void AddExpertSkill(Skill skill)
         {

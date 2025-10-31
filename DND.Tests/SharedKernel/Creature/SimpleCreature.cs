@@ -93,6 +93,11 @@ namespace DND.Tests.SharedKernel
             AddProficientSkill(skill);
         }
 
+        public void SetupExpertSkills(params Skill[] skills)
+        {
+            AddExpertSkills(skills);
+        }
+
         public void SetupExpertSkill(Skill skill)
         {
             AddExpertSkill(skill);

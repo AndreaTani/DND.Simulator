@@ -267,6 +267,57 @@ namespace DND.Tests.SharedKernel
             Assert.Equal(1, proficientSkills.Count(s => s == skill));
         }
 
+        [Theory]
+        [MemberData(nameof(AllSkills))]
+        public void AddExpertSkills_WhenAddingExpertSkills_ShouldAddThemWithoutDuplicates(Skill skill)
+        {
+            // Arrange
+            var sut = new SimpleCreature(
+                name: "Lone Fighter",
+                creatureType: CreatureType.Humanoid,
+                size: Size.Medium,
+                abilityScores: new AbilityScores(fighterScores),
+                maxHitPoints: 49,
+                currentHitPoints: 49,
+                speed: new Speed(),
+                level: 5
+                );
+
+            // Act
+            sut.SetupExpertSkills([skill, skill]);
+            var expertiseSkills = sut.ExpertSkills;
+
+            // Assert
+            Assert.Contains(skill, expertiseSkills);
+            Assert.Equal(1, expertiseSkills.Count(s => s == skill));
+        }
+
+        [Theory]
+        [MemberData(nameof(AllSkills))]
+        public void AddExpertSkill_WhenAddingExpertSkill_ShouldAddItWithoutDuplicates(Skill skill)
+        {
+            // Arrange
+            var sut = new SimpleCreature(
+                name: "Lone Fighter",
+                creatureType: CreatureType.Humanoid,
+                size: Size.Medium,
+                abilityScores: new AbilityScores(fighterScores),
+                maxHitPoints: 49,
+                currentHitPoints: 49,
+                speed: new Speed(),
+                level: 5
+                );
+
+            // Act
+            sut.SetupExpertSkill(skill);
+            sut.SetupExpertSkill(skill);
+            var expertiseSkills = sut.ExpertSkills;
+
+            // Assert
+            Assert.Contains(skill, expertiseSkills);
+            Assert.Equal(1, expertiseSkills.Count(s => s == skill));
+        }
+
     }
 }
 
