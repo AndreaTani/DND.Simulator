@@ -580,7 +580,9 @@ namespace DND.Domain.SharedKernel
             _damageAdjustmentRules.AddRange(damageTypes
                 .Where(dt => !_damageImmunities.Contains(dt))
                 .Select(dt => new SimpleDamageImmunityRule(dt))
+                .Distinct()
             );
+            // TODO: Add domain events for adding multiple damage immunities
         }
         protected void AddDamageImmunity(DamageType damageType)
         {
@@ -609,6 +611,7 @@ namespace DND.Domain.SharedKernel
         {
             _damageImmunities.Remove(damageType);
             _damageAdjustmentRules.RemoveAll(rule => rule.GetDamageType() == damageType && rule is SimpleDamageImmunityRule);
+            // TODO: Add domain event for removing damage immunity
         }
 
 

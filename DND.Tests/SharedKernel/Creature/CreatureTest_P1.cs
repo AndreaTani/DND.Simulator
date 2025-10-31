@@ -52,7 +52,7 @@ namespace DND.Tests.SharedKernel
                 level: 5
                 );
 
-            sut.SetupImmunity(DamageType.Fire);
+            sut.SetupDamageImmunity(DamageType.Fire);
             sut.SetupResistance(DamageType.Acid);
             sut.SetupVulnerability(DamageType.Cold);
 
@@ -145,7 +145,7 @@ namespace DND.Tests.SharedKernel
 
 
             // Act
-            sut.SetupImmunity(type);
+            sut.SetupDamageImmunity(type);
             bool CurrentIsResistant = sut.IsResistantTo(type);
             bool CurrentIsVulnerable = sut.IsVulnerableTo(type);
             bool IsImmune = sut.IsImmuneTo(type);
@@ -195,7 +195,7 @@ namespace DND.Tests.SharedKernel
                 level: 5
                 );
 
-            sut.SetupImmunity(damageType);
+            sut.SetupDamageImmunity(damageType);
             bool InitialIsImmune = sut.IsImmuneTo(damageType);
             List<DamageType> InitialImmunities = [.. sut.DamageImmunities];
             List<IDamageAdjustmentRule> InitialImmunityAdjustmetRules = [.. sut.DamageAdjustmentRules.OfType<IImmunityRule>().Where(rule => rule.GetDamageType().Equals(damageType))];
@@ -237,7 +237,7 @@ namespace DND.Tests.SharedKernel
                 level: 5
                 );
 
-            sut.SetupImmunity(damageType);
+            sut.SetupDamageImmunity(damageType);
             bool InitialIsImmune = sut.IsImmuneTo(damageType);
             List<DamageType> InitialImmunities = [.. sut.DamageImmunities];
             List<IDamageAdjustmentRule> InitialImmunityAdjustmetRules = [.. sut.DamageAdjustmentRules.OfType<IImmunityRule>().Where(rule => rule.GetDamageType().Equals(damageType))];
