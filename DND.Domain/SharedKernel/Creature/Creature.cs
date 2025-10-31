@@ -1,7 +1,4 @@
-﻿using DND.Domain.SharedKernel.Events;
-using System.ComponentModel.DataAnnotations;
-
-namespace DND.Domain.SharedKernel
+﻿namespace DND.Domain.SharedKernel
 {
     public abstract class Creature : IAggregateRoot
     {
@@ -396,26 +393,35 @@ namespace DND.Domain.SharedKernel
                 throw new ArgumentOutOfRangeException(nameof(amount), "Temporary hit points must be non-negative.");
             }
             TemporaryHitPoints = Math.Max(TemporaryHitPoints, amount);
-            // TODO: Add domain event for temporary hit points change
+            
+            var tempHpChnagedEvent = new CreatureTemporaryHPChangedEvent(
+                CreatureId: Id,
+                CurrentTemporaryHp: TemporaryHitPoints,
+                Amount: amount
+            );
+            AddDomainEvent(tempHpChnagedEvent);
         }
 
 
         // Add or remove a condition immunity to the creature, avoiding duplicates when adding
-        // TODO: Add domain events for adding/removing condition immunities
         protected void AddConditionImmunities(IEnumerable<Condition> conditions)
         {
-            _conditionImmunities.AddRange(conditions.Where(c => !_conditionImmunities.Contains(c)));
+            _conditionImmunities.AddRange(conditions.Where(c => !_conditionImmunities.Contains(c)).Distinct());
+            AddDomainEvent(new CreatureConditionImmunitiesAddedEvent(Id, conditions.Distinct()));
         }
         protected void AddConditionImmunity(Condition condition)
         {
             if (!_conditionImmunities.Contains(condition))
             {
                 _conditionImmunities.Add(condition);
+                AddDomainEvent(new CreatureConditionImmunitiesAddedEvent(Id, [condition]));
             }
         }
-        protected void RemoveConditionImmunity(Condition condition)
+        protected void RemoveConditionImmunities(IEnumerable<Condition> conditions)
         {
-            _conditionImmunities.Remove(condition);
+            var conditionsToRemove = new HashSet<Condition>(conditions).Distinct();
+            _conditionImmunities.RemoveAll(c => conditionsToRemove.Contains(c));
+            AddDomainEvent(new CreatureConditionImmunitiesRemovedEvent(Id, conditionsToRemove));
         }
 
         /// <summary>
@@ -431,14 +437,14 @@ namespace DND.Domain.SharedKernel
 
             if (immuneConditions.Count != 0)
             {
-                var immuneEvent = new CreatureImmuneToConditionsEvent(Id, immuneConditions);
+                var immuneEvent = new CreatureConditionImmunitiesAddedEvent(Id, immuneConditions);
                 AddDomainEvent(immuneEvent);
             }
 
             if (newConditions.Count != 0)
             {
                 _conditions.AddRange(newConditions);
-                var conditionAddedEvent = new CreatureAddConditionEvent(Id, newConditions);
+                var conditionAddedEvent = new CreatureAddConditionsEvent(Id, newConditions);
                 AddDomainEvent(conditionAddedEvent);
             }
         }
@@ -446,60 +452,67 @@ namespace DND.Domain.SharedKernel
         {
             if (_conditionImmunities.Contains(condition))
             {
-                var immuneEvent = new CreatureImmuneToConditionsEvent(Id, [condition]);
+                var immuneEvent = new CreatureConditionImmunitiesAddedEvent(Id, [condition]);
                 AddDomainEvent(immuneEvent);
                 return;
             }
 
             if (!_conditions.Contains(condition))
             {
-                var conditionAddedEvent = new CreatureAddConditionEvent(Id, [condition]);
+                var conditionAddedEvent = new CreatureAddConditionsEvent(Id, [condition]);
                 _conditions.Add(condition);
                 AddDomainEvent(conditionAddedEvent);
             }
         }
-        protected void RemoveCondition(Condition condition)
+        protected void RemoveConditions(IEnumerable<Condition> conditions)
         {
-            _conditions.Remove(condition);
-            // TODO: Add domain event for condition removal
+            var conditionsToRemove = new HashSet<Condition>(conditions).Distinct();
+            _conditions.RemoveAll(c => conditionsToRemove.Contains(c));
+            AddDomainEvent(new CreatureRemoveConditionsEvent(Id, conditionsToRemove));
         }
 
 
         // Add or remove a sense to the creature, avoiding duplicates when adding
-        // TODO: Add domain events for adding/removing senses
         protected void AddSenses(IEnumerable<Sense> senses)
         {
             _senses.AddRange(senses.Where(s => !_senses.Contains(s)).Distinct());
+            AddDomainEvent(new CreatureSensesAddedEvent(Id, senses.Distinct()));
         }
         protected void AddSense(Sense sense)
         {
             if (!_senses.Contains(sense))
             {
                 _senses.Add(sense);
+                AddDomainEvent(new CreatureSensesAddedEvent(Id, [sense]));
             }
         }
-        protected void RemoveSense(Sense sense)
+        protected void RemoveSenses(IEnumerable<Sense> sense)
         {
-            _senses.Remove(sense);
+            var sensesToRemove = new HashSet<Sense>(sense).Distinct();
+            _senses.RemoveAll(s => sensesToRemove.Contains(s));
+            AddDomainEvent(new CreatureSensesRemovedEvent(Id, sensesToRemove));
         }
 
 
         // Add a or remove a language to the creature, avoiding duplicates when adding
-        // TODO: Add domain events for adding/removing languages
         protected void AddLanguages(IEnumerable<Language> languages)
         {
             _languages.AddRange(languages.Where(l => !_languages.Contains(l)).Distinct());
+            AddDomainEvent(new CreatureLanguagesAddedEvent(Id, languages.Distinct()));
         }
         protected void AddLanguage(Language language)
         {
             if (!_languages.Contains(language))
             {
                 _languages.Add(language);
+                AddDomainEvent(new CreatureLanguagesAddedEvent(Id, [language]));
             }
         }
-        protected void RemoveLanguage(Language language)
+        protected void RemoveLanguages(IEnumerable<Language> languages)
         {
-            _languages.Remove(language);
+            var languagesToRemove = new HashSet<Language>(languages).Distinct();
+            _languages.RemoveAll(l => languagesToRemove.Contains(l));
+            AddDomainEvent(new CreatureLanguagesRemovedEvent(Id, languagesToRemove));
         }
 
 
@@ -582,7 +595,7 @@ namespace DND.Domain.SharedKernel
                 .Select(dt => new SimpleDamageImmunityRule(dt))
                 .Distinct()
             );
-            // TODO: Add domain events for adding multiple damage immunities
+            AddDomainEvent(new CreatureDamageImmunitiesAddedEvent(Id, damageTypes));
         }
         protected void AddDamageImmunity(DamageType damageType)
         {
@@ -605,7 +618,7 @@ namespace DND.Domain.SharedKernel
 
             _damageImmunities.Add(damageType);
             _damageAdjustmentRules.Add(new SimpleDamageImmunityRule(damageType));
-            AddDomainEvent(new CreatureDamageImmunityAddedEvent(Id, damageType));
+            AddDomainEvent(new CreatureDamageImmunitiesAddedEvent(Id, [damageType]));
         }
         protected void RemoveDamageImmunity(DamageType damageType)
         {
@@ -625,7 +638,7 @@ namespace DND.Domain.SharedKernel
                 .Select(dt => new SimpleDamageResisistanceRule(dt))
                 .Distinct()
             );
-            // TODO: Add domain events for adding multiple damage resistances
+            AddDomainEvent(new CreatureDamageResistancesAddedEvent(Id, damageTypes));
         }
         protected void AddDamageResistance(DamageType damageType)
         {
@@ -642,7 +655,7 @@ namespace DND.Domain.SharedKernel
 
             _damageResistances.Add(damageType);
             _damageAdjustmentRules.Add(new SimpleDamageResisistanceRule(damageType));
-            AddDomainEvent(new CreatureDamageResistanceAddedEvent(Id, damageType));
+            AddDomainEvent(new CreatureDamageResistancesAddedEvent(Id, [damageType]));
         }
         protected void RemoveDamageResistance(DamageType damageType)
         {
@@ -662,7 +675,7 @@ namespace DND.Domain.SharedKernel
                 .Select(dt => new SimpleDamageVulnerabilityRule(dt))
                 .Distinct()
             );
-            // TODO: Add domain events for adding multiple damage vulnerabilities
+            AddDomainEvent(new CreatureDamageVulnerabilitiesAddedEvent(Id, damageTypes));
         }
         protected void AddDamageVulnerability(DamageType damageType)
         {
@@ -679,7 +692,7 @@ namespace DND.Domain.SharedKernel
 
             _damageVulnerabilities.Add(damageType);
             _damageAdjustmentRules.Add(new SimpleDamageVulnerabilityRule(damageType));
-            AddDomainEvent(new CreatureDamageVulnerabilityAddedEvent(Id, damageType));
+            AddDomainEvent(new CreatureDamageVulnerabilitiesAddedEvent(Id, [damageType]));
         }
         protected void RemoveDamageVulnerability(DamageType damageType)
         {
@@ -723,7 +736,7 @@ namespace DND.Domain.SharedKernel
             {
                 IsConcentrating = false;
 
-                //TODO: Drop held items
+                // TODO: Drop held items
 
                 if (isDying)
                 {
@@ -737,7 +750,7 @@ namespace DND.Domain.SharedKernel
                 AddDomainEvent(unconsciousEvent);
 
                 AddCondition(Condition.Prone);
-                var proneEvent = new CreatureAddConditionEvent(Id, [Condition.Prone]);
+                var proneEvent = new CreatureAddConditionsEvent(Id, [Condition.Prone]);
                 AddDomainEvent(proneEvent);
             }
         }
@@ -753,7 +766,7 @@ namespace DND.Domain.SharedKernel
             {
                 IsConcentrating = false;
 
-                //TODO: Drop held items
+                // TODO: Drop held items
 
                 CurrentHitPoints = Math.Min(0, CurrentHitPoints);
 
@@ -762,16 +775,12 @@ namespace DND.Domain.SharedKernel
                 AddDomainEvent(deathEvent);
 
                 AddCondition(Condition.Prone);
-                var proneEvent = new CreatureAddConditionEvent(Id, [Condition.Prone]);
+                var proneEvent = new CreatureAddConditionsEvent(Id, [Condition.Prone]);
                 AddDomainEvent(proneEvent);
 
-                RemoveCondition(Condition.Unconscious);
-                var removeUnconsciousEvent = new CreatureRemoveConditionEvent(Id, [Condition.Unconscious]);
+                RemoveConditions([Condition.Unconscious, Condition.Dying]);
+                var removeUnconsciousEvent = new CreatureRemoveConditionsEvent(Id, [Condition.Unconscious, Condition.Dying]);
                 AddDomainEvent(removeUnconsciousEvent);
-
-                RemoveCondition(Condition.Dying);
-                var removeDyingEvent = new CreatureRemoveConditionEvent(Id, [Condition.Dying]);
-                AddDomainEvent(removeDyingEvent);
             }
         }
 
@@ -782,8 +791,7 @@ namespace DND.Domain.SharedKernel
         {
             if (IsDead || IsUnconscious)
             {
-                RemoveCondition(Condition.Dead);
-                RemoveCondition(Condition.Unconscious);
+                RemoveConditions([Condition.Dead, Condition.Unconscious]);
 
                 // Revive with 1 HP if dead or unconscious with 0 or negative HP
                 if (CurrentHitPoints <= 0)

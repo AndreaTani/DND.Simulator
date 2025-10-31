@@ -10,7 +10,6 @@
         Tremorsense,
         Truesight,
         NormalVision,
-        Hearing,
-        Speaking
+        Hearing
     }
 }

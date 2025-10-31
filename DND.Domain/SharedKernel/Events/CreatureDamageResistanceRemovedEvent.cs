@@ -1,4 +1,4 @@
-﻿namespace DND.Domain.SharedKernel.Events
+﻿namespace DND.Domain.SharedKernel
 {
     /// <summary>
     /// Domain Event raised when a creature's resistance to a specific damage type is removed.
