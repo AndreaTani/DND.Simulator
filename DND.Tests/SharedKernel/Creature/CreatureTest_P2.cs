@@ -281,7 +281,7 @@ namespace DND.Tests.SharedKernel
                 level: 5
                 );
 
-            sut.SetupVulnerability(damageType);
+            sut.SetupDamageVulnerability(damageType);
             int baseDamage = 20;
             int expectedDamage = 10;
 

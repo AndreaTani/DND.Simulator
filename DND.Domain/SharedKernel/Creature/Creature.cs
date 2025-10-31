@@ -576,7 +576,7 @@ namespace DND.Domain.SharedKernel
         // and granting mutual exlusivity when adding
         protected void AddDamageImmunities(IEnumerable<DamageType> damageTypes)
         {
-            _damageImmunities.AddRange(damageTypes.Where(dt => !_damageImmunities.Contains(dt)));
+            _damageImmunities.AddRange(damageTypes.Where(dt => !_damageImmunities.Contains(dt)).Distinct());
             _damageAdjustmentRules.AddRange(damageTypes
                 .Where(dt => !_damageImmunities.Contains(dt))
                 .Select(dt => new SimpleDamageImmunityRule(dt))
@@ -619,7 +619,7 @@ namespace DND.Domain.SharedKernel
         // duplicates and granting mutual exlusivity when adding
         protected void AddDamageResistances(IEnumerable<DamageType> damageTypes)
         {
-            _damageResistances.AddRange(damageTypes.Where(dt => !_damageResistances.Contains(dt)));
+            _damageResistances.AddRange(damageTypes.Where(dt => !_damageResistances.Contains(dt)).Distinct());
             _damageAdjustmentRules.AddRange(damageTypes
                 .Where(dt => !_damageResistances.Contains(dt))
                 .Select(dt => new SimpleDamageResisistanceRule(dt))
@@ -656,11 +656,13 @@ namespace DND.Domain.SharedKernel
         // duplicates and granting mutual exlusivity when adding
         protected void AddDamageVulnerabilities(IEnumerable<DamageType> damageTypes)
         {
-            _damageVulnerabilities.AddRange(damageTypes.Where(dt => !_damageVulnerabilities.Contains(dt)));
+            _damageVulnerabilities.AddRange(damageTypes.Where(dt => !_damageVulnerabilities.Contains(dt)).Distinct());
             _damageAdjustmentRules.AddRange(damageTypes
                 .Where(dt => !_damageVulnerabilities.Contains(dt))
                 .Select(dt => new SimpleDamageVulnerabilityRule(dt))
+                .Distinct()
             );
+            // TODO: Add domain events for adding multiple damage vulnerabilities
         }
         protected void AddDamageVulnerability(DamageType damageType)
         {
@@ -683,6 +685,7 @@ namespace DND.Domain.SharedKernel
         {
             _damageVulnerabilities.Remove(damageType);
             _damageAdjustmentRules.RemoveAll(rule => rule.GetDamageType() == damageType && rule is SimpleDamageVulnerabilityRule);
+            // TODO: Add domain event for removing damage vulnerability
         }
 
         // Add or remove a special damage rule
