@@ -396,10 +396,12 @@ namespace DND.Domain.SharedKernel
                 throw new ArgumentOutOfRangeException(nameof(amount), "Temporary hit points must be non-negative.");
             }
             TemporaryHitPoints = Math.Max(TemporaryHitPoints, amount);
+            // TODO: Add domain event for temporary hit points change
         }
 
 
         // Add or remove a condition immunity to the creature, avoiding duplicates when adding
+        // TODO: Add domain events for adding/removing condition immunities
         protected void AddConditionImmunities(IEnumerable<Condition> conditions)
         {
             _conditionImmunities.AddRange(conditions.Where(c => !_conditionImmunities.Contains(c)));
@@ -425,7 +427,7 @@ namespace DND.Domain.SharedKernel
         protected void AddConditions(IEnumerable<Condition> conditions)
         {
             var immuneConditions = conditions.Where(c => _conditionImmunities.Contains(c)).ToList();
-            var newConditions = conditions.Where(c => !_conditionImmunities.Contains(c) && !_conditions.Contains(c)).ToList();
+            var newConditions = conditions.Where(c => !_conditionImmunities.Contains(c) && !_conditions.Contains(c)).Distinct().ToList();
 
             if (immuneConditions.Count != 0)
             {
@@ -459,13 +461,15 @@ namespace DND.Domain.SharedKernel
         protected void RemoveCondition(Condition condition)
         {
             _conditions.Remove(condition);
+            // TODO: Add domain event for condition removal
         }
 
 
         // Add or remove a sense to the creature, avoiding duplicates when adding
+        // TODO: Add domain events for adding/removing senses
         protected void AddSenses(IEnumerable<Sense> senses)
         {
-            _senses.AddRange(senses.Where(s => !_senses.Contains(s)));
+            _senses.AddRange(senses.Where(s => !_senses.Contains(s)).Distinct());
         }
         protected void AddSense(Sense sense)
         {
@@ -481,9 +485,10 @@ namespace DND.Domain.SharedKernel
 
 
         // Add a or remove a language to the creature, avoiding duplicates when adding
+        // TODO: Add domain events for adding/removing languages
         protected void AddLanguages(IEnumerable<Language> languages)
         {
-            _languages.AddRange(languages.Where(l => !_languages.Contains(l)));
+            _languages.AddRange(languages.Where(l => !_languages.Contains(l)).Distinct());
         }
         protected void AddLanguage(Language language)
         {
@@ -508,7 +513,7 @@ namespace DND.Domain.SharedKernel
         // Add a or remove a proficient skill to the creature, avoiding duplicates when adding
         protected void AddProficientSkills(IEnumerable<Skill> skills)
         {
-            _proficientSkills.AddRange(skills.Where(s => !_proficientSkills.Contains(s) && !_expertSkills.Contains(s)));
+            _proficientSkills.AddRange(skills.Where(s => !_proficientSkills.Contains(s) && !_expertSkills.Contains(s)).Distinct());
         }
         protected void AddProficientSkill(Skill skill)
         {
@@ -525,13 +530,14 @@ namespace DND.Domain.SharedKernel
 
         // Add or remove an expert skill to the creature, avoiding duplicates when adding
         // If the skill is already in proficient skills, remove it to avoid duplication
+        // TODO: Add domain events for adding/removing expert skills
         protected void AddExpertSkills(IEnumerable<Skill> skills)
         {
             _expertSkills.AddRange(skills.Where(s => !_expertSkills.Contains(s)).Select(s =>
             {
                 _proficientSkills.Remove(s);
                 return s;
-            }));
+            }).Distinct());
         }
         protected void AddExpertSkill(Skill skill)
         {
@@ -548,9 +554,10 @@ namespace DND.Domain.SharedKernel
 
 
         // Add or remove a proficient saving throw to the creature, avoiding duplicates when adding
+        // TODO: Add domain events for adding/removing proficient saving throws
         protected void AddProficientSavingThrows(IEnumerable<Ability> abilities)
         {
-            _proficientSavingThrows.AddRange(abilities.Where(a => !_proficientSavingThrows.Contains(a)));
+            _proficientSavingThrows.AddRange(abilities.Where(a => !_proficientSavingThrows.Contains(a)).Distinct());
         }
         protected void AddProficientSavingThrow(Ability ability)
         {
@@ -569,11 +576,13 @@ namespace DND.Domain.SharedKernel
         // and granting mutual exlusivity when adding
         protected void AddDamageImmunities(IEnumerable<DamageType> damageTypes)
         {
-            _damageImmunities.AddRange(damageTypes.Where(dt => !_damageImmunities.Contains(dt)));
+            _damageImmunities.AddRange(damageTypes.Where(dt => !_damageImmunities.Contains(dt)).Distinct());
             _damageAdjustmentRules.AddRange(damageTypes
                 .Where(dt => !_damageImmunities.Contains(dt))
                 .Select(dt => new SimpleDamageImmunityRule(dt))
+                .Distinct()
             );
+            // TODO: Add domain events for adding multiple damage immunities
         }
         protected void AddDamageImmunity(DamageType damageType)
         {
@@ -602,6 +611,7 @@ namespace DND.Domain.SharedKernel
         {
             _damageImmunities.Remove(damageType);
             _damageAdjustmentRules.RemoveAll(rule => rule.GetDamageType() == damageType && rule is SimpleDamageImmunityRule);
+            // TODO: Add domain event for removing damage immunity
         }
 
 
@@ -609,11 +619,13 @@ namespace DND.Domain.SharedKernel
         // duplicates and granting mutual exlusivity when adding
         protected void AddDamageResistances(IEnumerable<DamageType> damageTypes)
         {
-            _damageResistances.AddRange(damageTypes.Where(dt => !_damageResistances.Contains(dt)));
+            _damageResistances.AddRange(damageTypes.Where(dt => !_damageResistances.Contains(dt)).Distinct());
             _damageAdjustmentRules.AddRange(damageTypes
                 .Where(dt => !_damageResistances.Contains(dt))
                 .Select(dt => new SimpleDamageResisistanceRule(dt))
+                .Distinct()
             );
+            // TODO: Add domain events for adding multiple damage resistances
         }
         protected void AddDamageResistance(DamageType damageType)
         {
@@ -636,6 +648,7 @@ namespace DND.Domain.SharedKernel
         {
             _damageResistances.Remove(damageType);
             _damageAdjustmentRules.RemoveAll(rule => rule.GetDamageType() == damageType && rule is SimpleDamageResisistanceRule);
+            // TODO: Add domain event for removing damage resistance
         }
 
 
@@ -643,11 +656,13 @@ namespace DND.Domain.SharedKernel
         // duplicates and granting mutual exlusivity when adding
         protected void AddDamageVulnerabilities(IEnumerable<DamageType> damageTypes)
         {
-            _damageVulnerabilities.AddRange(damageTypes.Where(dt => !_damageVulnerabilities.Contains(dt)));
+            _damageVulnerabilities.AddRange(damageTypes.Where(dt => !_damageVulnerabilities.Contains(dt)).Distinct());
             _damageAdjustmentRules.AddRange(damageTypes
                 .Where(dt => !_damageVulnerabilities.Contains(dt))
                 .Select(dt => new SimpleDamageVulnerabilityRule(dt))
+                .Distinct()
             );
+            // TODO: Add domain events for adding multiple damage vulnerabilities
         }
         protected void AddDamageVulnerability(DamageType damageType)
         {
@@ -670,10 +685,12 @@ namespace DND.Domain.SharedKernel
         {
             _damageVulnerabilities.Remove(damageType);
             _damageAdjustmentRules.RemoveAll(rule => rule.GetDamageType() == damageType && rule is SimpleDamageVulnerabilityRule);
+            // TODO: Add domain event for removing damage vulnerability
         }
 
         // Add or remove a special damage rule
-        protected void AddSpecialDamageRule(IDamageAdjustmentRule rule)
+        // TODO: Add domain events for adding/removing special damage rules
+        protected void AddSpecialDamageRule(IModificationRule rule)
         {
             if (_damageAdjustmentRules.Any(r => r.Name == rule.Name))
             {
@@ -681,6 +698,10 @@ namespace DND.Domain.SharedKernel
             }
 
             _damageAdjustmentRules.Add(rule);
+        }
+        protected void RemoveSpecialDamageRule(string ruleName)
+        {
+            _damageAdjustmentRules.RemoveAll(r => r.Name == ruleName);
         }
 
         /// <summary>
