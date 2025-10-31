@@ -53,7 +53,7 @@ namespace DND.Tests.SharedKernel
                 );
 
             sut.SetupDamageImmunity(DamageType.Fire);
-            sut.SetupResistance(DamageType.Acid);
+            sut.SetupDamageResistance(DamageType.Acid);
             sut.SetupVulnerability(DamageType.Cold);
 
             var damageSource = DamageSource.Mundane;
@@ -132,7 +132,7 @@ namespace DND.Tests.SharedKernel
                 level: 5
                 );
 
-            sut.SetupResistance(type);
+            sut.SetupDamageResistance(type);
             bool InitialIsResistant = sut.IsResistantTo(type);
             List<DamageType> InitialResistances = [.. sut.DamageResistances];
             List<IDamageAdjustmentRule> InitialResistanceAdjustmetRules = [.. sut.DamageAdjustmentRules.OfType<SimpleDamageResisistanceRule>().Where(rule => rule.GetDamageType().Equals(type))];
@@ -201,7 +201,7 @@ namespace DND.Tests.SharedKernel
             List<IDamageAdjustmentRule> InitialImmunityAdjustmetRules = [.. sut.DamageAdjustmentRules.OfType<IImmunityRule>().Where(rule => rule.GetDamageType().Equals(damageType))];
 
             // Act
-            sut.SetupResistance(damageType);
+            sut.SetupDamageResistance(damageType);
             bool CurrentIsImmune = sut.IsImmuneTo(damageType);
             var currentImmunities = sut.DamageImmunities;
             List<DamageType> CurrentImmunities = [.. sut.DamageImmunities];
@@ -286,7 +286,7 @@ namespace DND.Tests.SharedKernel
             List<IDamageAdjustmentRule> InitialVulneraqbilityAdjustmetRules = [.. sut.DamageAdjustmentRules.OfType<SimpleDamageVulnerabilityRule>().Where(rule => rule.GetDamageType().Equals(damageType))];
 
             // Act
-            sut.SetupResistance(damageType);
+            sut.SetupDamageResistance(damageType);
 
             bool CurrentIsVulnerable = sut.IsVulnerableTo(damageType);
             List<DamageType> CurrentVulnerabilities = [.. sut.DamageVulnerabilities];
@@ -324,7 +324,7 @@ namespace DND.Tests.SharedKernel
                 level: 5
                 );
             
-            sut.SetupResistance(damageType);
+            sut.SetupDamageResistance(damageType);
 
             bool InitialIsResistant = sut.IsResistantTo(damageType);
             List<DamageType> InitialResistances = [.. sut.DamageResistances];
@@ -517,7 +517,7 @@ namespace DND.Tests.SharedKernel
                 level: 5
                 );
 
-            sut.SetupResistance(DamageType.Fire);
+            sut.SetupDamageResistance(DamageType.Fire);
             sut.SetupVulnerability(DamageType.Fire);
 
             // Act
@@ -600,7 +600,7 @@ namespace DND.Tests.SharedKernel
                 level: 5
                 );
 
-            sut.SetupResistance(damageType);
+            sut.SetupDamageResistance(damageType);
             var temporaryResistance = new TemporaryDamageModification(damageType, tempModifier, new Guid(), 47, ExpirationType.AtTheBeginning);
             sut.ApplyTemporaryDamageModification(temporaryResistance);
 
@@ -628,7 +628,7 @@ namespace DND.Tests.SharedKernel
                 level: 5
             );
 
-            sut.SetupResistance(DamageType.Acid);
+            sut.SetupDamageResistance(DamageType.Acid);
 
             // Act
             sut.TakeDamage(baseDamage, damageType, DamageSource.Magical, false);

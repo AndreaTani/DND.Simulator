@@ -623,7 +623,9 @@ namespace DND.Domain.SharedKernel
             _damageAdjustmentRules.AddRange(damageTypes
                 .Where(dt => !_damageResistances.Contains(dt))
                 .Select(dt => new SimpleDamageResisistanceRule(dt))
+                .Distinct()
             );
+            // TODO: Add domain events for adding multiple damage resistances
         }
         protected void AddDamageResistance(DamageType damageType)
         {
@@ -646,6 +648,7 @@ namespace DND.Domain.SharedKernel
         {
             _damageResistances.Remove(damageType);
             _damageAdjustmentRules.RemoveAll(rule => rule.GetDamageType() == damageType && rule is SimpleDamageResisistanceRule);
+            // TODO: Add domain event for removing damage resistance
         }
 
 

@@ -421,6 +421,58 @@ namespace DND.Tests.SharedKernel
             Assert.Equal(1, damageImmunities.Count(d => d == damageType));
         }
 
+        [Theory]
+        [MemberData(nameof(AllDamageTypes))]
+        public void AddDamageResistances_WhenAddingDamageResistances_ShouldAddThemWithoutDuplicates(DamageType damageType)
+        {
+            // Arrange
+            var sut = new SimpleCreature(
+                name: "Lone Fighter",
+                creatureType: CreatureType.Humanoid,
+                size: Size.Medium,
+                abilityScores: new AbilityScores(fighterScores),
+                maxHitPoints: 49,
+                currentHitPoints: 49,
+                speed: new Speed(),
+                level: 5
+                );
+
+            // Act
+            sut.SetupDamageResistances([damageType, damageType]);
+            var damageResistances = sut.DamageResistances;
+
+            // Assert
+            Assert.Contains(damageType, damageResistances);
+            Assert.Equal(1, damageResistances.Count(d => d == damageType));
+        }
+
+        [Theory]
+        [MemberData(nameof(AllDamageTypes))]
+        public void AddDamageResistance_WhenAddingDamageResistance_ShouldAddItWithoutDuplicates(DamageType damageType)
+        {
+            // Arrange
+            var sut = new SimpleCreature(
+                name: "Lone Fighter",
+                creatureType: CreatureType.Humanoid,
+                size: Size.Medium,
+                abilityScores: new AbilityScores(fighterScores),
+                maxHitPoints: 49,
+                currentHitPoints: 49,
+                speed: new Speed(),
+                level: 5
+                );
+
+            // Act
+            sut.SetupDamageResistance(damageType);
+            sut.SetupDamageResistance(damageType);
+            var damageResistances = sut.DamageResistances;
+
+            // Assert
+            Assert.Contains(damageType, damageResistances);
+            Assert.Equal(1, damageResistances.Count(d => d == damageType));
+        }
+
+
 
     }
 }

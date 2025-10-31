@@ -52,7 +52,7 @@ namespace DND.Tests.SharedKernel
                 level: 5
                 );
 
-            sut.SetupResistance(damageType);
+            sut.SetupDamageResistance(damageType);
             int expectedDamage = 7;
             int baseDamage = 15;
 
@@ -310,7 +310,7 @@ namespace DND.Tests.SharedKernel
                 level: 5
                 );
 
-            sut.SetupResistance(damageType);
+            sut.SetupDamageResistance(damageType);
             int baseDamage = 20;
             int expectedDamage = 40;
 

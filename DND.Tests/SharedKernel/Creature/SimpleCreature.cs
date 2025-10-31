@@ -28,7 +28,12 @@ namespace DND.Tests.SharedKernel
             AddDamageImmunity(damageType);
         }
 
-        public void SetupResistance(DamageType damageType)
+        public void SetupDamageResistances(params DamageType[] damageTypes)
+        {
+            AddDamageResistances(damageTypes);
+        }
+
+        public void SetupDamageResistance(DamageType damageType)
         {
             AddDamageResistance(damageType);
         }
