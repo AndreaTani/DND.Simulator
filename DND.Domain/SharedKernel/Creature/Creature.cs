@@ -689,7 +689,8 @@ namespace DND.Domain.SharedKernel
         }
 
         // Add or remove a special damage rule
-        protected void AddSpecialDamageRule(IDamageAdjustmentRule rule)
+        // TODO: Add domain events for adding/removing special damage rules
+        protected void AddSpecialDamageRule(IModificationRule rule)
         {
             if (_damageAdjustmentRules.Any(r => r.Name == rule.Name))
             {
@@ -697,6 +698,10 @@ namespace DND.Domain.SharedKernel
             }
 
             _damageAdjustmentRules.Add(rule);
+        }
+        protected void RemoveSpecialDamageRule(string ruleName)
+        {
+            _damageAdjustmentRules.RemoveAll(r => r.Name == ruleName);
         }
 
         /// <summary>

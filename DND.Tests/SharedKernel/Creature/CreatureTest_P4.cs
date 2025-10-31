@@ -10,6 +10,35 @@ namespace DND.Tests.SharedKernel
         // Test data for all languages
         public static TheoryData<Language> AllLanguages => [.. Enum.GetValues(typeof(Language)).Cast<Language>().ToArray()];
 
+        // Test data for all special damage adjustment rules
+        public static TheoryData<ISpecialDamageAdjustmentRule> AllSpecialAdjustmetRule
+        {
+            get
+            {
+                var data = new TheoryData<ISpecialDamageAdjustmentRule>();
+                var interfaceType = typeof(ISpecialDamageAdjustmentRule);
+
+                var assemblyToScan = typeof(IDamageAdjustmentRule).Assembly;
+
+                var ruleTypes = assemblyToScan.GetTypes()
+                    .Where(t => interfaceType.IsAssignableFrom(t)
+                        && t.IsClass
+                        && !t.IsAbstract
+                    );
+
+                foreach (var type in ruleTypes)
+                {
+                    if (type.GetConstructor(Type.EmptyTypes) != null)
+                    {
+                        var instance = Activator.CreateInstance(type);
+                        data.Add((ISpecialDamageAdjustmentRule)instance);
+                    }
+                }
+
+                return data;
+            }
+        }
+
 
         [Theory]
         [MemberData(nameof(AllConditions))]
@@ -523,6 +552,33 @@ namespace DND.Tests.SharedKernel
             Assert.Equal(1, damageVulnerabilities.Count(d => d == damageType));
         }
 
+        [Theory]
+        [MemberData(nameof(AllSpecialAdjustmetRule))]
+        public void AddSpecialDamageRule_WhenAddingSpecialDamageRule_ShouldAddItWithoutDuplicates(IModificationRule rule)
+        {
+            // Arrange
+            var sut = new SimpleCreature(
+                name: "Lone Fighter",
+                creatureType: CreatureType.Humanoid,
+                size: Size.Medium,
+                abilityScores: new AbilityScores(fighterScores),
+                maxHitPoints: 49,
+                currentHitPoints: 49,
+                speed: new Speed(),
+                level: 5
+                );
+
+            var pippo = (IDamageAdjustmentRule)rule;
+
+            // Act
+            sut.SetupSpecialRule(rule);
+            sut.SetupSpecialRule(rule);
+            var specialRules = sut.DamageAdjustmentRules;
+
+            // Assert
+            Assert.Contains(rule, specialRules);
+            Assert.Equal(1, specialRules.Count(r => r == rule));
+        }
 
     }
 }

@@ -1,6 +1,6 @@
 ﻿namespace DND.Domain.SharedKernel
 {
-    public class BarbarianRagingResistanceRule : IModificationRule
+    public class BarbarianRagingResistanceRule : IModificationRule, ISpecialDamageAdjustmentRule
     {
         public DamageType TypeOfDamage { get; protected set; }
 
