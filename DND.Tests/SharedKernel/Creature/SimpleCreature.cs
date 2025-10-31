@@ -83,6 +83,11 @@ namespace DND.Tests.SharedKernel
             AddProficientSavingThrow(ability);
         }
 
+        public void SetupProficientSkills(params Skill[] skills)
+        {
+            AddProficientSkills(skills);
+        }
+
         public void SetupProficientSkill(Skill skill)
         {
             AddProficientSkill(skill);

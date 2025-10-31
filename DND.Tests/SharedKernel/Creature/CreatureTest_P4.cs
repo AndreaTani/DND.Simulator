@@ -214,6 +214,59 @@ namespace DND.Tests.SharedKernel
             Assert.Contains(language, languages);
             Assert.Equal(1, languages.Count(l => l == language));
         }
+
+        [Theory]
+        [MemberData(nameof(AllSkills))]
+        public void AddProficientSkills_WhenAddingProficientSkills_ShouldAddThemWithoutDuplicates(Skill skill)
+        {
+            // Arrange
+            var sut = new SimpleCreature(
+                name: "Lone Fighter",
+                creatureType: CreatureType.Humanoid,
+                size: Size.Medium,
+                abilityScores: new AbilityScores(fighterScores),
+                maxHitPoints: 49,
+                currentHitPoints: 49,
+                speed: new Speed(),
+                level: 5
+                );
+
+            // Act
+            sut.SetupProficientSkills([skill, skill]);
+            var proficientSkills = sut.ProficientSkills;
+
+            // Assert
+            Assert.Contains(skill, proficientSkills);
+            Assert.Equal(1, proficientSkills.Count(s => s == skill));
+
+        }
+
+        [Theory]
+        [MemberData(nameof(AllSkills))]
+        public void AddProficientSkill_WhenAddingProficientSkill_ShouldAddItWithoutDuplicates(Skill skill)
+        {
+            // Arrange
+            var sut = new SimpleCreature(
+                name: "Lone Fighter",
+                creatureType: CreatureType.Humanoid,
+                size: Size.Medium,
+                abilityScores: new AbilityScores(fighterScores),
+                maxHitPoints: 49,
+                currentHitPoints: 49,
+                speed: new Speed(),
+                level: 5
+                );
+
+            // Act
+            sut.SetupProficientSkill(skill);
+            sut.SetupProficientSkill(skill);
+            var proficientSkills = sut.ProficientSkills;
+
+            // Assert
+            Assert.Contains(skill, proficientSkills);
+            Assert.Equal(1, proficientSkills.Count(s => s == skill));
+        }
+
     }
 }
 

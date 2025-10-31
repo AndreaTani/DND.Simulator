@@ -513,7 +513,7 @@ namespace DND.Domain.SharedKernel
         // Add a or remove a proficient skill to the creature, avoiding duplicates when adding
         protected void AddProficientSkills(IEnumerable<Skill> skills)
         {
-            _proficientSkills.AddRange(skills.Where(s => !_proficientSkills.Contains(s) && !_expertSkills.Contains(s)));
+            _proficientSkills.AddRange(skills.Where(s => !_proficientSkills.Contains(s) && !_expertSkills.Contains(s)).Distinct());
         }
         protected void AddProficientSkill(Skill skill)
         {
