@@ -580,6 +580,64 @@ namespace DND.Tests.SharedKernel
             Assert.Equal(1, specialRules.Count(r => r == rule));
         }
 
+        [Fact]
+        public void Revive_WhenDeadCreatureIsRevived_ShouldSetCurrentHitPointsToOne()
+        {
+            // Arrange
+            var sut = new SimpleCreature(
+                name: "Fallen Hero",
+                creatureType: CreatureType.Humanoid,
+                size: Size.Medium,
+                abilityScores: new AbilityScores(fighterScores),
+                maxHitPoints: 49,
+                currentHitPoints: 35,
+                speed: new Speed(),
+                level: 5
+                );
+
+            sut.ApplyDeath();
+
+            // Act
+            sut.Revive();
+            var currentHitPoints = sut.CurrentHitPoints;
+
+            // Assert
+            Assert.Equal(1, currentHitPoints);
+            Assert.False(sut.IsUnconscious);
+            Assert.False(sut.IsDead);
+
+        }
+
+        [Fact]
+        public void Revive_WhenUnconsciousCreatureIsRevived_ShouldSetCurrentHitPointsToOne()
+        {
+            // Arrange
+            var sut = new SimpleCreature(
+                name: "Fallen Hero",
+                creatureType: CreatureType.Humanoid,
+                size: Size.Medium,
+                abilityScores: new AbilityScores(fighterScores),
+                maxHitPoints: 49,
+                currentHitPoints: 35,
+                speed: new Speed(),
+                level: 5
+                );
+
+            sut.TakeDamage(40, DamageType.Fire, DamageSource.Magical, false);
+            sut.ApplyUnconsciousness();
+
+            // Act
+            sut.Revive();
+            var currentHitPoints = sut.CurrentHitPoints;
+
+            // Assert
+            Assert.Equal(1, currentHitPoints);
+            Assert.False(sut.IsUnconscious);
+            Assert.False(sut.IsDead);
+
+        }
+
+
     }
 }
 
