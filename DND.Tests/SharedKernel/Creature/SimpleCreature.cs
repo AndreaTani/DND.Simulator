@@ -78,7 +78,12 @@ namespace DND.Tests.SharedKernel
             AddLanguage(language);
         }
 
-        public void SetupProficientySavingThrow(Ability ability)
+        public void SetupProficientSavingThrows(params Ability[] abilities)
+        {
+            AddProficientSavingThrows(abilities);
+        }
+
+        public void SetupProficientSavingThrow(Ability ability)
         {
             AddProficientSavingThrow(ability);
         }

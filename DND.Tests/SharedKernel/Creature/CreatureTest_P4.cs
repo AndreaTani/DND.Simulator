@@ -318,6 +318,57 @@ namespace DND.Tests.SharedKernel
             Assert.Equal(1, expertiseSkills.Count(s => s == skill));
         }
 
+        [Theory]
+        [MemberData(nameof(AllAbilities))]
+        public void AddProficentSavingThrows_WhenAddingProficientSavingThrows_ShouldAddThemWithoutDuplicates(Ability ability)
+        {
+            // Arrange
+            var sut = new SimpleCreature(
+                name: "Lone Fighter",
+                creatureType: CreatureType.Humanoid,
+                size: Size.Medium,
+                abilityScores: new AbilityScores(fighterScores),
+                maxHitPoints: 49,
+                currentHitPoints: 49,
+                speed: new Speed(),
+                level: 5
+                );
+
+            // Act
+            sut.SetupProficientSavingThrows([ability, ability]);
+            var proficientSavingThrows = sut.ProficientSavingThrows;
+
+            // Assert
+            Assert.Contains(ability, proficientSavingThrows);
+            Assert.Equal(1, proficientSavingThrows.Count(a => a == ability));
+        }
+
+        [Theory]
+        [MemberData(nameof(AllAbilities))]
+        public void AddProficentSavingThrow_WhenAddingProficientSavingThrow_ShouldAddItWithoutDuplicates(Ability ability)
+        {
+            // Arrange
+            var sut = new SimpleCreature(
+                name: "Lone Fighter",
+                creatureType: CreatureType.Humanoid,
+                size: Size.Medium,
+                abilityScores: new AbilityScores(fighterScores),
+                maxHitPoints: 49,
+                currentHitPoints: 49,
+                speed: new Speed(),
+                level: 5
+                );
+
+            // Act
+            sut.SetupProficientSavingThrow(ability);
+            sut.SetupProficientSavingThrow(ability);
+            var proficientSavingThrows = sut.ProficientSavingThrows;
+
+            // Assert
+            Assert.Contains(ability, proficientSavingThrows);
+            Assert.Equal(1, proficientSavingThrows.Count(a => a == ability));
+        }
+
     }
 }
 

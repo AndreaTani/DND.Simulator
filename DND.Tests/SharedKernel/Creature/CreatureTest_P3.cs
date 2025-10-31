@@ -84,7 +84,7 @@ namespace DND.Tests.SharedKernel
 
             int expectedProficiencyBonus = 3; // Level 5 proficiency bonus
 
-            sut.SetupProficientySavingThrow(ability);
+            sut.SetupProficientSavingThrow(ability);
             int abilityModifier = sut.AbilityScores.GetModifier(ability);
             int proficiencyBonus = sut.ProficiencyBonus;
             int expectedModifier = abilityModifier + proficiencyBonus;

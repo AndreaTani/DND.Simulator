@@ -554,9 +554,10 @@ namespace DND.Domain.SharedKernel
 
 
         // Add or remove a proficient saving throw to the creature, avoiding duplicates when adding
+        // TODO: Add domain events for adding/removing proficient saving throws
         protected void AddProficientSavingThrows(IEnumerable<Ability> abilities)
         {
-            _proficientSavingThrows.AddRange(abilities.Where(a => !_proficientSavingThrows.Contains(a)));
+            _proficientSavingThrows.AddRange(abilities.Where(a => !_proficientSavingThrows.Contains(a)).Distinct());
         }
         protected void AddProficientSavingThrow(Ability ability)
         {
