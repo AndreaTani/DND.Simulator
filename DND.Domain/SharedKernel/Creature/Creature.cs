@@ -27,8 +27,9 @@
 
 
         // Base movement speed in feet per round, can be set for monsters/NPCs or computed for player characters using equipment, class, racial bonuses, etc.
-        // Current movement speed in feet per round, can be set to base as a default or modified by conditions, spells, effects, etc.
         public virtual Speed BaseSpeed { get; protected set; }
+
+        // Current movement speed in feet per round, can be set to base as a default or modified by conditions, spells, effects, etc.
         public virtual Speed CurrentSpeed { get; protected set; }
 
         // Ability scores, can be set for monsters/NPCs or computed for player characters using point buy, standard array, or rolling
@@ -527,23 +528,25 @@
         protected void AddProficientSkills(IEnumerable<Skill> skills)
         {
             _proficientSkills.AddRange(skills.Where(s => !_proficientSkills.Contains(s) && !_expertSkills.Contains(s)).Distinct());
+            AddDomainEvent(new CreatureProficientSkillsAddedEvent(Id, skills.Distinct()));
         }
         protected void AddProficientSkill(Skill skill)
         {
             if (!_proficientSkills.Contains(skill) && !_expertSkills.Contains(skill))
             {
                 _proficientSkills.Add(skill);
+                AddDomainEvent(new CreatureProficientSkillsAddedEvent(Id, [skill]));
             }
         }
         protected void RemoveProficientSkill(Skill skill)
         {
             _proficientSkills.Remove(skill);
+            AddDomainEvent(new CreatureProficientSkillsRemovedEvent(Id, [skill]));
         }
 
 
         // Add or remove an expert skill to the creature, avoiding duplicates when adding
         // If the skill is already in proficient skills, remove it to avoid duplication
-        // TODO: Add domain events for adding/removing expert skills
         protected void AddExpertSkills(IEnumerable<Skill> skills)
         {
             _expertSkills.AddRange(skills.Where(s => !_expertSkills.Contains(s)).Select(s =>
@@ -551,37 +554,43 @@
                 _proficientSkills.Remove(s);
                 return s;
             }).Distinct());
+            AddDomainEvent(new CreatureExpertSkillsAddedEvent(Id, skills.Distinct()));
         }
         protected void AddExpertSkill(Skill skill)
         {
             if (!_expertSkills.Contains(skill))
             {
                 _proficientSkills.Remove(skill);
+                AddDomainEvent(new CreatureProficientSkillsRemovedEvent(Id, [skill]));
                 _expertSkills.Add(skill);
+                AddDomainEvent(new CreatureExpertSkillsAddedEvent(Id, [skill]));
             }
         }
         protected void RemoveExpertSkill(Skill skill)
         {
             _expertSkills.Remove(skill);
+            AddDomainEvent(new CreatureExpertSkillsRemovedEvent(Id, [skill]));
         }
 
 
         // Add or remove a proficient saving throw to the creature, avoiding duplicates when adding
-        // TODO: Add domain events for adding/removing proficient saving throws
         protected void AddProficientSavingThrows(IEnumerable<Ability> abilities)
         {
             _proficientSavingThrows.AddRange(abilities.Where(a => !_proficientSavingThrows.Contains(a)).Distinct());
+            AddDomainEvent(new CreatureProficiencySavingThrowsAddedEvent(Id, abilities.Distinct()));
         }
         protected void AddProficientSavingThrow(Ability ability)
         {
             if (!_proficientSavingThrows.Contains(ability))
             {
                 _proficientSavingThrows.Add(ability);
+                AddDomainEvent(new CreatureProficiencySavingThrowsAddedEvent(Id, [ability]));
             }
         }
         protected void RemoveProficientSavingThrow(Ability ability)
         {
             _proficientSavingThrows.Remove(ability);
+            AddDomainEvent(new CreatureProficiencySavingThrowsRemovedEvent(Id, [ability]));
         }
 
 
@@ -624,7 +633,7 @@
         {
             _damageImmunities.Remove(damageType);
             _damageAdjustmentRules.RemoveAll(rule => rule.GetDamageType() == damageType && rule is SimpleDamageImmunityRule);
-            // TODO: Add domain event for removing damage immunity
+            AddDomainEvent(new CreatureDamageImmunityRemovedEvent(Id, damageType, RemovalReason.OverridenByExculsivity));
         }
 
 
@@ -661,7 +670,7 @@
         {
             _damageResistances.Remove(damageType);
             _damageAdjustmentRules.RemoveAll(rule => rule.GetDamageType() == damageType && rule is SimpleDamageResisistanceRule);
-            // TODO: Add domain event for removing damage resistance
+            AddDomainEvent(new CreatureDamageResistanceRemovedEvent(Id, damageType, RemovalReason.Manual));
         }
 
 
@@ -698,11 +707,10 @@
         {
             _damageVulnerabilities.Remove(damageType);
             _damageAdjustmentRules.RemoveAll(rule => rule.GetDamageType() == damageType && rule is SimpleDamageVulnerabilityRule);
-            // TODO: Add domain event for removing damage vulnerability
+            AddDomainEvent(new CreatureDamageVulnerabilityRemovedEvent(Id, damageType, RemovalReason.Manual));
         }
 
         // Add or remove a special damage rule
-        // TODO: Add domain events for adding/removing special damage rules
         protected void AddSpecialDamageRule(IModificationRule rule)
         {
             if (_damageAdjustmentRules.Any(r => r.Name == rule.Name))
@@ -711,10 +719,12 @@
             }
 
             _damageAdjustmentRules.Add(rule);
+            AddDomainEvent(new CreatureSpecialDamageRuleAddedEvent(Id, rule.Name));
         }
-        protected void RemoveSpecialDamageRule(string ruleName)
+        protected void RemoveSpecialDamageRule(IModificationRule rule)
         {
-            _damageAdjustmentRules.RemoveAll(r => r.Name == ruleName);
+            _damageAdjustmentRules.RemoveAll(r => r.Name == rule.Name);
+            AddDomainEvent(new CreatureSpecialDamageRuleRemovedEvent(Id, rule.Name));
         }
 
         /// <summary>
@@ -799,24 +809,32 @@
                     CurrentHitPoints = 1;
                 }
 
-                // TODO: Trigger a domain event for the creature revival
+                AddDomainEvent(new CreatureRevivedEvent(Id));
             }
         }
 
         // Apply temporary damage modification (used by ApplicationService)
-        public virtual void ApplyTemporaryDamageModification(TemporaryDamageModification modification)
+        public virtual void ApplyTemporaryDamageModification(TemporaryDamageModification modification, Guid sourceId)
         {
             _temporaryDamageModifications.Add(modification);
 
-            //TODO: Add domainEvent for tracking by the combat service
+            AddDomainEvent(new CreatureTemporaryDamageModificationAppliedEvent(
+                CreatureId: Id,
+                SourceId: sourceId,
+                Modification: modification
+            ));
         }
 
         // Apply temporary damage immunity (used by ApplicationService)
-        public virtual void ApplyTemporaryDamageImmunity(TemporaryImmunityModification modification)
+        public virtual void ApplyTemporaryDamageImmunity(TemporaryImmunityModification modification, Guid sourceId)
         {
             _temporaryDamageImmunities.Add(modification);
 
-            //TODO: Add domainEvent for tracking by the combat service
+            AddDomainEvent(new CreatureTemporaryDamageImmunityAppliedEvent(
+                CreatureId: Id,
+                SourceId: sourceId,
+                Modification: modification
+            ));
         }
 
         // Remove temporary damage modifications (used by the CombatService)
@@ -824,7 +842,12 @@
         {
             _temporaryDamageModifications.RemoveAll(mod => mod.SourceId == sourceId && mod.TypeOfDamage == damageType);
 
-            // TODO: Add domainEvent to notify when the effect is gone
+            AddDomainEvent(new CreatureTemporaryDamageModificationRemovedEvent(
+                CreatureId: Id,
+                SourceId: sourceId,
+                DamageType: damageType
+            ));
+
         }
 
         // Remove temporary damage immunities (used by the CombatService)
@@ -832,7 +855,11 @@
         {
             _temporaryDamageImmunities.RemoveAll(mod => mod.SourceId == sourceId && mod.TypeOfDamage == damageType);
             
-            // TODO: Add domainEvent to notify when the effect is gone
+            AddDomainEvent(new CreatureTemporaryDamageImmunityRemovedEvent(
+                CreatureId: Id,
+                SourceId: sourceId,
+                DamageType: damageType
+            ));
         }
     }
 }
