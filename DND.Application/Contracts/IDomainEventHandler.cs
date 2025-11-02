@@ -1,4 +1,4 @@
-﻿using DND.Domain.SharedKernel.Events;
+﻿using DND.Domain.SharedKernel;
 
 namespace DND.Application.Contracts
 {

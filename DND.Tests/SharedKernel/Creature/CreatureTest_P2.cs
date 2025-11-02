@@ -84,7 +84,7 @@ namespace DND.Tests.SharedKernel
 
             // Act
             sut.SetupCondition(condition);
-            var triggeredEvent = sut.DomainEvents.OfType<CreatureImmuneToConditionsEvent>().FirstOrDefault();
+            var triggeredEvent = sut.DomainEvents.OfType<CreatureConditionImmunitiesAddedEvent>().FirstOrDefault();
             var finaConditions = sut.Conditions;
 
             // Assert
@@ -117,7 +117,7 @@ namespace DND.Tests.SharedKernel
             bool isconcentrating = sut.IsConcentrating;
             var unconsciousEvent = sut.DomainEvents.OfType<CreatureBecameUnconsciousEvent>().FirstOrDefault();
             var isDyingEvent = sut.DomainEvents.OfType<CreatureIsDyingEvent>().FirstOrDefault();
-            var proneConditionEvent = sut.DomainEvents.OfType<CreatureAddConditionEvent>()
+            var proneConditionEvent = sut.DomainEvents.OfType<CreatureAddConditionsEvent>()
                 .FirstOrDefault(e => e.Conditions.Contains(Condition.Prone));
 
             // Assert
@@ -160,9 +160,9 @@ namespace DND.Tests.SharedKernel
             var finalConditions = sut.Conditions;
             bool isconcentrating = sut.IsConcentrating;
             var deadEvent = sut.DomainEvents.OfType<CreatureDiedEvent>().FirstOrDefault();
-            var unconsciousEvent = sut.DomainEvents.OfType<CreatureRemoveConditionEvent>()
+            var unconsciousEvent = sut.DomainEvents.OfType<CreatureRemoveConditionsEvent>()
                 .FirstOrDefault(e => e.Conditions.Contains(Condition.Unconscious));
-            var dyingEvent = sut.DomainEvents.OfType<CreatureRemoveConditionEvent>()
+            var dyingEvent = sut.DomainEvents.OfType<CreatureRemoveConditionsEvent>()
                 .FirstOrDefault(e => e.Conditions.Contains(Condition.Dying));
 
             // Assert
@@ -191,8 +191,9 @@ namespace DND.Tests.SharedKernel
                 level: 5
                 );
 
-            var temporaryVulnerability = new TemporaryDamageModification(damageType, 2.0f, new Guid(), 47, ExpirationType.AtTheEnd);
-            sut.ApplyTemporaryDamageModification(temporaryVulnerability);
+            var sourceId = new Guid();
+            var temporaryVulnerability = new TemporaryDamageModification(damageType, 2.0f, sourceId, 47, ExpirationType.AtTheEnd);
+            sut.ApplyTemporaryDamageModification(temporaryVulnerability, sourceId);
             var initialIsVulnerable = sut.IsVulnerableTo(damageType);
 
             // Act
@@ -221,8 +222,9 @@ namespace DND.Tests.SharedKernel
                 level: 5
                 );
 
-            var temporaryResistance = new TemporaryDamageModification(damageType, 0.5f, new Guid(), 47, ExpirationType.AtTheEnd);
-            sut.ApplyTemporaryDamageModification(temporaryResistance);
+            var sourceId = new Guid();
+            var temporaryResistance = new TemporaryDamageModification(damageType, 0.5f, sourceId, 47, ExpirationType.AtTheEnd);
+            sut.ApplyTemporaryDamageModification(temporaryResistance, sourceId);
             var initialIsResistant = sut.IsResistantTo(damageType);
 
             // Act
@@ -251,8 +253,9 @@ namespace DND.Tests.SharedKernel
                 level: 5
                 );
 
-            var temporaryImmunity = new TemporaryImmunityModification(damageType, new Guid(), 47, ExpirationType.AtTheEnd);
-            sut.ApplyTemporaryDamageImmunity(temporaryImmunity);
+            var sourceId = new Guid();
+            var temporaryImmunity = new TemporaryImmunityModification(damageType, sourceId, 47, ExpirationType.AtTheEnd);
+            sut.ApplyTemporaryDamageImmunity(temporaryImmunity, sourceId);
             var initialIsImmune = sut.IsImmuneTo(damageType);
 
             // Act
@@ -281,13 +284,14 @@ namespace DND.Tests.SharedKernel
                 level: 5
                 );
 
+            var sourceId = new Guid();
             sut.SetupDamageVulnerability(damageType);
             int baseDamage = 20;
             int expectedDamage = 10;
 
             // Act
-            var temporaryDamageResistance = new TemporaryDamageModification(damageType, 0.5f, new Guid(), 47, ExpirationType.AtTheBeginning);
-            sut.ApplyTemporaryDamageModification(temporaryDamageResistance);
+            var temporaryDamageResistance = new TemporaryDamageModification(damageType, 0.5f, sourceId, 47, ExpirationType.AtTheBeginning);
+            sut.ApplyTemporaryDamageModification(temporaryDamageResistance, sourceId);
             var damageTaken = sut.CalculateFinalDamage(baseDamage, damageType, DamageSource.Magical, false);
 
             // Assert
@@ -310,13 +314,14 @@ namespace DND.Tests.SharedKernel
                 level: 5
                 );
 
+            var sourceId = new Guid();
             sut.SetupDamageResistance(damageType);
             int baseDamage = 20;
             int expectedDamage = 40;
 
             // Act
-            var temporaryDamageVulnerability = new TemporaryDamageModification(damageType, 2.0f, new Guid(), 47, ExpirationType.AtTheBeginning);
-            sut.ApplyTemporaryDamageModification(temporaryDamageVulnerability);
+            var temporaryDamageVulnerability = new TemporaryDamageModification(damageType, 2.0f, sourceId, 47, ExpirationType.AtTheBeginning);
+            sut.ApplyTemporaryDamageModification(temporaryDamageVulnerability, sourceId);
             var damageTaken = sut.CalculateFinalDamage(baseDamage, damageType, DamageSource.Magical, false);
 
             // Assert
@@ -341,7 +346,7 @@ namespace DND.Tests.SharedKernel
 
             var TemporaryDamageMoidicficationId = Guid.NewGuid();
             var temporaryDamageResistance = new TemporaryDamageModification(damageType, 0.5f, TemporaryDamageMoidicficationId, 47, ExpirationType.AtTheBeginning);
-            sut.ApplyTemporaryDamageModification(temporaryDamageResistance);
+            sut.ApplyTemporaryDamageModification(temporaryDamageResistance, TemporaryDamageMoidicficationId);
             int baseDamage = 30;
 
             // Act
@@ -372,7 +377,7 @@ namespace DND.Tests.SharedKernel
 
             var TemporaryImmunityModificationId = Guid.NewGuid();
             var temporaryImmunity = new TemporaryImmunityModification(damageType, TemporaryImmunityModificationId, 47, ExpirationType.AtTheBeginning);
-            sut.ApplyTemporaryDamageImmunity(temporaryImmunity);
+            sut.ApplyTemporaryDamageImmunity(temporaryImmunity, TemporaryImmunityModificationId);
             int baseDamage = 30;
             
             // Act

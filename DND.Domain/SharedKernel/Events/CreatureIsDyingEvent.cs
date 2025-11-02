@@ -1,6 +1,4 @@
-﻿using DND.Domain.SharedKernel.Events;
-
-namespace DND.Domain.SharedKernel
+﻿namespace DND.Domain.SharedKernel
 {
     /// <summary>
     /// Event triggered when a creature is Dying

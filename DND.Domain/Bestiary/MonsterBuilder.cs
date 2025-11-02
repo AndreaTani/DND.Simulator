@@ -22,11 +22,16 @@ namespace DND.Domain.Bestiary
         private readonly List<DamageType> _vulnerabilities = [];
         private readonly List<Condition> _initialConditions = [];
         private readonly List<Condition> _conditionImmunities = [];
-        private readonly List<Sense> _senses = [];
+        private readonly List<Sense> _senses = [Sense.NormalVision, Sense.Hearing];
         private readonly List<Language> _languages = [];
         private readonly List<Skill> _proficientSkills = [];
         private readonly List<Skill> _expertSkills = [];
         private readonly List<Ability> _proficientSavingThrows = [];
+
+        // Derived properties
+        public bool IsBlind => !_senses.Contains(Sense.NormalVision);
+        public bool IsDeaf => !_senses.Contains(Sense.Hearing);
+
 
         // --- Mandatory first step ---
         // Constructor with only required parameters
@@ -89,18 +94,6 @@ namespace DND.Domain.Bestiary
         public MonsterBuilder WithLanguages(params Language[] languages)
         {
             _languages.AddRange(languages);
-            return this;
-        }
-
-        public MonsterBuilder WithStandardSenses()
-        {
-            _senses.AddRange([Sense.NormalVision, Sense.Hearing, Sense.Speaking]);
-            return this;
-        }
-
-        public MonsterBuilder WithStandardLanguage()
-        {
-            _languages.Add(Language.Common);
             return this;
         }
 

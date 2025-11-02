@@ -1,4 +1,4 @@
-﻿namespace DND.Domain.SharedKernel.Events
+﻿namespace DND.Domain.SharedKernel
 {
     /// <summary>
     /// Marker interface to identify all domain events-

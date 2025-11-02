@@ -572,9 +572,10 @@ namespace DND.Tests.SharedKernel
                 level: 5
                 );
 
+            var sourceId = new Guid();
             sut.SetupDamageVulnerability(damageType);
-            var temporaryResistance = new TemporaryDamageModification(damageType, tempModifier, new Guid(), 47, ExpirationType.AtTheBeginning);
-            sut.ApplyTemporaryDamageModification(temporaryResistance);
+            var temporaryResistance = new TemporaryDamageModification(damageType, tempModifier, sourceId, 47, ExpirationType.AtTheBeginning);
+            sut.ApplyTemporaryDamageModification(temporaryResistance, sourceId);
 
             // Act
             int finalDamage = sut.CalculateFinalDamage(baseDamage, damageType, DamageSource.Magical, false);
@@ -600,9 +601,10 @@ namespace DND.Tests.SharedKernel
                 level: 5
                 );
 
+            var sourceId = new Guid();
             sut.SetupDamageResistance(damageType);
-            var temporaryResistance = new TemporaryDamageModification(damageType, tempModifier, new Guid(), 47, ExpirationType.AtTheBeginning);
-            sut.ApplyTemporaryDamageModification(temporaryResistance);
+            var temporaryResistance = new TemporaryDamageModification(damageType, tempModifier, sourceId, 47, ExpirationType.AtTheBeginning);
+            sut.ApplyTemporaryDamageModification(temporaryResistance, sourceId);
 
             // Act
             int finalDamage = sut.CalculateFinalDamage(baseDamage, damageType, DamageSource.Magical, false);

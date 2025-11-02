@@ -1,7 +1,4 @@
-﻿using DND.Domain.SharedKernel.Events;
-using System.ComponentModel.DataAnnotations;
-
-namespace DND.Domain.SharedKernel
+﻿namespace DND.Domain.SharedKernel
 {
     public abstract class Creature : IAggregateRoot
     {
@@ -30,8 +27,9 @@ namespace DND.Domain.SharedKernel
 
 
         // Base movement speed in feet per round, can be set for monsters/NPCs or computed for player characters using equipment, class, racial bonuses, etc.
-        // Current movement speed in feet per round, can be set to base as a default or modified by conditions, spells, effects, etc.
         public virtual Speed BaseSpeed { get; protected set; }
+
+        // Current movement speed in feet per round, can be set to base as a default or modified by conditions, spells, effects, etc.
         public virtual Speed CurrentSpeed { get; protected set; }
 
         // Ability scores, can be set for monsters/NPCs or computed for player characters using point buy, standard array, or rolling
@@ -396,26 +394,35 @@ namespace DND.Domain.SharedKernel
                 throw new ArgumentOutOfRangeException(nameof(amount), "Temporary hit points must be non-negative.");
             }
             TemporaryHitPoints = Math.Max(TemporaryHitPoints, amount);
-            // TODO: Add domain event for temporary hit points change
+            
+            var tempHpChnagedEvent = new CreatureTemporaryHPChangedEvent(
+                CreatureId: Id,
+                CurrentTemporaryHp: TemporaryHitPoints,
+                Amount: amount
+            );
+            AddDomainEvent(tempHpChnagedEvent);
         }
 
 
         // Add or remove a condition immunity to the creature, avoiding duplicates when adding
-        // TODO: Add domain events for adding/removing condition immunities
         protected void AddConditionImmunities(IEnumerable<Condition> conditions)
         {
-            _conditionImmunities.AddRange(conditions.Where(c => !_conditionImmunities.Contains(c)));
+            _conditionImmunities.AddRange(conditions.Where(c => !_conditionImmunities.Contains(c)).Distinct());
+            AddDomainEvent(new CreatureConditionImmunitiesAddedEvent(Id, conditions.Distinct()));
         }
         protected void AddConditionImmunity(Condition condition)
         {
             if (!_conditionImmunities.Contains(condition))
             {
                 _conditionImmunities.Add(condition);
+                AddDomainEvent(new CreatureConditionImmunitiesAddedEvent(Id, [condition]));
             }
         }
-        protected void RemoveConditionImmunity(Condition condition)
+        protected void RemoveConditionImmunities(IEnumerable<Condition> conditions)
         {
-            _conditionImmunities.Remove(condition);
+            var conditionsToRemove = new HashSet<Condition>(conditions).Distinct();
+            _conditionImmunities.RemoveAll(c => conditionsToRemove.Contains(c));
+            AddDomainEvent(new CreatureConditionImmunitiesRemovedEvent(Id, conditionsToRemove));
         }
 
         /// <summary>
@@ -431,14 +438,14 @@ namespace DND.Domain.SharedKernel
 
             if (immuneConditions.Count != 0)
             {
-                var immuneEvent = new CreatureImmuneToConditionsEvent(Id, immuneConditions);
+                var immuneEvent = new CreatureConditionImmunitiesAddedEvent(Id, immuneConditions);
                 AddDomainEvent(immuneEvent);
             }
 
             if (newConditions.Count != 0)
             {
                 _conditions.AddRange(newConditions);
-                var conditionAddedEvent = new CreatureAddConditionEvent(Id, newConditions);
+                var conditionAddedEvent = new CreatureAddConditionsEvent(Id, newConditions);
                 AddDomainEvent(conditionAddedEvent);
             }
         }
@@ -446,60 +453,67 @@ namespace DND.Domain.SharedKernel
         {
             if (_conditionImmunities.Contains(condition))
             {
-                var immuneEvent = new CreatureImmuneToConditionsEvent(Id, [condition]);
+                var immuneEvent = new CreatureConditionImmunitiesAddedEvent(Id, [condition]);
                 AddDomainEvent(immuneEvent);
                 return;
             }
 
             if (!_conditions.Contains(condition))
             {
-                var conditionAddedEvent = new CreatureAddConditionEvent(Id, [condition]);
+                var conditionAddedEvent = new CreatureAddConditionsEvent(Id, [condition]);
                 _conditions.Add(condition);
                 AddDomainEvent(conditionAddedEvent);
             }
         }
-        protected void RemoveCondition(Condition condition)
+        protected void RemoveConditions(IEnumerable<Condition> conditions)
         {
-            _conditions.Remove(condition);
-            // TODO: Add domain event for condition removal
+            var conditionsToRemove = new HashSet<Condition>(conditions).Distinct();
+            _conditions.RemoveAll(c => conditionsToRemove.Contains(c));
+            AddDomainEvent(new CreatureRemoveConditionsEvent(Id, conditionsToRemove));
         }
 
 
         // Add or remove a sense to the creature, avoiding duplicates when adding
-        // TODO: Add domain events for adding/removing senses
         protected void AddSenses(IEnumerable<Sense> senses)
         {
             _senses.AddRange(senses.Where(s => !_senses.Contains(s)).Distinct());
+            AddDomainEvent(new CreatureSensesAddedEvent(Id, senses.Distinct()));
         }
         protected void AddSense(Sense sense)
         {
             if (!_senses.Contains(sense))
             {
                 _senses.Add(sense);
+                AddDomainEvent(new CreatureSensesAddedEvent(Id, [sense]));
             }
         }
-        protected void RemoveSense(Sense sense)
+        protected void RemoveSenses(IEnumerable<Sense> sense)
         {
-            _senses.Remove(sense);
+            var sensesToRemove = new HashSet<Sense>(sense).Distinct();
+            _senses.RemoveAll(s => sensesToRemove.Contains(s));
+            AddDomainEvent(new CreatureSensesRemovedEvent(Id, sensesToRemove));
         }
 
 
         // Add a or remove a language to the creature, avoiding duplicates when adding
-        // TODO: Add domain events for adding/removing languages
         protected void AddLanguages(IEnumerable<Language> languages)
         {
             _languages.AddRange(languages.Where(l => !_languages.Contains(l)).Distinct());
+            AddDomainEvent(new CreatureLanguagesAddedEvent(Id, languages.Distinct()));
         }
         protected void AddLanguage(Language language)
         {
             if (!_languages.Contains(language))
             {
                 _languages.Add(language);
+                AddDomainEvent(new CreatureLanguagesAddedEvent(Id, [language]));
             }
         }
-        protected void RemoveLanguage(Language language)
+        protected void RemoveLanguages(IEnumerable<Language> languages)
         {
-            _languages.Remove(language);
+            var languagesToRemove = new HashSet<Language>(languages).Distinct();
+            _languages.RemoveAll(l => languagesToRemove.Contains(l));
+            AddDomainEvent(new CreatureLanguagesRemovedEvent(Id, languagesToRemove));
         }
 
 
@@ -514,23 +528,25 @@ namespace DND.Domain.SharedKernel
         protected void AddProficientSkills(IEnumerable<Skill> skills)
         {
             _proficientSkills.AddRange(skills.Where(s => !_proficientSkills.Contains(s) && !_expertSkills.Contains(s)).Distinct());
+            AddDomainEvent(new CreatureProficientSkillsAddedEvent(Id, skills.Distinct()));
         }
         protected void AddProficientSkill(Skill skill)
         {
             if (!_proficientSkills.Contains(skill) && !_expertSkills.Contains(skill))
             {
                 _proficientSkills.Add(skill);
+                AddDomainEvent(new CreatureProficientSkillsAddedEvent(Id, [skill]));
             }
         }
         protected void RemoveProficientSkill(Skill skill)
         {
             _proficientSkills.Remove(skill);
+            AddDomainEvent(new CreatureProficientSkillsRemovedEvent(Id, [skill]));
         }
 
 
         // Add or remove an expert skill to the creature, avoiding duplicates when adding
         // If the skill is already in proficient skills, remove it to avoid duplication
-        // TODO: Add domain events for adding/removing expert skills
         protected void AddExpertSkills(IEnumerable<Skill> skills)
         {
             _expertSkills.AddRange(skills.Where(s => !_expertSkills.Contains(s)).Select(s =>
@@ -538,37 +554,43 @@ namespace DND.Domain.SharedKernel
                 _proficientSkills.Remove(s);
                 return s;
             }).Distinct());
+            AddDomainEvent(new CreatureExpertSkillsAddedEvent(Id, skills.Distinct()));
         }
         protected void AddExpertSkill(Skill skill)
         {
             if (!_expertSkills.Contains(skill))
             {
                 _proficientSkills.Remove(skill);
+                AddDomainEvent(new CreatureProficientSkillsRemovedEvent(Id, [skill]));
                 _expertSkills.Add(skill);
+                AddDomainEvent(new CreatureExpertSkillsAddedEvent(Id, [skill]));
             }
         }
         protected void RemoveExpertSkill(Skill skill)
         {
             _expertSkills.Remove(skill);
+            AddDomainEvent(new CreatureExpertSkillsRemovedEvent(Id, [skill]));
         }
 
 
         // Add or remove a proficient saving throw to the creature, avoiding duplicates when adding
-        // TODO: Add domain events for adding/removing proficient saving throws
         protected void AddProficientSavingThrows(IEnumerable<Ability> abilities)
         {
             _proficientSavingThrows.AddRange(abilities.Where(a => !_proficientSavingThrows.Contains(a)).Distinct());
+            AddDomainEvent(new CreatureProficiencySavingThrowsAddedEvent(Id, abilities.Distinct()));
         }
         protected void AddProficientSavingThrow(Ability ability)
         {
             if (!_proficientSavingThrows.Contains(ability))
             {
                 _proficientSavingThrows.Add(ability);
+                AddDomainEvent(new CreatureProficiencySavingThrowsAddedEvent(Id, [ability]));
             }
         }
         protected void RemoveProficientSavingThrow(Ability ability)
         {
             _proficientSavingThrows.Remove(ability);
+            AddDomainEvent(new CreatureProficiencySavingThrowsRemovedEvent(Id, [ability]));
         }
 
 
@@ -582,7 +604,7 @@ namespace DND.Domain.SharedKernel
                 .Select(dt => new SimpleDamageImmunityRule(dt))
                 .Distinct()
             );
-            // TODO: Add domain events for adding multiple damage immunities
+            AddDomainEvent(new CreatureDamageImmunitiesAddedEvent(Id, damageTypes));
         }
         protected void AddDamageImmunity(DamageType damageType)
         {
@@ -605,13 +627,13 @@ namespace DND.Domain.SharedKernel
 
             _damageImmunities.Add(damageType);
             _damageAdjustmentRules.Add(new SimpleDamageImmunityRule(damageType));
-            AddDomainEvent(new CreatureDamageImmunityAddedEvent(Id, damageType));
+            AddDomainEvent(new CreatureDamageImmunitiesAddedEvent(Id, [damageType]));
         }
         protected void RemoveDamageImmunity(DamageType damageType)
         {
             _damageImmunities.Remove(damageType);
             _damageAdjustmentRules.RemoveAll(rule => rule.GetDamageType() == damageType && rule is SimpleDamageImmunityRule);
-            // TODO: Add domain event for removing damage immunity
+            AddDomainEvent(new CreatureDamageImmunityRemovedEvent(Id, damageType, RemovalReason.OverridenByExculsivity));
         }
 
 
@@ -625,7 +647,7 @@ namespace DND.Domain.SharedKernel
                 .Select(dt => new SimpleDamageResisistanceRule(dt))
                 .Distinct()
             );
-            // TODO: Add domain events for adding multiple damage resistances
+            AddDomainEvent(new CreatureDamageResistancesAddedEvent(Id, damageTypes));
         }
         protected void AddDamageResistance(DamageType damageType)
         {
@@ -642,13 +664,13 @@ namespace DND.Domain.SharedKernel
 
             _damageResistances.Add(damageType);
             _damageAdjustmentRules.Add(new SimpleDamageResisistanceRule(damageType));
-            AddDomainEvent(new CreatureDamageResistanceAddedEvent(Id, damageType));
+            AddDomainEvent(new CreatureDamageResistancesAddedEvent(Id, [damageType]));
         }
         protected void RemoveDamageResistance(DamageType damageType)
         {
             _damageResistances.Remove(damageType);
             _damageAdjustmentRules.RemoveAll(rule => rule.GetDamageType() == damageType && rule is SimpleDamageResisistanceRule);
-            // TODO: Add domain event for removing damage resistance
+            AddDomainEvent(new CreatureDamageResistanceRemovedEvent(Id, damageType, RemovalReason.Manual));
         }
 
 
@@ -662,7 +684,7 @@ namespace DND.Domain.SharedKernel
                 .Select(dt => new SimpleDamageVulnerabilityRule(dt))
                 .Distinct()
             );
-            // TODO: Add domain events for adding multiple damage vulnerabilities
+            AddDomainEvent(new CreatureDamageVulnerabilitiesAddedEvent(Id, damageTypes));
         }
         protected void AddDamageVulnerability(DamageType damageType)
         {
@@ -679,17 +701,16 @@ namespace DND.Domain.SharedKernel
 
             _damageVulnerabilities.Add(damageType);
             _damageAdjustmentRules.Add(new SimpleDamageVulnerabilityRule(damageType));
-            AddDomainEvent(new CreatureDamageVulnerabilityAddedEvent(Id, damageType));
+            AddDomainEvent(new CreatureDamageVulnerabilitiesAddedEvent(Id, [damageType]));
         }
         protected void RemoveDamageVulnerability(DamageType damageType)
         {
             _damageVulnerabilities.Remove(damageType);
             _damageAdjustmentRules.RemoveAll(rule => rule.GetDamageType() == damageType && rule is SimpleDamageVulnerabilityRule);
-            // TODO: Add domain event for removing damage vulnerability
+            AddDomainEvent(new CreatureDamageVulnerabilityRemovedEvent(Id, damageType, RemovalReason.Manual));
         }
 
         // Add or remove a special damage rule
-        // TODO: Add domain events for adding/removing special damage rules
         protected void AddSpecialDamageRule(IModificationRule rule)
         {
             if (_damageAdjustmentRules.Any(r => r.Name == rule.Name))
@@ -698,10 +719,12 @@ namespace DND.Domain.SharedKernel
             }
 
             _damageAdjustmentRules.Add(rule);
+            AddDomainEvent(new CreatureSpecialDamageRuleAddedEvent(Id, rule.Name));
         }
-        protected void RemoveSpecialDamageRule(string ruleName)
+        protected void RemoveSpecialDamageRule(IModificationRule rule)
         {
-            _damageAdjustmentRules.RemoveAll(r => r.Name == ruleName);
+            _damageAdjustmentRules.RemoveAll(r => r.Name == rule.Name);
+            AddDomainEvent(new CreatureSpecialDamageRuleRemovedEvent(Id, rule.Name));
         }
 
         /// <summary>
@@ -723,7 +746,7 @@ namespace DND.Domain.SharedKernel
             {
                 IsConcentrating = false;
 
-                //TODO: Drop held items
+                // TODO: Drop held items
 
                 if (isDying)
                 {
@@ -737,7 +760,7 @@ namespace DND.Domain.SharedKernel
                 AddDomainEvent(unconsciousEvent);
 
                 AddCondition(Condition.Prone);
-                var proneEvent = new CreatureAddConditionEvent(Id, [Condition.Prone]);
+                var proneEvent = new CreatureAddConditionsEvent(Id, [Condition.Prone]);
                 AddDomainEvent(proneEvent);
             }
         }
@@ -753,7 +776,7 @@ namespace DND.Domain.SharedKernel
             {
                 IsConcentrating = false;
 
-                //TODO: Drop held items
+                // TODO: Drop held items
 
                 CurrentHitPoints = Math.Min(0, CurrentHitPoints);
 
@@ -762,16 +785,12 @@ namespace DND.Domain.SharedKernel
                 AddDomainEvent(deathEvent);
 
                 AddCondition(Condition.Prone);
-                var proneEvent = new CreatureAddConditionEvent(Id, [Condition.Prone]);
+                var proneEvent = new CreatureAddConditionsEvent(Id, [Condition.Prone]);
                 AddDomainEvent(proneEvent);
 
-                RemoveCondition(Condition.Unconscious);
-                var removeUnconsciousEvent = new CreatureRemoveConditionEvent(Id, [Condition.Unconscious]);
+                RemoveConditions([Condition.Unconscious, Condition.Dying]);
+                var removeUnconsciousEvent = new CreatureRemoveConditionsEvent(Id, [Condition.Unconscious, Condition.Dying]);
                 AddDomainEvent(removeUnconsciousEvent);
-
-                RemoveCondition(Condition.Dying);
-                var removeDyingEvent = new CreatureRemoveConditionEvent(Id, [Condition.Dying]);
-                AddDomainEvent(removeDyingEvent);
             }
         }
 
@@ -782,8 +801,7 @@ namespace DND.Domain.SharedKernel
         {
             if (IsDead || IsUnconscious)
             {
-                RemoveCondition(Condition.Dead);
-                RemoveCondition(Condition.Unconscious);
+                RemoveConditions([Condition.Dead, Condition.Unconscious]);
 
                 // Revive with 1 HP if dead or unconscious with 0 or negative HP
                 if (CurrentHitPoints <= 0)
@@ -791,24 +809,32 @@ namespace DND.Domain.SharedKernel
                     CurrentHitPoints = 1;
                 }
 
-                // TODO: Trigger a domain event for the creature revival
+                AddDomainEvent(new CreatureRevivedEvent(Id));
             }
         }
 
         // Apply temporary damage modification (used by ApplicationService)
-        public virtual void ApplyTemporaryDamageModification(TemporaryDamageModification modification)
+        public virtual void ApplyTemporaryDamageModification(TemporaryDamageModification modification, Guid sourceId)
         {
             _temporaryDamageModifications.Add(modification);
 
-            //TODO: Add domainEvent for tracking by the combat service
+            AddDomainEvent(new CreatureTemporaryDamageModificationAppliedEvent(
+                CreatureId: Id,
+                SourceId: sourceId,
+                Modification: modification
+            ));
         }
 
         // Apply temporary damage immunity (used by ApplicationService)
-        public virtual void ApplyTemporaryDamageImmunity(TemporaryImmunityModification modification)
+        public virtual void ApplyTemporaryDamageImmunity(TemporaryImmunityModification modification, Guid sourceId)
         {
             _temporaryDamageImmunities.Add(modification);
 
-            //TODO: Add domainEvent for tracking by the combat service
+            AddDomainEvent(new CreatureTemporaryDamageImmunityAppliedEvent(
+                CreatureId: Id,
+                SourceId: sourceId,
+                Modification: modification
+            ));
         }
 
         // Remove temporary damage modifications (used by the CombatService)
@@ -816,7 +842,12 @@ namespace DND.Domain.SharedKernel
         {
             _temporaryDamageModifications.RemoveAll(mod => mod.SourceId == sourceId && mod.TypeOfDamage == damageType);
 
-            // TODO: Add domainEvent to notify when the effect is gone
+            AddDomainEvent(new CreatureTemporaryDamageModificationRemovedEvent(
+                CreatureId: Id,
+                SourceId: sourceId,
+                DamageType: damageType
+            ));
+
         }
 
         // Remove temporary damage immunities (used by the CombatService)
@@ -824,7 +855,11 @@ namespace DND.Domain.SharedKernel
         {
             _temporaryDamageImmunities.RemoveAll(mod => mod.SourceId == sourceId && mod.TypeOfDamage == damageType);
             
-            // TODO: Add domainEvent to notify when the effect is gone
+            AddDomainEvent(new CreatureTemporaryDamageImmunityRemovedEvent(
+                CreatureId: Id,
+                SourceId: sourceId,
+                DamageType: damageType
+            ));
         }
     }
 }
