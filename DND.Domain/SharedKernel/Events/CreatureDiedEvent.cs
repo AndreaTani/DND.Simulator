@@ -14,6 +14,5 @@
             : this(creatureId, [Condition.Dead])
         {
         }
-
     }
 }

@@ -5,6 +5,7 @@
     /// </summary>
     public enum Condition
     {
+        None = 0,
         Blinded,
         Charmed,
         Deafened,

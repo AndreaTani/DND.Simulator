@@ -7,17 +7,17 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="xunit" Version="2.9.3" />
+    <Compile Remove="Extensions\**" />
+    <Compile Remove="Migrations\**" />
+    <EmbeddedResource Remove="Extensions\**" />
+    <EmbeddedResource Remove="Migrations\**" />
+    <None Remove="Extensions\**" />
+    <None Remove="Migrations\**" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\DND.Application\DND.Application.csproj" />
     <ProjectReference Include="..\DND.Domain\DND.Domain.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Migrations\" />
-    <Folder Include="Extensions\" />
   </ItemGroup>
 
 </Project>
