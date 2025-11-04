@@ -781,7 +781,7 @@
                 CurrentHitPoints = Math.Min(0, CurrentHitPoints);
 
                 AddCondition(Condition.Dead);
-                var deathEvent = new CreatureDiedEvent(Id);
+                var deathEvent = new CreatureDiedEvent(Id, Name);
                 AddDomainEvent(deathEvent);
 
                 AddCondition(Condition.Prone);

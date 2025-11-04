@@ -12,10 +12,11 @@ namespace DND.Tests.Application.Handlers
         {
             // Arrange
             var combatServiceMock = new Mock<ICombatSessionService>();
-            var handler = new RemoveCreatureFromTheInitiativeTracker(combatServiceMock.Object);
+            var handler = new RemoveCreatureFromTheInitiativeTrackerHandler(combatServiceMock.Object);
 
             var domainEvent = new CreatureDiedEvent(
-                Guid.NewGuid()
+                Guid.NewGuid(),
+                "Sample Creature"
             );
 
             // Act

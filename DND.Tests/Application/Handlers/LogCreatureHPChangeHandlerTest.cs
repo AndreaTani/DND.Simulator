@@ -13,6 +13,7 @@ namespace DND.Tests.Application.Handlers
             // Arrange
             var loggingServiceMock = new Mock<ILoggingService>();
             var handler = new LogCreatureHPChangeHandler(loggingServiceMock.Object);
+
             var domainEvent = new CreatureHPChangedEvent(
                 CreatureId: Guid.NewGuid(),
                 PreviousHp: 50,
@@ -21,6 +22,7 @@ namespace DND.Tests.Application.Handlers
                 Amount: -20,
                 Type: DamageType.Slashing
             );
+
             var expectedMessage = $"Creature {domainEvent.CreatureId} HP changed from {domainEvent.PreviousHp} to {domainEvent.CurrentHp} (Change: {domainEvent.Amount}, Type: {domainEvent.Type})";
 
             // Act

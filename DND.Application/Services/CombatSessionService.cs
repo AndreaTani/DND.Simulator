@@ -1,6 +1,8 @@
-﻿namespace DND.Application.Services
+﻿using DND.Application.Contracts;
+
+namespace DND.Application.Services
 {
-    public class CombatSessionService
+    public class CombatSessionService : ICombatSessionService
     {
         /// <summary>
         /// Simplified example of a Service in the Application Layer that coordinates a use case involving domain entities and events.
@@ -28,5 +30,9 @@
         //    // 5. Clearing Events
         //    creature.ClearDomainEvents();
         //}
+        public Task RemoveFromInitiativeAsync(Guid creatureId)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
