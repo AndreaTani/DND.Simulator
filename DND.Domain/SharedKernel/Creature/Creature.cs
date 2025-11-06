@@ -92,9 +92,10 @@
         public IReadOnlyList<Language> Languages => _languages;
 
 
-        // Properties to check if the creature is Unconcious or Dead based on conditions or hit points
+        // Properties to check if the creature is Unconcious, Dead, or Dying based on conditions
         public bool IsUnconscious => Conditions.Contains(Condition.Unconscious);
         public bool IsDead => Conditions.Contains(Condition.Dead);
+        public bool IsDying => Conditions.Contains(Condition.Dying);
 
 
         // Proficiencies (skills, saving throws, etc.)
@@ -740,7 +741,7 @@
         /// </summary>
         public void ApplyUnconsciousness(bool isDying = true)
         {
-            if (IsDead) return;
+            if (IsDead || IsUnconscious) return;
 
             if (!IsUnconscious)
             {
@@ -799,9 +800,9 @@
         /// </summary>
         public void Revive()
         {
-            if (IsDead || IsUnconscious)
+            if (IsDead || IsUnconscious || IsDying)
             {
-                RemoveConditions([Condition.Dead, Condition.Unconscious]);
+                RemoveConditions([Condition.Dead, Condition.Unconscious, Condition.Dying]);
 
                 // Revive with 1 HP if dead or unconscious with 0 or negative HP
                 if (CurrentHitPoints <= 0)
@@ -810,6 +811,7 @@
                 }
 
                 AddDomainEvent(new CreatureRevivedEvent(Id));
+                AddDomainEvent(new CreatureRemoveConditionsEvent(Id, [Condition.Dead, Condition.Unconscious, Condition.Dying]));
             }
         }
 

@@ -8,6 +8,9 @@ namespace DND.Application.Contracts
         Task HandleCreatureHpStatusAsync(Guid creatureId, int maxHp, int currentHp);
 
         // Apply the specified condition to the creature.
-        Task ApplyConditionsAsync(Guid creatureId, Condition condition);
+        Task ApplyConditionsAsync(Guid creatureId, List<Condition> conditions);
+
+        // Check if the creature is a player character.
+        Task<bool> IsPlayerCharacterAsync(Guid creatureId);
     }
 }

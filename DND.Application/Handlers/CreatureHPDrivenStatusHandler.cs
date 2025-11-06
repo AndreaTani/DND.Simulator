@@ -33,22 +33,22 @@ namespace DND.Application.Handlers
                 domainEvent.CurrentHp
             );
 
-            Condition conditionToApply = Condition.None;
+            List<Condition> conditionsToApply = [Condition.None];
             int currentHp = domainEvent.CurrentHp;
             int maxHp = domainEvent.MaxHp;
 
             if (currentHp <= -maxHp)
             {
-                conditionToApply = Condition.Dead;
+                conditionsToApply = [Condition.Dead];
             }
             else if (currentHp <= 0)
             {
-                conditionToApply = Condition.Unconscious;
+                conditionsToApply = [Condition.Unconscious, Condition.Dying];
             }
 
-            if (conditionToApply != Condition.None)
+            if (!conditionsToApply.Contains(Condition.None))
             {
-                await _creatureService.ApplyConditionsAsync(domainEvent.CreatureId, conditionToApply);
+                await _creatureService.ApplyConditionsAsync(domainEvent.CreatureId, conditionsToApply);
             }
         }
     }

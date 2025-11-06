@@ -609,7 +609,7 @@ namespace DND.Tests.SharedKernel
         }
 
         [Fact]
-        public void Revive_WhenUnconsciousCreatureIsRevived_ShouldSetCurrentHitPointsToOne()
+        public void Revive_WhenUnconsciousAndDyingCreatureIsRevived_ShouldSetCurrentHitPointsToOne()
         {
             // Arrange
             var sut = new SimpleCreature(
@@ -624,7 +624,7 @@ namespace DND.Tests.SharedKernel
                 );
 
             sut.TakeDamage(40, DamageType.Fire, DamageSource.Magical, false);
-            sut.ApplyUnconsciousness();
+            sut.ApplyUnconsciousness(true);
 
             // Act
             sut.Revive();
@@ -633,6 +633,7 @@ namespace DND.Tests.SharedKernel
             // Assert
             Assert.Equal(1, currentHitPoints);
             Assert.False(sut.IsUnconscious);
+            Assert.False(sut.IsDying);
             Assert.False(sut.IsDead);
 
         }

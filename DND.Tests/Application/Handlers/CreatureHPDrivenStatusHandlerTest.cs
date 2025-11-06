@@ -13,11 +13,23 @@ namespace DND.Tests.Application.Handlers
     /// </summary>
     public class CreatureHPDrivenStatusHandlerTest
     {
+        public static TheoryData<int, int, int, List<Condition>> HPStatusChange
+        {
+            get
+            {
+                var data = new TheoryData<int, int, int, List<Condition>>
+                {
+                    { 10, -15, 100, [Condition.Unconscious, Condition.Dying] },
+                    { 10, -62, 50, [Condition.Dead] },
+                    { 30, -20, 50, [Condition.None] }
+                };
+                return data;
+            }
+        }
+
         [Theory]
-        [InlineData(10, -15, 100, Condition.Unconscious)]
-        [InlineData(10, -62, 50, Condition.Dead)]
-        [InlineData(30, -20, 50, Condition.None)]
-        public async Task Handle_CreatureHPChangedEvent_ShouldUpdateStatusBasedOnHP(int previusHp, int amount, int maxHp, Condition condition)
+        [MemberData(nameof(HPStatusChange))]
+        public async Task Handle_CreatureHPChangedEvent_ShouldUpdateStatusBasedOnHP(int previusHp, int amount, int maxHp, List<Condition> conditions)
         {
             // Arrange
             var sut = new Mock<ICreatureService>();
@@ -42,11 +54,11 @@ namespace DND.Tests.Application.Handlers
                 domainEvent.CurrentHp
             ), Times.Once);
 
-            if (condition != Condition.None)
+            if (!conditions.Contains(Condition.None))
             {
                 sut.Verify(m => m.ApplyConditionsAsync(
                 domainEvent.CreatureId,
-                condition
+                conditions
                 ), Times.Once);
             }
         }
