@@ -7,11 +7,13 @@ namespace DND.Application.Handlers
     {
         private readonly IDeathSaveManagerService _deathSaveManager;
         private readonly ICreatureService _creatureService;
+        private readonly ILoggingService _loggingService;
 
-        public InitializeDeathSavesHandler(IDeathSaveManagerService deathSaveManager, ICreatureService creatureService)
+        public InitializeDeathSavesHandler(IDeathSaveManagerService deathSaveManager, ICreatureService creatureService, ILoggingService loggingService)
         {
             _deathSaveManager = deathSaveManager;
             _creatureService = creatureService;
+            _loggingService = loggingService;
         }
 
         public async Task Handle(CreatureIsDyingEvent domainEvent)
@@ -20,7 +22,9 @@ namespace DND.Application.Handlers
 
             if (isPlayerCharacter)
             {
+                var logMessage = $"Initialized death saves for player character with ID: {domainEvent.CreatureId}";
                 await _deathSaveManager.InitializeDeathSavesAsync(domainEvent.CreatureId);
+                await _loggingService.Log(logMessage);
             }
         }
     }

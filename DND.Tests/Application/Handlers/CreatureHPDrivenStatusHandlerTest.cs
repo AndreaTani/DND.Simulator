@@ -32,8 +32,9 @@ namespace DND.Tests.Application.Handlers
         public async Task Handle_CreatureHPChangedEvent_ShouldUpdateStatusBasedOnHP(int previusHp, int amount, int maxHp, List<Condition> conditions)
         {
             // Arrange
-            var sut = new Mock<ICreatureService>();
-            var handler = new CreatureHPDrivenStatusHandler(sut.Object);
+            var creatureServiceMock = new Mock<ICreatureService>();
+            var loggingServiceMock = new Mock<ILoggingService>();
+            var handler = new CreatureHPDrivenStatusHandler(creatureServiceMock.Object, loggingServiceMock.Object);
 
             var domainEvent = new CreatureHPChangedEvent(
                 CreatureId: Guid.NewGuid(),
@@ -44,11 +45,15 @@ namespace DND.Tests.Application.Handlers
                 Type: DamageType.Fire
             );
 
+            var expectedMessage = $"Creature {domainEvent.CreatureId} HP changed from {domainEvent.PreviousHp} to {domainEvent.CurrentHp} (Change: {domainEvent.Amount}, Type: {domainEvent.Type})";
+
             // Act
             await handler.Handle(domainEvent);
 
             // Assert
-            sut.Verify(m => m.HandleCreatureHpStatusAsync(
+            loggingServiceMock.Verify(m => m.Log(expectedMessage), Times.Once);
+
+            creatureServiceMock.Verify(m => m.HandleCreatureHpStatusAsync(
                 domainEvent.CreatureId,
                 domainEvent.MaxHp,
                 domainEvent.CurrentHp
@@ -56,7 +61,7 @@ namespace DND.Tests.Application.Handlers
 
             if (!conditions.Contains(Condition.None))
             {
-                sut.Verify(m => m.ApplyConditionsAsync(
+                creatureServiceMock.Verify(m => m.ApplyConditionsAsync(
                 domainEvent.CreatureId,
                 conditions
                 ), Times.Once);

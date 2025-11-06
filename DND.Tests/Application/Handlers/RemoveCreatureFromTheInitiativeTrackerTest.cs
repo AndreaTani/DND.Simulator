@@ -12,12 +12,15 @@ namespace DND.Tests.Application.Handlers
         {
             // Arrange
             var combatServiceMock = new Mock<ICombatSessionService>();
-            var handler = new RemoveCreatureFromTheInitiativeTrackerHandler(combatServiceMock.Object);
+            var loggingServiceMock = new Mock<ILoggingService>();
+            var handler = new RemoveCreatureFromTheInitiativeTrackerHandler(combatServiceMock.Object, loggingServiceMock.Object);
 
             var domainEvent = new CreatureDiedEvent(
                 Guid.NewGuid(),
                 "Sample Creature"
             );
+
+            string expectedMessage = $"Creature {domainEvent.CreatureName} (ID: {domainEvent.CreatureId}) has been removed from the initiative tracker.";
 
             // Act
             await handler.Handle(domainEvent);
@@ -26,6 +29,8 @@ namespace DND.Tests.Application.Handlers
             combatServiceMock.Verify(m => m.RemoveFromInitiativeAsync(
                 domainEvent.CreatureId
             ), Times.Once);
+
+            loggingServiceMock.Verify(m => m.Log(expectedMessage), Times.Once);
         }
     }
 }

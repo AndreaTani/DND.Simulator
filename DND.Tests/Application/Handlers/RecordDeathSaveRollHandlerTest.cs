@@ -11,8 +11,9 @@ namespace DND.Tests.Application.Handlers
         public async Task Handle_CreatureDeathSaveRolledEvent_ShouldCallManagerToRecordRoll()
         {
             // Arrange
-            var sut = new Mock<IDeathSaveManagerService>();
-            var handler = new RecordDeathSaveRollHandler(sut.Object);
+            var deathSaveManagerServiceMock = new Mock<IDeathSaveManagerService>();
+            var loggingServiceMock = new Mock<ILoggingService>();
+            var handler = new RecordDeathSaveRollHandler(deathSaveManagerServiceMock.Object, loggingServiceMock.Object);
 
             var creatureId = Guid.NewGuid();
             var rollValue = 15; // A success
@@ -22,14 +23,18 @@ namespace DND.Tests.Application.Handlers
                 rollValue
             );
 
+            var logMessage = $"Recorded death save roll of {rollValue} for creature with ID: {creatureId}";
+
             // Act
             await handler.Handle(domainEvent);
 
             // Assert
-            sut.Verify(m => m.RecordDeathSaveRollAsync(
+            deathSaveManagerServiceMock.Verify(m => m.RecordDeathSaveRollAsync(
                 creatureId,
                 rollValue
             ), Times.Once);
+
+            loggingServiceMock.Verify(m => m.Log(logMessage), Times.Once);
         }
     }
 }

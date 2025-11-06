@@ -7,14 +7,17 @@ namespace DND.Application.Handlers
     /// Handles the CreatureHPChangedEvent to check for critical status changes (Unconscious or Dead).
     /// This handler is responsible for determining the rule-based outcome (the Condition) 
     /// and telling the ICreatureService to apply it.
+    /// The handler also logs the HP change event.
     /// </summary>
     public class CreatureHPDrivenStatusHandler : IDomainEventHandler<CreatureHPChangedEvent>
     {
         private readonly ICreatureService _creatureService;
+        private readonly ILoggingService _loggingService;
 
-        public CreatureHPDrivenStatusHandler(ICreatureService creatureService)
+        public CreatureHPDrivenStatusHandler(ICreatureService creatureService, ILoggingService loggingService)
         {
             _creatureService = creatureService;
+            _loggingService = loggingService;
         }
 
         /// <summary>
@@ -33,6 +36,8 @@ namespace DND.Application.Handlers
                 domainEvent.CurrentHp
             );
 
+            var logMessage = $"Creature {domainEvent.CreatureId} HP changed from {domainEvent.PreviousHp} to {domainEvent.CurrentHp} (Change: {domainEvent.Amount}, Type: {domainEvent.Type})";
+
             List<Condition> conditionsToApply = [Condition.None];
             int currentHp = domainEvent.CurrentHp;
             int maxHp = domainEvent.MaxHp;
@@ -50,6 +55,8 @@ namespace DND.Application.Handlers
             {
                 await _creatureService.ApplyConditionsAsync(domainEvent.CreatureId, conditionsToApply);
             }
+
+            await _loggingService.Log(logMessage);
         }
     }
 }
