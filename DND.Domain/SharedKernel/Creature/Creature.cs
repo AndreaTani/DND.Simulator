@@ -92,9 +92,10 @@
         public IReadOnlyList<Language> Languages => _languages;
 
 
-        // Properties to check if the creature is Unconcious or Dead based on conditions or hit points
+        // Properties to check if the creature is Unconcious, Dead, or Dying based on conditions
         public bool IsUnconscious => Conditions.Contains(Condition.Unconscious);
         public bool IsDead => Conditions.Contains(Condition.Dead);
+        public bool IsDying => Conditions.Contains(Condition.Dying);
 
 
         // Proficiencies (skills, saving throws, etc.)
@@ -294,6 +295,7 @@
                 // Create and add a domain event to notify about the HP change
                 var damagingEvent = new CreatureHPChangedEvent(
                     CreatureId: Id,
+                    CreatureName: Name,
                     PreviousHp: initialHp,
                     CurrentHp: CurrentHitPoints,
                     MaxHp: MaxHitPoints,
@@ -370,6 +372,7 @@
             // the negative amount value is for damage
             var healingEvent = new CreatureHPChangedEvent(
                 CreatureId: Id,
+                CreatureName: Name,
                 PreviousHp: initialHp,
                 CurrentHp: CurrentHitPoints,
                 MaxHp: MaxHitPoints,
@@ -740,7 +743,7 @@
         /// </summary>
         public void ApplyUnconsciousness(bool isDying = true)
         {
-            if (IsDead) return;
+            if (IsDead || IsUnconscious) return;
 
             if (!IsUnconscious)
             {
@@ -751,7 +754,7 @@
                 if (isDying)
                 {
                     AddCondition(Condition.Dying);
-                    var isDyingEvent = new CreatureIsDyingEvent(Id);
+                    var isDyingEvent = new CreatureIsDyingEvent(Id, Name);
                     AddDomainEvent(isDyingEvent);
                 }
 
@@ -781,7 +784,7 @@
                 CurrentHitPoints = Math.Min(0, CurrentHitPoints);
 
                 AddCondition(Condition.Dead);
-                var deathEvent = new CreatureDiedEvent(Id);
+                var deathEvent = new CreatureDiedEvent(Id, Name);
                 AddDomainEvent(deathEvent);
 
                 AddCondition(Condition.Prone);
@@ -799,9 +802,9 @@
         /// </summary>
         public void Revive()
         {
-            if (IsDead || IsUnconscious)
+            if (IsDead || IsUnconscious || IsDying)
             {
-                RemoveConditions([Condition.Dead, Condition.Unconscious]);
+                RemoveConditions([Condition.Dead, Condition.Unconscious, Condition.Dying]);
 
                 // Revive with 1 HP if dead or unconscious with 0 or negative HP
                 if (CurrentHitPoints <= 0)
@@ -809,7 +812,7 @@
                     CurrentHitPoints = 1;
                 }
 
-                AddDomainEvent(new CreatureRevivedEvent(Id));
+                AddDomainEvent(new CreatureRevivedEvent(Id, Name));
             }
         }
 

@@ -7,11 +7,12 @@
     /// <param name="Conditions">Always only Dying</param>
     public record CreatureIsDyingEvent(
         Guid CreatureId,
+        string CreatureName,
         List<Condition> Conditions
         ) : IDomainEvent
     {
-        public CreatureIsDyingEvent(Guid creatureId)
-            : this(creatureId, [Condition.Dying])
+        public CreatureIsDyingEvent(Guid creatureId, string creatureName)
+            : this(creatureId, creatureName, [Condition.Dying])
         {
         }
 

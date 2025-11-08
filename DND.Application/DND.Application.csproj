@@ -8,7 +8,6 @@
 
   <ItemGroup>
     <PackageReference Include="BB_RPG_DiceSet" Version="1.2.0" />
-    <PackageReference Include="xunit" Version="2.9.3" />
   </ItemGroup>
 
   <ItemGroup>

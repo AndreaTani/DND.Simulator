@@ -1,6 +1,8 @@
-﻿namespace DND.Application.Services
+﻿using DND.Application.Contracts;
+
+namespace DND.Application.Services
 {
-    public class CombatSessionService
+    public class CombatSessionService : ICombatSessionService
     {
         /// <summary>
         /// Simplified example of a Service in the Application Layer that coordinates a use case involving domain entities and events.
@@ -12,21 +14,30 @@
 
         //public async Task ApplyDamageCommand(Guid creatureId, int damage, DamageType type)
         //{
-        //    // 1. Caricamento
+        //    // 1. Loading Aggregate Root
         //    var creature = await _repository.GetByIdAsync(creatureId);
         //    if (creature == null) return;
 
-        //    // 2. Azione di Dominio (gli eventi sono generati e raccolti)
+        //    // 2. Domain Logic Execution
         //    creature.TakeDamage(damage, type);
 
-        //    // 3. Persistenza: Salva lo stato modificato (DB Transaction)
+        //    // 3. Persistence
         //    await _repository.UpdateAsync(creature);
 
-        //    // 4. Dispersione degli Eventi (Event Dispatcher si occupa di chiamare gli Handler)
+        //    // 4. Event Dispatching
         //    await _dispatcher.DispatchAsync(creature.DomainEvents);
 
-        //    // 5. Pulizia
+        //    // 5. Clearing Events
         //    creature.ClearDomainEvents();
         //}
+        public Task RemoveFromInitiativeAsync(Guid creatureId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task RestoreToCombatAsync(Guid creatureId)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

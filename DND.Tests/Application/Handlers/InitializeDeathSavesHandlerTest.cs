@@ -1,0 +1,71 @@
+﻿using DND.Application.Contracts;
+using DND.Application.Handlers;
+using DND.Domain.SharedKernel;
+using Moq;
+
+namespace DND.Tests.Application.Handlers
+{
+    public class InitializeDeathSavesHandlerTest
+    {
+        private readonly Mock<IDeathSaveManagerService> _deathSaveManagerMock;
+        private readonly Mock<ICreatureService> _creatureServiceMock;
+        private readonly Mock<ILoggingService> _loggingServiceMock;
+        private readonly InitializeDeathSavesHandler _handler;
+
+        public InitializeDeathSavesHandlerTest()
+        {
+            _deathSaveManagerMock = new Mock<IDeathSaveManagerService>();
+            _creatureServiceMock = new Mock<ICreatureService>();
+            _loggingServiceMock = new Mock<ILoggingService>();
+            _handler = new InitializeDeathSavesHandler(_deathSaveManagerMock.Object, _creatureServiceMock.Object, _loggingServiceMock.Object);
+        }
+
+        [Fact]
+        public async Task Handle_WhenDyingCreatureIsPlayer_ShouldInitializeDeathSaves()
+        {
+            // Arrange
+            var creatureId = Guid.NewGuid();
+            var creatureName = "Hero";
+            var domainEvent = new CreatureIsDyingEvent(creatureId, creatureName);
+
+            _creatureServiceMock
+                .Setup(c => c.IsPlayerCharacterAsync(creatureId))
+                .ReturnsAsync(true);
+
+            // Act
+            await _handler.Handle(domainEvent);
+
+            // Assert
+            _creatureServiceMock.Verify(m => m.IsPlayerCharacterAsync(creatureId), Times.Once);
+            _deathSaveManagerMock.Verify(m => m.InitializeDeathSavesAsync(creatureId), Times.Once);
+            _loggingServiceMock.Verify(m => m.Log(
+                It.Is<string>(s =>
+                s.Contains(domainEvent.CreatureId.ToString()) &&
+                s.Contains(domainEvent.CreatureName))
+            ), Times.Once);
+
+        }
+
+        [Fact]
+        public async Task Handle_WhenDyingCreatureIsNotPlayer_ShouldNotInitializeDeathSaves()
+        {
+            // Arrange
+            var creatureId = Guid.NewGuid();
+            var creatureName = "Goblin";
+            var domainEvent = new CreatureIsDyingEvent(creatureId, creatureName);
+
+            _creatureServiceMock
+                .Setup(c => c.IsPlayerCharacterAsync(creatureId))
+                .ReturnsAsync(false);
+
+            // Act
+            await _handler.Handle(domainEvent);
+
+            // Assert
+            _creatureServiceMock.Verify(m => m.IsPlayerCharacterAsync(creatureId), Times.Once);
+            _deathSaveManagerMock.Verify(m => m.InitializeDeathSavesAsync(creatureId), Times.Never);
+            _loggingServiceMock.Verify(m => m.Log(It.IsAny<string>()), Times.Never);
+        }
+
+    }
+}
