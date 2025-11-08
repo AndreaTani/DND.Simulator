@@ -10,7 +10,8 @@
     /// <param name="Amount">Amount of change in HP; negative values are for damage, positiveare for heal</param>
     /// <param name="Type">Type of Damage sustained, default None for healing</param>
     public record CreatureHPChangedEvent(
-        Guid CreatureId, 
+        Guid CreatureId,
+        string CreatureName,
         int PreviousHp, 
         int CurrentHp, 
         int MaxHp, 

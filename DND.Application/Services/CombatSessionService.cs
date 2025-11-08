@@ -34,5 +34,10 @@ namespace DND.Application.Services
         {
             throw new NotImplementedException();
         }
+
+        public Task RestoreToCombatAsync(Guid creatureId)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

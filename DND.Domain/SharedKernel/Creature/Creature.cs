@@ -295,6 +295,7 @@
                 // Create and add a domain event to notify about the HP change
                 var damagingEvent = new CreatureHPChangedEvent(
                     CreatureId: Id,
+                    CreatureName: Name,
                     PreviousHp: initialHp,
                     CurrentHp: CurrentHitPoints,
                     MaxHp: MaxHitPoints,
@@ -371,6 +372,7 @@
             // the negative amount value is for damage
             var healingEvent = new CreatureHPChangedEvent(
                 CreatureId: Id,
+                CreatureName: Name,
                 PreviousHp: initialHp,
                 CurrentHp: CurrentHitPoints,
                 MaxHp: MaxHitPoints,
@@ -752,7 +754,7 @@
                 if (isDying)
                 {
                     AddCondition(Condition.Dying);
-                    var isDyingEvent = new CreatureIsDyingEvent(Id);
+                    var isDyingEvent = new CreatureIsDyingEvent(Id, Name);
                     AddDomainEvent(isDyingEvent);
                 }
 
@@ -810,8 +812,7 @@
                     CurrentHitPoints = 1;
                 }
 
-                AddDomainEvent(new CreatureRevivedEvent(Id));
-                AddDomainEvent(new CreatureRemoveConditionsEvent(Id, [Condition.Dead, Condition.Unconscious, Condition.Dying]));
+                AddDomainEvent(new CreatureRevivedEvent(Id, Name));
             }
         }
 

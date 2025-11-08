@@ -6,6 +6,7 @@
     /// </summary>
     public record CreatureDeathSaveRolledEvent(
         Guid CreatureId,
+        string CreatureName,
         int RollValue
     ) : IDomainEvent;
 }

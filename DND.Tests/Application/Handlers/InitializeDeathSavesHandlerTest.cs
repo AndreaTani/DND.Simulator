@@ -25,13 +25,12 @@ namespace DND.Tests.Application.Handlers
         {
             // Arrange
             var creatureId = Guid.NewGuid();
-            var domainEvent = new CreatureIsDyingEvent(creatureId);
+            var creatureName = "Hero";
+            var domainEvent = new CreatureIsDyingEvent(creatureId, creatureName);
 
             _creatureServiceMock
                 .Setup(c => c.IsPlayerCharacterAsync(creatureId))
                 .ReturnsAsync(true);
-
-            var logMessage = $"Initialized death saves for player character with ID: {creatureId}";
 
             // Act
             await _handler.Handle(domainEvent);
@@ -39,7 +38,12 @@ namespace DND.Tests.Application.Handlers
             // Assert
             _creatureServiceMock.Verify(m => m.IsPlayerCharacterAsync(creatureId), Times.Once);
             _deathSaveManagerMock.Verify(m => m.InitializeDeathSavesAsync(creatureId), Times.Once);
-            _loggingServiceMock.Verify(m => m.Log(logMessage), Times.Once);
+            _loggingServiceMock.Verify(m => m.Log(
+                It.Is<string>(s =>
+                s.Contains(domainEvent.CreatureId.ToString()) &&
+                s.Contains(domainEvent.CreatureName))
+            ), Times.Once);
+
         }
 
         [Fact]
@@ -47,13 +51,12 @@ namespace DND.Tests.Application.Handlers
         {
             // Arrange
             var creatureId = Guid.NewGuid();
-            var domainEvent = new CreatureIsDyingEvent(creatureId);
+            var creatureName = "Goblin";
+            var domainEvent = new CreatureIsDyingEvent(creatureId, creatureName);
 
             _creatureServiceMock
                 .Setup(c => c.IsPlayerCharacterAsync(creatureId))
                 .ReturnsAsync(false);
-
-            var logMessage = $"Initialized death saves for player character with ID: {creatureId}";
 
             // Act
             await _handler.Handle(domainEvent);
@@ -61,7 +64,7 @@ namespace DND.Tests.Application.Handlers
             // Assert
             _creatureServiceMock.Verify(m => m.IsPlayerCharacterAsync(creatureId), Times.Once);
             _deathSaveManagerMock.Verify(m => m.InitializeDeathSavesAsync(creatureId), Times.Never);
-            _loggingServiceMock.Verify(m => m.Log(logMessage), Times.Never);
+            _loggingServiceMock.Verify(m => m.Log(It.IsAny<string>()), Times.Never);
         }
 
     }

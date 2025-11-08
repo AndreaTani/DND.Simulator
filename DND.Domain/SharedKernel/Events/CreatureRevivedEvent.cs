@@ -5,6 +5,7 @@
     /// </summary>
     /// <param name="CreatureId">Id of the creature</param>
     public record CreatureRevivedEvent(
-        Guid CreatureId
+        Guid CreatureId,
+        string CreatureName
         ) : IDomainEvent;
 }

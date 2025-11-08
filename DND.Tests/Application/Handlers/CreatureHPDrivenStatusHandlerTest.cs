@@ -38,6 +38,7 @@ namespace DND.Tests.Application.Handlers
 
             var domainEvent = new CreatureHPChangedEvent(
                 CreatureId: Guid.NewGuid(),
+                CreatureName: "Test Creature",
                 MaxHp: maxHp,
                 PreviousHp: previusHp,
                 Amount: amount,
@@ -51,7 +52,15 @@ namespace DND.Tests.Application.Handlers
             await handler.Handle(domainEvent);
 
             // Assert
-            loggingServiceMock.Verify(m => m.Log(expectedMessage), Times.Once);
+            loggingServiceMock.Verify(m => m.Log(
+                It.Is<string>(s =>
+                s.Contains(domainEvent.CreatureId.ToString()) &&
+                s.Contains(domainEvent.CreatureName) &&
+                s.Contains(domainEvent.PreviousHp.ToString()) &&
+                s.Contains(domainEvent.CurrentHp.ToString()) &&
+                s.Contains(domainEvent.Amount.ToString()) &&
+                s.Contains(domainEvent.Type.ToString())
+            )), Times.Once);
 
             creatureServiceMock.Verify(m => m.HandleCreatureHpStatusAsync(
                 domainEvent.CreatureId,

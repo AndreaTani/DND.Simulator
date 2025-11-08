@@ -16,14 +16,14 @@ namespace DND.Tests.Application.Handlers
             var handler = new RecordDeathSaveRollHandler(deathSaveManagerServiceMock.Object, loggingServiceMock.Object);
 
             var creatureId = Guid.NewGuid();
+            var creatureName = "Brave Adventurer";
             var rollValue = 15; // A success
 
             var domainEvent = new CreatureDeathSaveRolledEvent(
                 creatureId,
+                creatureName,
                 rollValue
             );
-
-            var logMessage = $"Recorded death save roll of {rollValue} for creature with ID: {creatureId}";
 
             // Act
             await handler.Handle(domainEvent);
@@ -34,7 +34,12 @@ namespace DND.Tests.Application.Handlers
                 rollValue
             ), Times.Once);
 
-            loggingServiceMock.Verify(m => m.Log(logMessage), Times.Once);
+            loggingServiceMock.Verify(m => m.Log(
+                It.Is<string>(s =>
+                s.Contains(domainEvent.CreatureId.ToString()) &&
+                s.Contains(domainEvent.CreatureName) &&
+                s.Contains(domainEvent.RollValue.ToString()))
+            ), Times.Once);
         }
     }
 }

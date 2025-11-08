@@ -1,33 +1,29 @@
-﻿using DND.Domain.SharedKernel;
-using DND.Application.Contracts;
+﻿using DND.Application.Contracts;
 using DND.Application.Handlers;
+using DND.Domain.SharedKernel;
 using Moq;
 
 namespace DND.Tests.Application.Handlers
 {
-    public class RemoveCreatureFromTheInitiativeTrackerTest
+    public class RestoreToCombatHandlerTest
     {
         [Fact]
-        public async Task Handle_CreatureDiedEvent_ShouldRemoveCreatureFromInitiativeTracker()
+        public async Task Handle_CreatureRevivedEvent_ShouldRestoreCreatureToCombat()
         {
             // Arrange
             var combatServiceMock = new Mock<ICombatSessionService>();
             var loggingServiceMock = new Mock<ILoggingService>();
-            var handler = new RemoveCreatureFromTheInitiativeTrackerHandler(combatServiceMock.Object, loggingServiceMock.Object);
-
-            var domainEvent = new CreatureDiedEvent(
+            var handler = new RestoreToCombatHandler(combatServiceMock.Object, loggingServiceMock.Object);
+            var domainEvent = new CreatureRevivedEvent(
                 Guid.NewGuid(),
                 "Sample Creature"
             );
 
             // Act
             await handler.Handle(domainEvent);
-            
-            // Assert
-            combatServiceMock.Verify(m => m.RemoveFromInitiativeAsync(
-                domainEvent.CreatureId
-            ), Times.Once);
 
+            // Assert
+            combatServiceMock.Verify(m => m.RestoreToCombatAsync(domainEvent.CreatureId), Times.Once);
             loggingServiceMock.Verify(m => m.Log(
                 It.Is<string>(s => 
                 s.Contains(domainEvent.CreatureId.ToString()) && 

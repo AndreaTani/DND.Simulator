@@ -22,7 +22,7 @@ namespace DND.Application.Handlers
 
             if (isPlayerCharacter)
             {
-                var logMessage = $"Initialized death saves for player character with ID: {domainEvent.CreatureId}";
+                var logMessage = $"Initialized death saves for player {domainEvent.CreatureName} (character with ID: {domainEvent.CreatureId})";
                 await _deathSaveManager.InitializeDeathSavesAsync(domainEvent.CreatureId);
                 await _loggingService.Log(logMessage);
             }
