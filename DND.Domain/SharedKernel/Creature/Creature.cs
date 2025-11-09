@@ -448,7 +448,7 @@
             if (newConditions.Count != 0)
             {
                 _conditions.AddRange(newConditions);
-                var conditionAddedEvent = new CreatureAddConditionsEvent(Id, newConditions);
+                var conditionAddedEvent = new CreatureAddConditionsEvent(Id, Name, newConditions);
                 AddDomainEvent(conditionAddedEvent);
             }
         }
@@ -463,7 +463,7 @@
 
             if (!_conditions.Contains(condition))
             {
-                var conditionAddedEvent = new CreatureAddConditionsEvent(Id, [condition]);
+                var conditionAddedEvent = new CreatureAddConditionsEvent(Id, Name, [condition]);
                 _conditions.Add(condition);
                 AddDomainEvent(conditionAddedEvent);
             }
@@ -763,7 +763,7 @@
                 AddDomainEvent(unconsciousEvent);
 
                 AddCondition(Condition.Prone);
-                var proneEvent = new CreatureAddConditionsEvent(Id, [Condition.Prone]);
+                var proneEvent = new CreatureAddConditionsEvent(Id, Name, [Condition.Prone]);
                 AddDomainEvent(proneEvent);
             }
         }
@@ -788,7 +788,7 @@
                 AddDomainEvent(deathEvent);
 
                 AddCondition(Condition.Prone);
-                var proneEvent = new CreatureAddConditionsEvent(Id, [Condition.Prone]);
+                var proneEvent = new CreatureAddConditionsEvent(Id, Name, [Condition.Prone]);
                 AddDomainEvent(proneEvent);
 
                 RemoveConditions([Condition.Unconscious, Condition.Dying]);
