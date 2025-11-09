@@ -1,4 +1,5 @@
 ﻿using DND.Domain.SharedKernel;
+using System.Collections.Generic;
 
 namespace DND.Application.Contracts
 {
@@ -8,7 +9,9 @@ namespace DND.Application.Contracts
         Task HandleCreatureHpStatusAsync(Guid creatureId, int maxHp, int currentHp);
 
         // Apply the specified condition to the creature.
-        Task ApplyConditionsAsync(Guid creatureId, List<Condition> conditions);
+        Task ApplyConditionsAsync(Guid creatureId, IEnumerable<Condition> conditions);
+
+        Task RemoveConditionsAsync(Guid creatureId, IEnumerable<Condition> conditions);
 
         // Check if the creature is a player character.
         Task<bool> IsPlayerCharacterAsync(Guid creatureId);

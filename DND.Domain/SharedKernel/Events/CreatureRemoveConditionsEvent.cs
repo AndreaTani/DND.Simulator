@@ -7,6 +7,7 @@
     /// <param name="Conditions">Conditions removed</param>
     public record CreatureRemoveConditionsEvent(
         Guid CreatureId,
+        string CreatureName,
         IEnumerable<Condition> Conditions
         ) : IDomainEvent;
 }

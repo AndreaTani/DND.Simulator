@@ -448,7 +448,7 @@
             if (newConditions.Count != 0)
             {
                 _conditions.AddRange(newConditions);
-                var conditionAddedEvent = new CreatureAddConditionsEvent(Id, newConditions);
+                var conditionAddedEvent = new CreatureAddConditionsEvent(Id, Name, newConditions);
                 AddDomainEvent(conditionAddedEvent);
             }
         }
@@ -463,7 +463,7 @@
 
             if (!_conditions.Contains(condition))
             {
-                var conditionAddedEvent = new CreatureAddConditionsEvent(Id, [condition]);
+                var conditionAddedEvent = new CreatureAddConditionsEvent(Id, Name, [condition]);
                 _conditions.Add(condition);
                 AddDomainEvent(conditionAddedEvent);
             }
@@ -472,7 +472,7 @@
         {
             var conditionsToRemove = new HashSet<Condition>(conditions).Distinct();
             _conditions.RemoveAll(c => conditionsToRemove.Contains(c));
-            AddDomainEvent(new CreatureRemoveConditionsEvent(Id, conditionsToRemove));
+            AddDomainEvent(new CreatureRemoveConditionsEvent(Id, Name, conditionsToRemove));
         }
 
 
@@ -763,7 +763,7 @@
                 AddDomainEvent(unconsciousEvent);
 
                 AddCondition(Condition.Prone);
-                var proneEvent = new CreatureAddConditionsEvent(Id, [Condition.Prone]);
+                var proneEvent = new CreatureAddConditionsEvent(Id, Name, [Condition.Prone]);
                 AddDomainEvent(proneEvent);
             }
         }
@@ -788,11 +788,11 @@
                 AddDomainEvent(deathEvent);
 
                 AddCondition(Condition.Prone);
-                var proneEvent = new CreatureAddConditionsEvent(Id, [Condition.Prone]);
+                var proneEvent = new CreatureAddConditionsEvent(Id, Name, [Condition.Prone]);
                 AddDomainEvent(proneEvent);
 
                 RemoveConditions([Condition.Unconscious, Condition.Dying]);
-                var removeUnconsciousEvent = new CreatureRemoveConditionsEvent(Id, [Condition.Unconscious, Condition.Dying]);
+                var removeUnconsciousEvent = new CreatureRemoveConditionsEvent(Id, Name, [Condition.Unconscious, Condition.Dying]);
                 AddDomainEvent(removeUnconsciousEvent);
             }
         }

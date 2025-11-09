@@ -7,6 +7,7 @@
     /// <param name="Conditions">Conditions added</param>
     public record CreatureAddConditionsEvent(
         Guid CreatureId,
+        string CreatureName,
         IEnumerable<Condition> Conditions
         ) : IDomainEvent;
 }
