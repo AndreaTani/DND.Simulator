@@ -472,7 +472,7 @@
         {
             var conditionsToRemove = new HashSet<Condition>(conditions).Distinct();
             _conditions.RemoveAll(c => conditionsToRemove.Contains(c));
-            AddDomainEvent(new CreatureRemoveConditionsEvent(Id, conditionsToRemove));
+            AddDomainEvent(new CreatureRemoveConditionsEvent(Id, Name, conditionsToRemove));
         }
 
 
@@ -792,7 +792,7 @@
                 AddDomainEvent(proneEvent);
 
                 RemoveConditions([Condition.Unconscious, Condition.Dying]);
-                var removeUnconsciousEvent = new CreatureRemoveConditionsEvent(Id, [Condition.Unconscious, Condition.Dying]);
+                var removeUnconsciousEvent = new CreatureRemoveConditionsEvent(Id, Name, [Condition.Unconscious, Condition.Dying]);
                 AddDomainEvent(removeUnconsciousEvent);
             }
         }

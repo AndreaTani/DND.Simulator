@@ -20,5 +20,10 @@ namespace DND.Application.Services
         {
             throw new NotImplementedException();
         }
+
+        public Task RemoveConditionsAsync(Guid creatureId, IEnumerable<Condition> conditions)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

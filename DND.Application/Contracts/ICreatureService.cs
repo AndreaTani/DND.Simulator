@@ -11,6 +11,8 @@ namespace DND.Application.Contracts
         // Apply the specified condition to the creature.
         Task ApplyConditionsAsync(Guid creatureId, IEnumerable<Condition> conditions);
 
+        Task RemoveConditionsAsync(Guid creatureId, IEnumerable<Condition> conditions);
+
         // Check if the creature is a player character.
         Task<bool> IsPlayerCharacterAsync(Guid creatureId);
     }

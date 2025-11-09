@@ -18,7 +18,7 @@ namespace DND.Application.Handlers
         {
             await _creatureService.ApplyConditionsAsync(domainEvent.CreatureId, domainEvent.Conditions);
 
-            string logMessage = $"The forllowing conditions: '{string.Join(", ", domainEvent.Conditions)}' have been applied to creature {domainEvent.CreatureName} (ID: {domainEvent.CreatureId}) ";
+            string logMessage = $"The following conditions: '{string.Join(", ", domainEvent.Conditions)}' have been applied to creature {domainEvent.CreatureName} (ID: {domainEvent.CreatureId}) ";
             await _loggingService.Log(logMessage);
         }
     }
