@@ -10,6 +10,11 @@ namespace DND.Application.Services
             throw new NotImplementedException();
         }
 
+        public async Task AddLanguagesAsync(Guid creatureId, IEnumerable<Language> languages)
+        {
+            throw new NotImplementedException();
+        }
+
         public async Task AddProficientSkillsAsync(Guid creatureId, IEnumerable<Skill> skills)
         {
             throw new NotImplementedException();
@@ -42,6 +47,11 @@ namespace DND.Application.Services
         }
 
         public async Task RemoveExpertSkillsAsync(Guid creatureId, IEnumerable<Skill> skills)
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task RemoveLanguagesAsync(Guid creatureId, IEnumerable<Language> languages)
         {
             throw new NotImplementedException();
         }

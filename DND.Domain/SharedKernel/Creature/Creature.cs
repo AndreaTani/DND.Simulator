@@ -502,21 +502,21 @@
         protected void AddLanguages(IEnumerable<Language> languages)
         {
             _languages.AddRange(languages.Where(l => !_languages.Contains(l)).Distinct());
-            AddDomainEvent(new CreatureLanguagesAddedEvent(Id, languages.Distinct()));
+            AddDomainEvent(new CreatureLanguagesAddedEvent(Id, Name, languages.Distinct()));
         }
         protected void AddLanguage(Language language)
         {
             if (!_languages.Contains(language))
             {
                 _languages.Add(language);
-                AddDomainEvent(new CreatureLanguagesAddedEvent(Id, [language]));
+                AddDomainEvent(new CreatureLanguagesAddedEvent(Id, Name, [language]));
             }
         }
         protected void RemoveLanguages(IEnumerable<Language> languages)
         {
             var languagesToRemove = new HashSet<Language>(languages).Distinct();
             _languages.RemoveAll(l => languagesToRemove.Contains(l));
-            AddDomainEvent(new CreatureLanguagesRemovedEvent(Id, languagesToRemove));
+            AddDomainEvent(new CreatureLanguagesRemovedEvent(Id, Name, languagesToRemove));
         }
 
 

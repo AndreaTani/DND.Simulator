@@ -28,8 +28,14 @@ namespace DND.Application.Contracts
         // Add specific senses to the creature
         Task AddSensesAsync(Guid creatureId, IEnumerable<Sense> senses);
 
-        // Remove specific senses to the creature
+        // Remove specific senses from the creature
         Task RemoveSensesAsync(Guid creatureId, IEnumerable<Sense> senses);
+
+        // Add specific languages to the creature
+        Task AddLanguagesAsync(Guid creatureId, IEnumerable<Language> languages);
+
+        // Remove specific languages from the creature
+        Task RemoveLanguagesAsync(Guid creatureId, IEnumerable<Language> languages);
 
         // Check if the creature is a player character.
         Task<bool> IsPlayerCharacterAsync(Guid creatureId);
