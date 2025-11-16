@@ -5,6 +5,16 @@ namespace DND.Application.Services
 {
     public class CreatureService : ICreatureService
     {
+        public Task AddExpertSkillsAsync(Guid creatureId, IEnumerable<Skill> skills)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task AddProficientSkillsAsync(Guid creatureId, IEnumerable<Skill> skills)
+        {
+            throw new NotImplementedException();
+        }
+
         // TODO: remember to trigger the CreatureDiedEvent when the dead condition is applied to a creature
         public Task ApplyConditionsAsync(Guid creatureId, IEnumerable<Condition> conditions)
         {
@@ -22,6 +32,16 @@ namespace DND.Application.Services
         }
 
         public Task RemoveConditionsAsync(Guid creatureId, IEnumerable<Condition> conditions)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task RemoveExpertSkillsAsync(Guid creatureId, IEnumerable<Skill> skills)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task RemoveProficientSkillsAsync(Guid creatureId, IEnumerable<Skill> skills)
         {
             throw new NotImplementedException();
         }

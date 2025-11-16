@@ -7,6 +7,7 @@
     /// <param name="Skills">The specific proficient skill Remopved (e.g., Skill.Athletics).</param>
     public record CreatureProficientSkillsRemovedEvent(
         Guid CreatureId,
+        string Name,
         IEnumerable<Skill> Skills
         ) : IDomainEvent;
 }

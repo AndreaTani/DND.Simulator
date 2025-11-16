@@ -14,11 +14,11 @@ namespace DND.Application.Handlers
             _loggingService = loggingService;
         }
 
-        public async Task Handle(CreatureDiedEvent domainEvent)
+        public async Task HandleAsync(CreatureDiedEvent domainEvent)
         {
             string logMessage = $"Creature {domainEvent.CreatureName} (ID: {domainEvent.CreatureId}) has been removed from the initiative tracker.";
             await _combatSessionService.RemoveFromInitiativeAsync(domainEvent.CreatureId);
-            await _loggingService.Log(logMessage);
+            await _loggingService.LogMessageAsync(logMessage);
         }
     }
 }

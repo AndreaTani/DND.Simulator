@@ -33,12 +33,12 @@ namespace DND.Tests.Application.Handlers
                 .ReturnsAsync(true);
 
             // Act
-            await _handler.Handle(domainEvent);
+            await _handler.HandleAsync(domainEvent);
 
             // Assert
             _creatureServiceMock.Verify(m => m.IsPlayerCharacterAsync(creatureId), Times.Once);
             _deathSaveManagerMock.Verify(m => m.InitializeDeathSavesAsync(creatureId), Times.Once);
-            _loggingServiceMock.Verify(m => m.Log(
+            _loggingServiceMock.Verify(m => m.LogMessageAsync(
                 It.Is<string>(s =>
                 s.Contains(domainEvent.CreatureId.ToString()) &&
                 s.Contains(domainEvent.CreatureName))
@@ -59,12 +59,12 @@ namespace DND.Tests.Application.Handlers
                 .ReturnsAsync(false);
 
             // Act
-            await _handler.Handle(domainEvent);
+            await _handler.HandleAsync(domainEvent);
 
             // Assert
             _creatureServiceMock.Verify(m => m.IsPlayerCharacterAsync(creatureId), Times.Once);
             _deathSaveManagerMock.Verify(m => m.InitializeDeathSavesAsync(creatureId), Times.Never);
-            _loggingServiceMock.Verify(m => m.Log(It.IsAny<string>()), Times.Never);
+            _loggingServiceMock.Verify(m => m.LogMessageAsync(It.IsAny<string>()), Times.Never);
         }
 
     }

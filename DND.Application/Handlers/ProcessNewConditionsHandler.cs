@@ -14,12 +14,12 @@ namespace DND.Application.Handlers
             _loggingService = loggingService;
         }
 
-        public async Task Handle(CreatureAddConditionsEvent domainEvent)
+        public async Task HandleAsync(CreatureAddConditionsEvent domainEvent)
         {
             await _creatureService.ApplyConditionsAsync(domainEvent.CreatureId, domainEvent.Conditions);
 
-            string logMessage = $"The following conditions: '{string.Join(", ", domainEvent.Conditions)}' have been applied to creature {domainEvent.CreatureName} (ID: {domainEvent.CreatureId}) ";
-            await _loggingService.Log(logMessage);
+            string logMessage = $"The following conditions '{string.Join(", ", domainEvent.Conditions)}' have been applied to creature {domainEvent.CreatureName} (ID: {domainEvent.CreatureId}) ";
+            await _loggingService.LogMessageAsync(logMessage);
         }
     }
 }

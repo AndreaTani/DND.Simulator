@@ -7,6 +7,7 @@
     /// <param name="Skills">The specific expert skill Added (e.g., Skill.Athletics).</param>
     public record CreatureExpertSkillsAddedEvent(
         Guid CreatureId,
+        string Name,
         IEnumerable<Skill> Skills
         ) : IDomainEvent;
 }

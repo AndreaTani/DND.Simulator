@@ -14,7 +14,7 @@ namespace DND.Application.Handlers
             _loggingService = loggingService;
         }
 
-        public async Task Handle( CreatureDeathSaveRolledEvent domainEvent)
+        public async Task HandleAsync( CreatureDeathSaveRolledEvent domainEvent)
         {
             var logMessage = $"Recorded death save roll of {domainEvent.RollValue} for creature {domainEvent.CreatureName} (ID: {domainEvent.CreatureId})";
 
@@ -23,7 +23,7 @@ namespace DND.Application.Handlers
                 domainEvent.RollValue
             );
 
-            await _loggingService.Log(logMessage);
+            await _loggingService.LogMessageAsync(logMessage);
         }
     }
 }

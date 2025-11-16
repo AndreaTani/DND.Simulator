@@ -21,11 +21,11 @@ namespace DND.Application.Handlers
             _loggingService = loggingService;
         }
 
-        public async Task Handle(CreatureRevivedEvent domainEvent)
+        public async Task HandleAsync(CreatureRevivedEvent domainEvent)
         {
             string logMessage = $"Creature {domainEvent.CreatureName} (ID: {domainEvent.CreatureId}) has been restored to combat.";
             await _combatSessionService.RestoreToCombatAsync(domainEvent.CreatureId);
-            await _loggingService.Log(logMessage);
+            await _loggingService.LogMessageAsync(logMessage);
         }
     }
 }

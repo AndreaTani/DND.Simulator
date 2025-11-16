@@ -7,6 +7,7 @@
     /// <param name="Skills">The specific expert skill Remopved (e.g., Skill.Athletics).</param>
     public record CreatureExpertSkillsRemovedEvent(
         Guid CreatureId,
+        string Name,
         IEnumerable<Skill> Skills
         ) : IDomainEvent;
 }

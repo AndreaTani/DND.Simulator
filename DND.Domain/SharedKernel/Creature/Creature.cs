@@ -15,7 +15,7 @@
         private readonly List<Skill> _expertSkills = [];
         private readonly List<Skill> _proficientSkills = [];
         private readonly List<IDomainEvent> _domainEvents = [];
-        private readonly List<TemporaryDamageModification> _temporaryDamageModifications = [];
+        private readonly List<TemporaryDamageModification> _temporaryDamageModifications = [];\
         private readonly List<TemporaryImmunityModification> _temporaryDamageImmunities = [];
 
         // Identifications, basic Info and fundamental stata
@@ -531,20 +531,20 @@
         protected void AddProficientSkills(IEnumerable<Skill> skills)
         {
             _proficientSkills.AddRange(skills.Where(s => !_proficientSkills.Contains(s) && !_expertSkills.Contains(s)).Distinct());
-            AddDomainEvent(new CreatureProficientSkillsAddedEvent(Id, skills.Distinct()));
+            AddDomainEvent(new CreatureProficientSkillsAddedEvent(Id, Name, skills.Distinct()));
         }
         protected void AddProficientSkill(Skill skill)
         {
             if (!_proficientSkills.Contains(skill) && !_expertSkills.Contains(skill))
             {
                 _proficientSkills.Add(skill);
-                AddDomainEvent(new CreatureProficientSkillsAddedEvent(Id, [skill]));
+                AddDomainEvent(new CreatureProficientSkillsAddedEvent(Id, Name, [skill]));
             }
         }
         protected void RemoveProficientSkill(Skill skill)
         {
             _proficientSkills.Remove(skill);
-            AddDomainEvent(new CreatureProficientSkillsRemovedEvent(Id, [skill]));
+            AddDomainEvent(new CreatureProficientSkillsRemovedEvent(Id, Name, [skill]));
         }
 
 
@@ -557,22 +557,22 @@
                 _proficientSkills.Remove(s);
                 return s;
             }).Distinct());
-            AddDomainEvent(new CreatureExpertSkillsAddedEvent(Id, skills.Distinct()));
+            AddDomainEvent(new CreatureExpertSkillsAddedEvent(Id, Name, skills.Distinct()));
         }
         protected void AddExpertSkill(Skill skill)
         {
             if (!_expertSkills.Contains(skill))
             {
                 _proficientSkills.Remove(skill);
-                AddDomainEvent(new CreatureProficientSkillsRemovedEvent(Id, [skill]));
+                AddDomainEvent(new CreatureProficientSkillsRemovedEvent(Id, Name, [skill]));
                 _expertSkills.Add(skill);
-                AddDomainEvent(new CreatureExpertSkillsAddedEvent(Id, [skill]));
+                AddDomainEvent(new CreatureExpertSkillsAddedEvent(Id, Name, [skill]));
             }
         }
         protected void RemoveExpertSkill(Skill skill)
         {
             _expertSkills.Remove(skill);
-            AddDomainEvent(new CreatureExpertSkillsRemovedEvent(Id, [skill]));
+            AddDomainEvent(new CreatureExpertSkillsRemovedEvent(Id, Name, [skill]));
         }
 
 

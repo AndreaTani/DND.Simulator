@@ -14,12 +14,12 @@ namespace DND.Application.Handlers
             _loggingService = loggingService;
         }
 
-        public async Task Handle(CreatureRemoveConditionsEvent domainEvent)
+        public async Task HandleAsync(CreatureRemoveConditionsEvent domainEvent)
         {
             await _creatureService.RemoveConditionsAsync(domainEvent.CreatureId, domainEvent.Conditions);
 
-            string logMessage = $"The following conditions: '{string.Join(", ", domainEvent.Conditions)}' have been removed from creature {domainEvent.CreatureName} (ID: {domainEvent.CreatureId}) ";
-            await _loggingService.Log(logMessage);
+            string logMessage = $"The following conditions '{string.Join(", ", domainEvent.Conditions)}' have been removed from creature {domainEvent.CreatureName} (ID: {domainEvent.CreatureId}) ";
+            await _loggingService.LogMessageAsync(logMessage);
 
         }
     }

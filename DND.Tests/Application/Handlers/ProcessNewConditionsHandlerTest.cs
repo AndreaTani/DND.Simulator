@@ -25,7 +25,7 @@ namespace DND.Tests.Application.Handlers
             var domainEvent = new CreatureAddConditionsEvent (creatureId, creatureName, conditions);
 
             // Act
-            await handler.Handle(domainEvent);
+            await handler.HandleAsync(domainEvent);
 
             // Assert
             creatureServiceMock.Verify(m => m.ApplyConditionsAsync(
@@ -33,7 +33,7 @@ namespace DND.Tests.Application.Handlers
                 It.Is<List<Condition>>(c => c.SequenceEqual(conditions))
             ), Times.Once);
 
-            loggingServiceMock.Verify(m => m.Log(
+            loggingServiceMock.Verify(m => m.LogMessageAsync(
                 It.Is<string>(s =>
                 s.Contains(domainEvent.CreatureId.ToString()) &&
                 conditions.All(condition => s.Contains(condition.ToString())))

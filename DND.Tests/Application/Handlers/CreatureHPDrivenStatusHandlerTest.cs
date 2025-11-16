@@ -49,10 +49,10 @@ namespace DND.Tests.Application.Handlers
             var expectedMessage = $"Creature {domainEvent.CreatureId} HP changed from {domainEvent.PreviousHp} to {domainEvent.CurrentHp} (Change: {domainEvent.Amount}, Type: {domainEvent.Type})";
 
             // Act
-            await handler.Handle(domainEvent);
+            await handler.HandleAsync(domainEvent);
 
             // Assert
-            loggingServiceMock.Verify(m => m.Log(
+            loggingServiceMock.Verify(m => m.LogMessageAsync(
                 It.Is<string>(s =>
                 s.Contains(domainEvent.CreatureId.ToString()) &&
                 s.Contains(domainEvent.CreatureName) &&

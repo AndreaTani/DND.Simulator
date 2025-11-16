@@ -4,7 +4,7 @@ namespace DND.Application.Services
 {
     public class LoggingService : ILoggingService
     {
-        public Task Log(string message)
+        public Task LogMessageAsync(string message)
         {
             throw new NotImplementedException();
         }
