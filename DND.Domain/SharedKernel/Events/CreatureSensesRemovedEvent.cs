@@ -7,6 +7,7 @@
     /// <param name="Senses">The specific senses removed (e.g., Sense.Darkvision).</param>
     public record CreatureSensesRemovedEvent(
         Guid CreatureId, 
+        string Name,
         IEnumerable<Sense> Senses
         ) : IDomainEvent;
 }

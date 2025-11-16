@@ -25,6 +25,12 @@ namespace DND.Application.Contracts
         // Remove the specific skills from the ExpertSkills list
         Task RemoveExpertSkillsAsync(Guid creatureId, IEnumerable<Skill> skills);
 
+        // Add specific senses to the creature
+        Task AddSensesAsync(Guid creatureId, IEnumerable<Sense> senses);
+
+        // Remove specific senses to the creature
+        Task RemoveSensesAsync(Guid creatureId, IEnumerable<Sense> senses);
+
         // Check if the creature is a player character.
         Task<bool> IsPlayerCharacterAsync(Guid creatureId);
     }

@@ -15,7 +15,7 @@
         private readonly List<Skill> _expertSkills = [];
         private readonly List<Skill> _proficientSkills = [];
         private readonly List<IDomainEvent> _domainEvents = [];
-        private readonly List<TemporaryDamageModification> _temporaryDamageModifications = [];\
+        private readonly List<TemporaryDamageModification> _temporaryDamageModifications = [];
         private readonly List<TemporaryImmunityModification> _temporaryDamageImmunities = [];
 
         // Identifications, basic Info and fundamental stata
@@ -480,21 +480,21 @@
         protected void AddSenses(IEnumerable<Sense> senses)
         {
             _senses.AddRange(senses.Where(s => !_senses.Contains(s)).Distinct());
-            AddDomainEvent(new CreatureSensesAddedEvent(Id, senses.Distinct()));
+            AddDomainEvent(new CreatureSensesAddedEvent(Id, Name, senses.Distinct()));
         }
         protected void AddSense(Sense sense)
         {
             if (!_senses.Contains(sense))
             {
                 _senses.Add(sense);
-                AddDomainEvent(new CreatureSensesAddedEvent(Id, [sense]));
+                AddDomainEvent(new CreatureSensesAddedEvent(Id, Name, [sense]));
             }
         }
         protected void RemoveSenses(IEnumerable<Sense> sense)
         {
             var sensesToRemove = new HashSet<Sense>(sense).Distinct();
             _senses.RemoveAll(s => sensesToRemove.Contains(s));
-            AddDomainEvent(new CreatureSensesRemovedEvent(Id, sensesToRemove));
+            AddDomainEvent(new CreatureSensesRemovedEvent(Id, Name, sensesToRemove));
         }
 
 

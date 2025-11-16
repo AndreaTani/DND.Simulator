@@ -5,43 +5,53 @@ namespace DND.Application.Services
 {
     public class CreatureService : ICreatureService
     {
-        public Task AddExpertSkillsAsync(Guid creatureId, IEnumerable<Skill> skills)
+        public async Task AddExpertSkillsAsync(Guid creatureId, IEnumerable<Skill> skills)
         {
             throw new NotImplementedException();
         }
 
-        public Task AddProficientSkillsAsync(Guid creatureId, IEnumerable<Skill> skills)
+        public async Task AddProficientSkillsAsync(Guid creatureId, IEnumerable<Skill> skills)
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task AddSensesAsync(Guid creatureId, IEnumerable<Sense> senses)
         {
             throw new NotImplementedException();
         }
 
         // TODO: remember to trigger the CreatureDiedEvent when the dead condition is applied to a creature
-        public Task ApplyConditionsAsync(Guid creatureId, IEnumerable<Condition> conditions)
+        public async Task ApplyConditionsAsync(Guid creatureId, IEnumerable<Condition> conditions)
         {
             throw new NotImplementedException();
         }
 
-        public Task HandleCreatureHpStatusAsync(Guid creatureId, int maxHp, int currentHp)
+        public async Task HandleCreatureHpStatusAsync(Guid creatureId, int maxHp, int currentHp)
         {
             throw new NotImplementedException();
         }
 
-        public Task<bool> IsPlayerCharacterAsync(Guid creatureId)
+        public async Task<bool> IsPlayerCharacterAsync(Guid creatureId)
         {
             throw new NotImplementedException();
         }
 
-        public Task RemoveConditionsAsync(Guid creatureId, IEnumerable<Condition> conditions)
+        public async Task RemoveConditionsAsync(Guid creatureId, IEnumerable<Condition> conditions)
         {
             throw new NotImplementedException();
         }
 
-        public Task RemoveExpertSkillsAsync(Guid creatureId, IEnumerable<Skill> skills)
+        public async Task RemoveExpertSkillsAsync(Guid creatureId, IEnumerable<Skill> skills)
         {
             throw new NotImplementedException();
         }
 
-        public Task RemoveProficientSkillsAsync(Guid creatureId, IEnumerable<Skill> skills)
+        public async Task RemoveProficientSkillsAsync(Guid creatureId, IEnumerable<Skill> skills)
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task RemoveSensesAsync(Guid creatureId, IEnumerable<Sense> senses)
         {
             throw new NotImplementedException();
         }
