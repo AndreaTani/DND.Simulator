@@ -37,6 +37,12 @@ namespace DND.Application.Contracts
         // Remove specific languages from the creature
         Task RemoveLanguagesAsync(Guid creatureId, IEnumerable<Language> languages);
 
+        // Add specific saving throw proficiencies to the creature
+        Task AddProficiencySavingThrowsAsync(Guid creatureId, IEnumerable<Ability> abilities);
+
+        // Remove specific saving throw proficiencies from the creature
+        Task RemoveProficiencySavingThrowsAsync(Guid creatureId, IEnumerable<Ability> abilities);
+
         // Check if the creature is a player character.
         Task<bool> IsPlayerCharacterAsync(Guid creatureId);
     }

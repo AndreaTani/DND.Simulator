@@ -7,6 +7,7 @@
     /// <param name="Abilities">The specific proficiency saving throw ability skill Added (e.g., Skill.Athletics).</param>
     public record CreatureProficiencySavingThrowsRemovedEvent(
         Guid CreatureId,
+        string Name,
         IEnumerable<Ability> Abilities
         ) : IDomainEvent;
 }

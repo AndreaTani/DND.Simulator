@@ -15,6 +15,11 @@ namespace DND.Application.Services
             throw new NotImplementedException();
         }
 
+        public async Task AddProficiencySavingThrowsAsync(Guid creatureId, IEnumerable<Ability> abilities)
+        {
+            throw new NotImplementedException();
+        }
+
         public async Task AddProficientSkillsAsync(Guid creatureId, IEnumerable<Skill> skills)
         {
             throw new NotImplementedException();
@@ -52,6 +57,11 @@ namespace DND.Application.Services
         }
 
         public async Task RemoveLanguagesAsync(Guid creatureId, IEnumerable<Language> languages)
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task RemoveProficiencySavingThrowsAsync(Guid creatureId, IEnumerable<Ability> abilities)
         {
             throw new NotImplementedException();
         }

@@ -580,20 +580,20 @@
         protected void AddProficientSavingThrows(IEnumerable<Ability> abilities)
         {
             _proficientSavingThrows.AddRange(abilities.Where(a => !_proficientSavingThrows.Contains(a)).Distinct());
-            AddDomainEvent(new CreatureProficiencySavingThrowsAddedEvent(Id, abilities.Distinct()));
+            AddDomainEvent(new CreatureProficiencySavingThrowsAddedEvent(Id, Name, abilities.Distinct()));
         }
         protected void AddProficientSavingThrow(Ability ability)
         {
             if (!_proficientSavingThrows.Contains(ability))
             {
                 _proficientSavingThrows.Add(ability);
-                AddDomainEvent(new CreatureProficiencySavingThrowsAddedEvent(Id, [ability]));
+                AddDomainEvent(new CreatureProficiencySavingThrowsAddedEvent(Id, Name, [ability]));
             }
         }
         protected void RemoveProficientSavingThrow(Ability ability)
         {
             _proficientSavingThrows.Remove(ability);
-            AddDomainEvent(new CreatureProficiencySavingThrowsRemovedEvent(Id, [ability]));
+            AddDomainEvent(new CreatureProficiencySavingThrowsRemovedEvent(Id, Name, [ability]));
         }
 
 
