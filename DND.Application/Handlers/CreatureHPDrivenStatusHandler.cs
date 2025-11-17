@@ -28,7 +28,7 @@ namespace DND.Application.Handlers
         /// </summary>
         /// <param name="domainEvent"></param>
         /// <returns></returns>
-        public async Task Handle(CreatureHPChangedEvent domainEvent)
+        public async Task HandleAsync(CreatureHPChangedEvent domainEvent)
         {
             await _creatureService.HandleCreatureHpStatusAsync(
                 domainEvent.CreatureId,
@@ -56,7 +56,7 @@ namespace DND.Application.Handlers
                 await _creatureService.ApplyConditionsAsync(domainEvent.CreatureId, conditionsToApply);
             }
 
-            await _loggingService.Log(logMessage);
+            await _loggingService.LogMessageAsync(logMessage);
         }
     }
 }

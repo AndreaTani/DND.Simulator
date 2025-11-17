@@ -480,21 +480,21 @@
         protected void AddSenses(IEnumerable<Sense> senses)
         {
             _senses.AddRange(senses.Where(s => !_senses.Contains(s)).Distinct());
-            AddDomainEvent(new CreatureSensesAddedEvent(Id, senses.Distinct()));
+            AddDomainEvent(new CreatureSensesAddedEvent(Id, Name, senses.Distinct()));
         }
         protected void AddSense(Sense sense)
         {
             if (!_senses.Contains(sense))
             {
                 _senses.Add(sense);
-                AddDomainEvent(new CreatureSensesAddedEvent(Id, [sense]));
+                AddDomainEvent(new CreatureSensesAddedEvent(Id, Name, [sense]));
             }
         }
         protected void RemoveSenses(IEnumerable<Sense> sense)
         {
             var sensesToRemove = new HashSet<Sense>(sense).Distinct();
             _senses.RemoveAll(s => sensesToRemove.Contains(s));
-            AddDomainEvent(new CreatureSensesRemovedEvent(Id, sensesToRemove));
+            AddDomainEvent(new CreatureSensesRemovedEvent(Id, Name, sensesToRemove));
         }
 
 
@@ -502,21 +502,21 @@
         protected void AddLanguages(IEnumerable<Language> languages)
         {
             _languages.AddRange(languages.Where(l => !_languages.Contains(l)).Distinct());
-            AddDomainEvent(new CreatureLanguagesAddedEvent(Id, languages.Distinct()));
+            AddDomainEvent(new CreatureLanguagesAddedEvent(Id, Name, languages.Distinct()));
         }
         protected void AddLanguage(Language language)
         {
             if (!_languages.Contains(language))
             {
                 _languages.Add(language);
-                AddDomainEvent(new CreatureLanguagesAddedEvent(Id, [language]));
+                AddDomainEvent(new CreatureLanguagesAddedEvent(Id, Name, [language]));
             }
         }
         protected void RemoveLanguages(IEnumerable<Language> languages)
         {
             var languagesToRemove = new HashSet<Language>(languages).Distinct();
             _languages.RemoveAll(l => languagesToRemove.Contains(l));
-            AddDomainEvent(new CreatureLanguagesRemovedEvent(Id, languagesToRemove));
+            AddDomainEvent(new CreatureLanguagesRemovedEvent(Id, Name, languagesToRemove));
         }
 
 
@@ -531,20 +531,20 @@
         protected void AddProficientSkills(IEnumerable<Skill> skills)
         {
             _proficientSkills.AddRange(skills.Where(s => !_proficientSkills.Contains(s) && !_expertSkills.Contains(s)).Distinct());
-            AddDomainEvent(new CreatureProficientSkillsAddedEvent(Id, skills.Distinct()));
+            AddDomainEvent(new CreatureProficientSkillsAddedEvent(Id, Name, skills.Distinct()));
         }
         protected void AddProficientSkill(Skill skill)
         {
             if (!_proficientSkills.Contains(skill) && !_expertSkills.Contains(skill))
             {
                 _proficientSkills.Add(skill);
-                AddDomainEvent(new CreatureProficientSkillsAddedEvent(Id, [skill]));
+                AddDomainEvent(new CreatureProficientSkillsAddedEvent(Id, Name, [skill]));
             }
         }
         protected void RemoveProficientSkill(Skill skill)
         {
             _proficientSkills.Remove(skill);
-            AddDomainEvent(new CreatureProficientSkillsRemovedEvent(Id, [skill]));
+            AddDomainEvent(new CreatureProficientSkillsRemovedEvent(Id, Name, [skill]));
         }
 
 
@@ -557,22 +557,22 @@
                 _proficientSkills.Remove(s);
                 return s;
             }).Distinct());
-            AddDomainEvent(new CreatureExpertSkillsAddedEvent(Id, skills.Distinct()));
+            AddDomainEvent(new CreatureExpertSkillsAddedEvent(Id, Name, skills.Distinct()));
         }
         protected void AddExpertSkill(Skill skill)
         {
             if (!_expertSkills.Contains(skill))
             {
                 _proficientSkills.Remove(skill);
-                AddDomainEvent(new CreatureProficientSkillsRemovedEvent(Id, [skill]));
+                AddDomainEvent(new CreatureProficientSkillsRemovedEvent(Id, Name, [skill]));
                 _expertSkills.Add(skill);
-                AddDomainEvent(new CreatureExpertSkillsAddedEvent(Id, [skill]));
+                AddDomainEvent(new CreatureExpertSkillsAddedEvent(Id, Name, [skill]));
             }
         }
         protected void RemoveExpertSkill(Skill skill)
         {
             _expertSkills.Remove(skill);
-            AddDomainEvent(new CreatureExpertSkillsRemovedEvent(Id, [skill]));
+            AddDomainEvent(new CreatureExpertSkillsRemovedEvent(Id, Name, [skill]));
         }
 
 
@@ -580,20 +580,20 @@
         protected void AddProficientSavingThrows(IEnumerable<Ability> abilities)
         {
             _proficientSavingThrows.AddRange(abilities.Where(a => !_proficientSavingThrows.Contains(a)).Distinct());
-            AddDomainEvent(new CreatureProficiencySavingThrowsAddedEvent(Id, abilities.Distinct()));
+            AddDomainEvent(new CreatureProficiencySavingThrowsAddedEvent(Id, Name, abilities.Distinct()));
         }
         protected void AddProficientSavingThrow(Ability ability)
         {
             if (!_proficientSavingThrows.Contains(ability))
             {
                 _proficientSavingThrows.Add(ability);
-                AddDomainEvent(new CreatureProficiencySavingThrowsAddedEvent(Id, [ability]));
+                AddDomainEvent(new CreatureProficiencySavingThrowsAddedEvent(Id, Name, [ability]));
             }
         }
         protected void RemoveProficientSavingThrow(Ability ability)
         {
             _proficientSavingThrows.Remove(ability);
-            AddDomainEvent(new CreatureProficiencySavingThrowsRemovedEvent(Id, [ability]));
+            AddDomainEvent(new CreatureProficiencySavingThrowsRemovedEvent(Id, Name, [ability]));
         }
 
 

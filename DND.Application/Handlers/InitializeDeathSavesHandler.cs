@@ -16,7 +16,7 @@ namespace DND.Application.Handlers
             _loggingService = loggingService;
         }
 
-        public async Task Handle(CreatureIsDyingEvent domainEvent)
+        public async Task HandleAsync(CreatureIsDyingEvent domainEvent)
         {
             bool isPlayerCharacter = await _creatureService.IsPlayerCharacterAsync(domainEvent.CreatureId);
 
@@ -24,7 +24,7 @@ namespace DND.Application.Handlers
             {
                 var logMessage = $"Initialized death saves for player {domainEvent.CreatureName} (character with ID: {domainEvent.CreatureId})";
                 await _deathSaveManager.InitializeDeathSavesAsync(domainEvent.CreatureId);
-                await _loggingService.Log(logMessage);
+                await _loggingService.LogMessageAsync(logMessage);
             }
         }
     }

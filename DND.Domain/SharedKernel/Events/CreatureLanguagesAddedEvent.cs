@@ -7,6 +7,7 @@
     /// <param name="Languages">The specific language Added (e.g., Language.Goblin).</param>
     public record CreatureLanguagesAddedEvent(
         Guid CreatureId, 
+        string Name,
         IEnumerable<Language> Languages
-        ) : IDomainEvent;
+        ) : IPermanentAttributeChangedEvent;
 }

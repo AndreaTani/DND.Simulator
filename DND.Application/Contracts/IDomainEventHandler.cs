@@ -6,6 +6,6 @@ namespace DND.Application.Contracts
     public interface IDomainEventHandler<TEvent> where TEvent : IDomainEvent
     {
         // Method to handle the domain event
-        Task Handle(TEvent domainEvent);
+        Task HandleAsync(TEvent domainEvent);
     }
 }

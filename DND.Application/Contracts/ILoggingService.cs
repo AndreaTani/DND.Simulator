@@ -4,6 +4,6 @@
     public interface ILoggingService
     {
         // Simple log method
-        public Task Log(string message);
+        public Task LogMessageAsync(string message);
     }
 }

@@ -7,6 +7,7 @@
     /// <param name="Skills">The specific proficient skill Added (e.g., Skill.Athletics).</param>
     public record CreatureProficientSkillsAddedEvent(
         Guid CreatureId,
+        string Name,
         IEnumerable<Skill> Skills
-        ) : IDomainEvent;
+        ) : IPermanentAttributeChangedEvent;
 }
