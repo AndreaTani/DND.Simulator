@@ -9,5 +9,5 @@
         Guid CreatureId,
         string Name,
         IEnumerable<Sense> Senses
-        ) : IDomainEvent;
+        ) : IPermanentAttributeChangedEvent;
 }

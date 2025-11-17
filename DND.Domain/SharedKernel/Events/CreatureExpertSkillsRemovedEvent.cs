@@ -9,5 +9,5 @@
         Guid CreatureId,
         string Name,
         IEnumerable<Skill> Skills
-        ) : IDomainEvent;
+        ) : IPermanentAttributeChangedEvent;
 }
