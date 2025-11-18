@@ -5,6 +5,11 @@ namespace DND.Application.Services
 {
     public class CreatureService : ICreatureService
     {
+        public async Task AddDamageImmunityAsync(Guid creatureId, IEnumerable<DamageType> damageTypes)
+        {
+            throw new NotImplementedException();
+        }
+
         public async Task AddExpertSkillsAsync(Guid creatureId, IEnumerable<Skill> skills)
         {
             throw new NotImplementedException();
@@ -47,6 +52,11 @@ namespace DND.Application.Services
         }
 
         public async Task RemoveConditionsAsync(Guid creatureId, IEnumerable<Condition> conditions)
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task RemoveDamageImmunityAsync(Guid creatureId, IEnumerable<DamageType> damageTypes)
         {
             throw new NotImplementedException();
         }

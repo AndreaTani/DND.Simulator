@@ -1,14 +1,14 @@
 ﻿namespace DND.Domain.SharedKernel
 {
     /// <summary>
-    /// Domain Event raised when a creature's resistance to a specific damage type is removed.
+    /// Domain Event raised when a creature's vulnerability to a specific damage type is removed.
     /// </summary>
     /// <param name="CreatureId">The unique identifier of the creature affected.</param>
-    /// <param name="Type">The specific DamageType whose resistance was removed (e.g., DamageType.Acid).</param>
+    /// <param name="Type">The specific DamageType whose vulnerability was removed (e.g., DamageType.Acid).</param>
     /// <param name="Reason">The contextual reason for the removal.</param>
-    public record CreatureDamageResistanceRemovedEvent(
+    public record CreatureDamageVulnerabilitiesRemovedEvent(
             Guid CreatureId,
-            DamageType Type,
+            IEnumerable<DamageType> Type,
             RemovalReason Reason
         ) : IDomainEvent;
 }
