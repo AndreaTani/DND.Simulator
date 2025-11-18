@@ -47,7 +47,13 @@ namespace DND.Application.Contracts
         Task AddDamageImmunityAsync(Guid creatureId, IEnumerable<DamageType> damageTypes);
 
         // Remove specifric damage type immunities to the creature
-        Task RemoveDamageImmunityAsync(Guid creatureId, IEnumerable<DamageType> damageTypes);
+        Task RemoveDamageImmunitiesAsync(Guid creatureId, IEnumerable<DamageType> damageTypes);
+
+        // Add specifric damage type resistances to the creature
+        Task AddDamageResistancesAsync(Guid creatureId, IEnumerable<DamageType> damageTypes);
+
+        // Remove specifric damage type resistances to the creature
+        Task RemoveDamageResistancesAsync(Guid creatureId, IEnumerable<DamageType> damageTypes);
 
         // Check if the creature is a player character.
         Task<bool> IsPlayerCharacterAsync(Guid creatureId);

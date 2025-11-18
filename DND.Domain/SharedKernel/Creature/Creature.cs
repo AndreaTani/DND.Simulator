@@ -619,7 +619,7 @@
             if(_damageResistances.Contains(damageType))
             {
                 RemoveDamageResistance(damageType);
-                AddDomainEvent(new CreatureDamageResistancesRemovedEvent(Id, [damageType], RemovalReason.OverridenByExculsivity));
+                AddDomainEvent(new CreatureDamageResistancesRemovedEvent(Id, Name, [damageType], RemovalReason.OverridenByExculsivity));
             }
 
             if (_damageVulnerabilities.Contains(damageType))
@@ -656,7 +656,7 @@
                 .Select(dt => new SimpleDamageResisistanceRule(dt))
                 .Distinct()
             );
-            AddDomainEvent(new CreatureDamageResistancesAddedEvent(Id, damageTypes));
+            AddDomainEvent(new CreatureDamageResistancesAddedEvent(Id, Name, damageTypes));
         }
         protected void AddDamageResistance(DamageType damageType)
         {
@@ -673,19 +673,19 @@
 
             _damageResistances.Add(damageType);
             _damageAdjustmentRules.Add(new SimpleDamageResisistanceRule(damageType));
-            AddDomainEvent(new CreatureDamageResistancesAddedEvent(Id, [damageType]));
+            AddDomainEvent(new CreatureDamageResistancesAddedEvent(Id, Name, [damageType]));
         }
         protected void RemoveDamageResistance(DamageType damageType)
         {
             _damageResistances.Remove(damageType);
             _damageAdjustmentRules.RemoveAll(rule => rule.GetDamageType() == damageType && rule is SimpleDamageResisistanceRule);
-            AddDomainEvent(new CreatureDamageResistancesRemovedEvent(Id, [damageType], RemovalReason.Manual));
+            AddDomainEvent(new CreatureDamageResistancesRemovedEvent(Id, Name, [damageType], RemovalReason.Manual));
         }
         protected void RemoveDamageResistances(IEnumerable<DamageType> damageTypes)
         {
             _damageResistances.RemoveAll(resistance => damageTypes.Contains(resistance));
             _damageAdjustmentRules.RemoveAll(rule => damageTypes.Contains(rule.GetDamageType()) && rule is SimpleDamageResisistanceRule);
-            AddDomainEvent(new CreatureDamageResistancesRemovedEvent(Id, damageTypes, RemovalReason.OverridenByExculsivity));
+            AddDomainEvent(new CreatureDamageResistancesRemovedEvent(Id, Name, damageTypes, RemovalReason.OverridenByExculsivity));
         }
 
 

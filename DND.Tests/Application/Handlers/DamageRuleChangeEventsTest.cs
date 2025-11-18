@@ -18,7 +18,7 @@ namespace DND.Tests.Application.Handlers
             var loggingServiceMock = new Mock<ILoggingService>();
             var handler = new CreatureDamageImmunitiesAddedEventHandler(creatureServiceMock.Object, loggingServiceMock.Object);
 
-            var creatureId = new Guid();
+            var creatureId = Guid.NewGuid();
             string name = "Hero";
             var damageTypes = new List<DamageType>() { damageType };
 
@@ -50,7 +50,7 @@ namespace DND.Tests.Application.Handlers
             var loggingServiceMock = new Mock<ILoggingService>();
             var handler = new CreatureDamageImmunitiesRemovedEventHandler(creatureServiceMock.Object, loggingServiceMock.Object);
 
-            var creatureId = new Guid();
+            var creatureId = Guid.NewGuid();
             string name = "Hero";
             var damageTypes = new List<DamageType>() { damageType };
             var removalReason = RemovalReason.EffectExpired;
@@ -61,7 +61,7 @@ namespace DND.Tests.Application.Handlers
             await handler.HandleAsync(domainEvent);
 
             // Assert
-            creatureServiceMock.Verify(m => m.RemoveDamageImmunityAsync(
+            creatureServiceMock.Verify(m => m.RemoveDamageImmunitiesAsync(
                 creatureId,
                 It.Is<List<DamageType>>(s => s.SequenceEqual(damageTypes))
                 ), Times.Once());
@@ -73,6 +73,73 @@ namespace DND.Tests.Application.Handlers
                 s.Contains(removalReason.ToString()) &&
                 damageTypes.All(damageType => s.Contains(damageType.ToString())))
             ), Times.Once);
+        }
+
+        [Theory]
+        [MemberData(nameof(AllDamageTypes))]
+        public async Task Handle_CreatureDamageResistancesAddedEvent_PersistAndLog (DamageType damageType)
+        {
+            // Arrange
+            var creatureServiceMock = new Mock<ICreatureService>();
+            var loggingServiceMock = new Mock<ILoggingService>();
+            var handler = new CreatureDamageResistancesAddedEventHandler(creatureServiceMock.Object, loggingServiceMock.Object);
+
+            var creatureId = Guid.NewGuid();
+            string name = "Hero";
+            var damageTypes = new List<DamageType> { damageType };
+
+            var domainEvent = new CreatureDamageResistancesAddedEvent(creatureId, name, damageTypes);
+
+            // Act
+            await handler.HandleAsync(domainEvent);
+
+            // Assert
+            creatureServiceMock.Verify(m => m.AddDamageResistancesAsync(
+                creatureId,
+                It.Is<List<DamageType>>(s => s.SequenceEqual(damageTypes))
+                ), Times.Once());
+
+            loggingServiceMock.Verify(m => m.LogMessageAsync(
+                It.Is<string>(s =>
+                s.Contains(creatureId.ToString()) &&
+                s.Contains(name) &&
+                damageTypes.All(damageType => s.Contains(damageType.ToString())))
+            ), Times.Once);
+        }
+
+        [Theory]
+        [MemberData(nameof(AllDamageTypes))]
+        public async Task Handle_CreatureDamageResistancesRemovedEvent_PeristAndLog(DamageType damageType)
+        {
+            // Arrange
+            var creatureServiceMock = new Mock<ICreatureService>();
+            var loggingServiceMock = new Mock<ILoggingService>();
+            var handler = new CreatureDamageResistancesRemovedEventHandler(creatureServiceMock.Object, loggingServiceMock.Object);
+
+            var creatureId = Guid.NewGuid();
+            string name = "Hero";
+            var damageTypes = new List<DamageType>() { damageType };
+            var removalReason = RemovalReason.EffectExpired;
+
+            var domainEvent = new CreatureDamageResistancesRemovedEvent(creatureId, name, damageTypes, removalReason);
+
+            // Act
+            await handler.HandleAsync(domainEvent);
+
+            // Assert
+            creatureServiceMock.Verify(m => m.RemoveDamageResistancesAsync(
+                creatureId,
+                It.Is<List<DamageType>>(s => s.SequenceEqual(damageTypes))
+                ), Times.Once());
+
+            loggingServiceMock.Verify(m => m.LogMessageAsync(
+                It.Is<string>(s =>
+                s.Contains(creatureId.ToString()) &&
+                s.Contains(name) &&
+                s.Contains(removalReason.ToString()) &&
+                damageTypes.All(damageType => s.Contains(damageType.ToString())))
+            ), Times.Once);
+
         }
 
 

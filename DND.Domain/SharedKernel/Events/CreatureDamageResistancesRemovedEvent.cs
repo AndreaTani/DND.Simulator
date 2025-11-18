@@ -7,8 +7,9 @@
     /// <param name="Type">The specific DamageType whose resistance was removed (e.g., DamageType.Acid).</param>
     /// <param name="Reason">The contextual reason for the removal.</param>
     public record CreatureDamageResistancesRemovedEvent(
-            Guid CreatureId,
-            IEnumerable<DamageType> Type,
-            RemovalReason Reason
+        Guid CreatureId,
+        string Name,
+        IEnumerable<DamageType> Type,
+        RemovalReason Reason
         ) : IDomainEvent;
 }
