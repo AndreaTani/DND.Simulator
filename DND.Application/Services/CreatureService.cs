@@ -15,6 +15,11 @@ namespace DND.Application.Services
             throw new NotImplementedException();
         }
 
+        public async Task AddDamageVulnerabilitiesAsync(Guid creatureId, IEnumerable<DamageType> damageTypes)
+        {
+            throw new NotImplementedException();
+        }
+
         public async Task AddExpertSkillsAsync(Guid creatureId, IEnumerable<Skill> skills)
         {
             throw new NotImplementedException();
@@ -61,12 +66,17 @@ namespace DND.Application.Services
             throw new NotImplementedException();
         }
 
-        public async Task RemoveDamageImmunitiesAsync(Guid creatureId, IEnumerable<DamageType> damageTypes)
+        public async Task RemoveDamageImmunitiesAsync(Guid creatureId, IEnumerable<DamageType> damageTypes) 
         {
             throw new NotImplementedException();
         }
 
         public async Task RemoveDamageResistancesAsync(Guid creatureId, IEnumerable<DamageType> damageTypes)
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task RemoveDamageVulnerabilitiesAsync(Guid creatureId, IEnumerable<DamageType> damageTypes)
         {
             throw new NotImplementedException();
         }

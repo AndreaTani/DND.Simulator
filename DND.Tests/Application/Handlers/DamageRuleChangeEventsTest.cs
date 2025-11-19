@@ -142,6 +142,73 @@ namespace DND.Tests.Application.Handlers
 
         }
 
+        [Theory]
+        [MemberData(nameof(AllDamageTypes))]
+        public async Task Handle_CreatureDamageVulnerabilitiesAddedEvent_PeristAndLog(DamageType damageType)
+        {
+            // Arrange
+            var creatureServiceMock = new Mock<ICreatureService>();
+            var loggingServiceMock = new Mock<ILoggingService>();
+            var handler = new CreatureDamageVulnerabilitiesAddedEventHandler(creatureServiceMock.Object, loggingServiceMock.Object);
+
+            var creatureId = Guid.NewGuid();
+            string name = "Hero";
+            var damageTypes = new List<DamageType>() { damageType };
+
+            var domainEvent = new CreatureDamageVulnerabilitiesAddedEvent(creatureId, name, damageTypes);
+
+            // Act
+            await handler.HandleAsync(domainEvent);
+
+            // Assert
+            creatureServiceMock.Verify(m => m.AddDamageVulnerabilitiesAsync(
+                creatureId,
+                It.Is<List<DamageType>>(s => s.SequenceEqual(damageTypes))
+                ), Times.Once());
+
+            loggingServiceMock.Verify(m => m.LogMessageAsync(
+                It.Is<string>(s =>
+                s.Contains(creatureId.ToString()) &&
+                s.Contains(name) &&
+                damageTypes.All(damageType => s.Contains(damageType.ToString())))
+            ), Times.Once);
+
+        }
+
+        [Theory]
+        [MemberData(nameof(AllDamageTypes))]
+        public async Task Handle_CreatureDamageVulnerabilitiesRemovedEvent_PersistAndLog(DamageType damageType)
+        {
+            // Arrange
+            var creatureServiceMock = new Mock<ICreatureService>();
+            var loggingServiceMock = new Mock<ILoggingService>();
+            var handler = new CreatureDamageVulnerabilitiesRemovedEventHandler(creatureServiceMock.Object, loggingServiceMock.Object);
+
+            var creatureId = Guid.NewGuid();
+            string name = "Hero";
+            var damageTypes = new List<DamageType>() { damageType };
+            var removalReason = RemovalReason.EffectExpired;
+
+            var domainEvent = new CreatureDamageVulnerabilitiesRemovedEvent(creatureId, name, damageTypes, removalReason);
+
+            // Act
+            await handler.HandleAsync(domainEvent);
+
+            // Assert
+            creatureServiceMock.Verify(m => m.RemoveDamageVulnerabilitiesAsync(
+                creatureId,
+                It.Is<List<DamageType>>(s => s.SequenceEqual(damageTypes))
+                ), Times.Once());
+
+            loggingServiceMock.Verify(m => m.LogMessageAsync(
+                It.Is<string>(s =>
+                s.Contains(creatureId.ToString()) &&
+                s.Contains(name) &&
+                s.Contains(removalReason.ToString()) &&
+                damageTypes.All(damageType => s.Contains(damageType.ToString())))
+            ), Times.Once);
+        }
+
 
     }
 }
