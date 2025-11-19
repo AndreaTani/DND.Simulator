@@ -45,6 +45,11 @@ namespace DND.Application.Services
             throw new NotImplementedException();
         }
 
+        public async Task AddSpecialDamageRuleAsync(Guid creatureId, DamageType damageType)
+        {
+            throw new NotImplementedException();
+        }
+
         // TODO: remember to trigger the CreatureDiedEvent when the dead condition is applied to a creature
         public async Task ApplyConditionsAsync(Guid creatureId, IEnumerable<Condition> conditions)
         {
@@ -102,6 +107,11 @@ namespace DND.Application.Services
         }
 
         public async Task RemoveSensesAsync(Guid creatureId, IEnumerable<Sense> senses)
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task RemoveSpecialDamageRuleAsync(Guid creatureId, DamageType damageType)
         {
             throw new NotImplementedException();
         }

@@ -209,6 +209,71 @@ namespace DND.Tests.Application.Handlers
             ), Times.Once);
         }
 
+        [Theory]
+        [MemberData(nameof(AllDamageTypes))]
+        public async Task Handle_CreatureSpecialDamageRuleAddedEvent_PersistAndLog(DamageType damageType)
+        {
+            // Arrange
+            var creatureServiceMock = new Mock<ICreatureService>();
+            var loggingServiceMock = new Mock<ILoggingService>();
+            var handler = new CreatureSpecialDamageRuleAddedEventHandler(creatureServiceMock.Object, loggingServiceMock.Object);
+
+            var creatureId = Guid.NewGuid();
+            var name = "Hero";
+            var ruleName = "My Custom new rule";
+
+            var domainEvent = new CreatureSpecialDamageRuleAddedEvent(creatureId, name, damageType, ruleName);
+
+            //Act
+            await handler.HandleAsync(domainEvent);
+
+            // Assert
+            creatureServiceMock.Verify(m => m.AddSpecialDamageRuleAsync(
+                creatureId,
+                damageType
+                ), Times.Once());
+
+            loggingServiceMock.Verify(m => m.LogMessageAsync(
+                It.Is<string>(s =>
+                s.Contains(creatureId.ToString()) &&
+                s.Contains(name) &&
+                s.Contains(ruleName) &&
+                s.Contains(damageType.ToString()))
+            ), Times.Once);
+        }
+
+        [Theory]
+        [MemberData(nameof(AllDamageTypes))]
+        public async Task Handle_CreatureSpecialDamageRuleRemovedEvent_PersistAndLog(DamageType damageType)
+        {
+            // Arrange
+            var creatureServiceMock = new Mock<ICreatureService>();
+            var loggingServiceMock = new Mock<ILoggingService>();
+            var handler = new CreatureSpecialDamageRuleRemovedEventHandler(creatureServiceMock.Object, loggingServiceMock.Object);
+
+            var creatureId = Guid.NewGuid();
+            var name = "Hero";
+            var ruleName = "My Custom new rule";
+
+            var domainEvent = new CreatureSpecialDamageRuleRemovedEvent(creatureId, name, damageType, ruleName);
+
+            //Act
+            await handler.HandleAsync(domainEvent);
+
+            // Assert
+            creatureServiceMock.Verify(m => m.RemoveSpecialDamageRuleAsync(
+                creatureId,
+                damageType
+                ), Times.Once());
+
+            loggingServiceMock.Verify(m => m.LogMessageAsync(
+                It.Is<string>(s =>
+                s.Contains(creatureId.ToString()) &&
+                s.Contains(name) &&
+                s.Contains(ruleName) &&
+                s.Contains(damageType.ToString()))
+            ), Times.Once);
+        }
 
     }
 }

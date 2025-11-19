@@ -8,6 +8,8 @@
     /// <param name="RuleName">The specific special damage rule that was removed (e.g., BarbarianResistance).</param>
     public record CreatureSpecialDamageRuleRemovedEvent(
         Guid CreatureId,
+        string Name,
+        DamageType damageType,
         string RuleName
         ) : IDomainEvent;
 }

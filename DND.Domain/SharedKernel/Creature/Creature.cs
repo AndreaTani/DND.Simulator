@@ -742,12 +742,12 @@
             }
 
             _damageAdjustmentRules.Add(rule);
-            AddDomainEvent(new CreatureSpecialDamageRuleAddedEvent(Id, rule.Name));
+            AddDomainEvent(new CreatureSpecialDamageRuleAddedEvent(Id, Name, rule.GetDamageType(), rule.Name));
         }
         protected void RemoveSpecialDamageRule(IModificationRule rule)
         {
             _damageAdjustmentRules.RemoveAll(r => r.Name == rule.Name);
-            AddDomainEvent(new CreatureSpecialDamageRuleRemovedEvent(Id, rule.Name));
+            AddDomainEvent(new CreatureSpecialDamageRuleRemovedEvent(Id, Name, rule.GetDamageType(), rule.Name));
         }
 
         /// <summary>

@@ -61,6 +61,12 @@ namespace DND.Application.Contracts
         // Remove specific damage type vulnerabilities from the creature
         Task RemoveDamageVulnerabilitiesAsync(Guid creatureId, IEnumerable<DamageType> damageTypes);
 
+        // Add specific damage type special rule to the creature
+        Task AddSpecialDamageRuleAsync(Guid creatureId, DamageType damageType);
+
+        // Remove specific damage type special rule from the creature
+        Task RemoveSpecialDamageRuleAsync(Guid creatureId, DamageType damageType);
+
         // Check if the creature is a player character.
         Task<bool> IsPlayerCharacterAsync(Guid creatureId);
     }
