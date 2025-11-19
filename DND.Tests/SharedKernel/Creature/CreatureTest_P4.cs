@@ -398,6 +398,8 @@ namespace DND.Tests.SharedKernel
             Assert.Equal(1, proficientSavingThrows.Count(a => a == ability));
         }
 
+        // TODO: Add all single and multiple remove methods for Immunities, resistances, and Vulnerabilities
+
         [Theory]
         [MemberData(nameof(AllDamageTypes))]
         public void AddDamageImmunities_WhenAddingDamageImmunities_ShouldAddThemWithoutDuplicates(DamageType damageType)

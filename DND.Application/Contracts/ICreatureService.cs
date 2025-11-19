@@ -43,6 +43,30 @@ namespace DND.Application.Contracts
         // Remove specific saving throw proficiencies from the creature
         Task RemoveProficiencySavingThrowsAsync(Guid creatureId, IEnumerable<Ability> abilities);
 
+        // Add specifric damage type immunities to the creature
+        Task AddDamageImmunityAsync(Guid creatureId, IEnumerable<DamageType> damageTypes);
+
+        // Remove specifric damage type immunities from the creature
+        Task RemoveDamageImmunitiesAsync(Guid creatureId, IEnumerable<DamageType> damageTypes);
+
+        // Add specifric damage type resistances to the creature
+        Task AddDamageResistancesAsync(Guid creatureId, IEnumerable<DamageType> damageTypes);
+
+        // Remove specific damage type resistances from the creature
+        Task RemoveDamageResistancesAsync(Guid creatureId, IEnumerable<DamageType> damageTypes);
+
+        // Add specific damage type vulnerabilities to the creature
+        Task AddDamageVulnerabilitiesAsync(Guid creatureId, IEnumerable<DamageType> damageTypes);
+
+        // Remove specific damage type vulnerabilities from the creature
+        Task RemoveDamageVulnerabilitiesAsync(Guid creatureId, IEnumerable<DamageType> damageTypes);
+
+        // Add specific damage type special rule to the creature
+        Task AddSpecialDamageRuleAsync(Guid creatureId, DamageType damageType);
+
+        // Remove specific damage type special rule from the creature
+        Task RemoveSpecialDamageRuleAsync(Guid creatureId, DamageType damageType);
+
         // Check if the creature is a player character.
         Task<bool> IsPlayerCharacterAsync(Guid creatureId);
     }

@@ -6,9 +6,10 @@
     /// <param name="CreatureId">The unique identifier of the creature affected.</param>
     /// <param name="Type">The specific DamageType whose vulnerability was removed (e.g., DamageType.Acid).</param>
     /// <param name="Reason">The contextual reason for the removal.</param>
-    public record CreatureDamageVulnerabilityRemovedEvent(
-            Guid CreatureId,
-            DamageType Type,
-            RemovalReason Reason
+    public record CreatureDamageVulnerabilitiesRemovedEvent(
+        Guid CreatureId,
+        string Name,
+        IEnumerable<DamageType> Type,
+        RemovalReason Reason
         ) : IDomainEvent;
 }

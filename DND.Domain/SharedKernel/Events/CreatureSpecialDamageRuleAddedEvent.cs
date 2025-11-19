@@ -7,7 +7,9 @@
     /// <param name="CreatureId">The unique identifier of the creature affected.</param>
     /// <param name="RuleName">The specific special damage rule that was added (e.g., BarbarianResistance).</param>
     public record CreatureSpecialDamageRuleAddedEvent(
-        Guid CreatureId, 
+        Guid CreatureId,
+        string Name,
+        DamageType damageType,
         string RuleName
         ) : IDomainEvent;
 }

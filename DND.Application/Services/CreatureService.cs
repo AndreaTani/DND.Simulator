@@ -5,6 +5,21 @@ namespace DND.Application.Services
 {
     public class CreatureService : ICreatureService
     {
+        public async Task AddDamageImmunityAsync(Guid creatureId, IEnumerable<DamageType> damageTypes)
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task AddDamageResistancesAsync(Guid creatureId, IEnumerable<DamageType> damageTypes)
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task AddDamageVulnerabilitiesAsync(Guid creatureId, IEnumerable<DamageType> damageTypes)
+        {
+            throw new NotImplementedException();
+        }
+
         public async Task AddExpertSkillsAsync(Guid creatureId, IEnumerable<Skill> skills)
         {
             throw new NotImplementedException();
@@ -30,6 +45,11 @@ namespace DND.Application.Services
             throw new NotImplementedException();
         }
 
+        public async Task AddSpecialDamageRuleAsync(Guid creatureId, DamageType damageType)
+        {
+            throw new NotImplementedException();
+        }
+
         // TODO: remember to trigger the CreatureDiedEvent when the dead condition is applied to a creature
         public async Task ApplyConditionsAsync(Guid creatureId, IEnumerable<Condition> conditions)
         {
@@ -47,6 +67,21 @@ namespace DND.Application.Services
         }
 
         public async Task RemoveConditionsAsync(Guid creatureId, IEnumerable<Condition> conditions)
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task RemoveDamageImmunitiesAsync(Guid creatureId, IEnumerable<DamageType> damageTypes) 
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task RemoveDamageResistancesAsync(Guid creatureId, IEnumerable<DamageType> damageTypes)
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task RemoveDamageVulnerabilitiesAsync(Guid creatureId, IEnumerable<DamageType> damageTypes)
         {
             throw new NotImplementedException();
         }
@@ -72,6 +107,11 @@ namespace DND.Application.Services
         }
 
         public async Task RemoveSensesAsync(Guid creatureId, IEnumerable<Sense> senses)
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task RemoveSpecialDamageRuleAsync(Guid creatureId, DamageType damageType)
         {
             throw new NotImplementedException();
         }

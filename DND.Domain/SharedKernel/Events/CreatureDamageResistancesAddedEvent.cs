@@ -8,6 +8,7 @@
     /// <param name="Types">The specific DamageType whose resistance was removed (e.g., DamageType.Acid).</param>
     public record CreatureDamageResistancesAddedEvent(
         Guid CreatureId, 
+        string Name,
         IEnumerable<DamageType> Types
         ) : IDomainEvent;
 }
