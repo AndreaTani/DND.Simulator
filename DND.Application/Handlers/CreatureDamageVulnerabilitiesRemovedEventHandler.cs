@@ -21,9 +21,9 @@ namespace DND.Application.Handlers
 
         public async Task HandleAsync(CreatureDamageVulnerabilitiesRemovedEvent domainEvent)
         {
-            await _creatureService.RemoveDamageVulnerabilitiesAsync(domainEvent.CreatureId, domainEvent.Type);
+            await _creatureService.RemoveDamageVulnerabilitiesAsync(domainEvent.CreatureId, domainEvent.DamageType);
 
-            string logMessage = $"The following vulnerabilities '{string.Join(',', domainEvent.Type)}' are no longer affecting Creature {domainEvent.Name} (ID:{domainEvent.CreatureId}) for the following reason: {domainEvent.Reason}";
+            string logMessage = $"The following vulnerabilities '{string.Join(',', domainEvent.DamageType)}' are no longer affecting Creature {domainEvent.CreatureName} (ID:{domainEvent.CreatureId}) for the following reason: {domainEvent.Reason}";
             await _loggingService.LogMessageAsync(logMessage);
         }
     }

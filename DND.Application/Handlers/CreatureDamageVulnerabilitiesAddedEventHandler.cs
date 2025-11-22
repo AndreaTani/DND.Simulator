@@ -16,9 +16,9 @@ namespace DND.Application.Handlers
 
         public async Task HandleAsync(CreatureDamageVulnerabilitiesAddedEvent domainEvent)
         {
-            await _creatureService.AddDamageVulnerabilitiesAsync(domainEvent.CreatureId, domainEvent.Types);
+            await _creatureService.AddDamageVulnerabilitiesAsync(domainEvent.CreatureId, domainEvent.DamageTypes);
 
-            string logMessage = $"The creature {domainEvent.Name} (ID: {domainEvent.CreatureId}) now suffers from the following vulnerabilities: '{string.Join(',', domainEvent.Types)}'";
+            string logMessage = $"The creature {domainEvent.CreatureName} (ID: {domainEvent.CreatureId}) now suffers from the following vulnerabilities: '{string.Join(',', domainEvent.DamageTypes)}'";
             await _loggingService.LogMessageAsync(logMessage);
         }
     }

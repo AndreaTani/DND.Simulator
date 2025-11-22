@@ -16,9 +16,9 @@ namespace DND.Application.Handlers
 
         public async Task HandleAsync(CreatureDamageResistancesAddedEvent domainEvent)
         {
-            await _creatureService.AddDamageResistancesAsync(domainEvent.CreatureId, domainEvent.Types);
+            await _creatureService.AddDamageResistancesAsync(domainEvent.CreatureId, domainEvent.DamageTypes);
 
-            string logMessage = $"The creature {domainEvent.Name} (ID: {domainEvent.CreatureId}) has ghained new damage resistances '{string.Join(',', domainEvent.Types)}'";
+            string logMessage = $"The creature {domainEvent.CreatureName} (ID: {domainEvent.CreatureId}) has ghained new damage resistances '{string.Join(',', domainEvent.DamageTypes)}'";
             await _loggingService.LogMessageAsync(logMessage);
         }
     }

@@ -18,7 +18,7 @@ namespace DND.Application.Handlers
         {
             await _creatureService.AddExpertSkillsAsync(domainEvent.CreatureId, domainEvent.Skills);
 
-            string logMessage = $"The following skills '{string.Join(',', domainEvent.Skills)}' have been marked with Expertise for the creature {domainEvent.Name} (ID: {domainEvent.CreatureId})";
+            string logMessage = $"The following skills '{string.Join(',', domainEvent.Skills)}' have been marked with Expertise for the creature {domainEvent.CreatureName} (ID: {domainEvent.CreatureId})";
             await _loggingService.LogMessageAsync(logMessage);
         }
     }

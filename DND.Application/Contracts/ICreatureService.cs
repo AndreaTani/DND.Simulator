@@ -79,6 +79,14 @@ namespace DND.Application.Contracts
         // Remove temporary immunity of a certain type from creature
         Task RemoveTemporaryDamageImmunityAsync(Guid creatureId, string name, DamageType damageType);
 
+        // Change the amount of Temporary HitPoints
+        Task ChangeCreatureTempHpAsync(Guid creatureId, string name, int currentHp, int amount);
+
+
+
+        // Remove immunities from the creature for the specified conditions
+        Task RemoveConditionImmunitiesAsync(Guid creatureId, IEnumerable<Condition> conditions);
+
         // Check if the creature is a player character.
         Task<bool> IsPlayerCharacterAsync(Guid creatureId);
     }

@@ -18,7 +18,7 @@ namespace DND.Application.Handlers
         {
             await _creatureService.RemoveLanguagesAsync(domainEvent.CreatureId, domainEvent.Languages);
 
-            string logMessage = $"The creature {domainEvent.Name} (ID: {domainEvent.CreatureId}) can't speak the following languages '{string.Join(',', domainEvent.Languages)}' anymore";
+            string logMessage = $"The creature {domainEvent.CreatureName} (ID: {domainEvent.CreatureId}) can't speak the following languages '{string.Join(',', domainEvent.Languages)}' anymore";
             await _loggingService.LogMessageAsync(logMessage);
         }
     }

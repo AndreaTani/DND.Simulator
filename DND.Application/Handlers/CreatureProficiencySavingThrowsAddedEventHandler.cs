@@ -18,7 +18,7 @@ namespace DND.Application.Handlers
         {
             await _creatureService.AddProficiencySavingThrowsAsync(domainEvent.CreatureId, domainEvent.Abilities);
 
-            string logMessages = $"The creature {domainEvent.Name} (ID: {domainEvent.CreatureId}) following abilities '{string.Join(',', domainEvent.Abilities)}' are now proficient for saving throws";
+            string logMessages = $"The creature {domainEvent.CreatureName} (ID: {domainEvent.CreatureId}) following abilities '{string.Join(',', domainEvent.Abilities)}' are now proficient for saving throws";
             await _loggingService.LogMessageAsync(logMessages);
         }
     }

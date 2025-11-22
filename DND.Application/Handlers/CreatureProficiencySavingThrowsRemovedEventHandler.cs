@@ -18,7 +18,7 @@ namespace DND.Application.Handlers
         {
             await _creatureService.RemoveProficiencySavingThrowsAsync(domainEvent.CreatureId, domainEvent.Abilities);
 
-            string logMessage = $"The creature {domainEvent.Name} (ID: {domainEvent.CreatureId}) following abilities '{string.Join(',', domainEvent.Abilities)}' are not proficient asnymore for saving throws";
+            string logMessage = $"The creature {domainEvent.CreatureName} (ID: {domainEvent.CreatureId}) following abilities '{string.Join(',', domainEvent.Abilities)}' are not proficient asnymore for saving throws";
             await _loggingService.LogMessageAsync(logMessage);
         }
     }

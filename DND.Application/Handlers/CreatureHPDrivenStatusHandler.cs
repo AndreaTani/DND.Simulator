@@ -36,7 +36,7 @@ namespace DND.Application.Handlers
                 domainEvent.CurrentHp
             );
 
-            var logMessage = $"Creature {domainEvent.CreatureName} (ID: {domainEvent.CreatureId}) HP changed from {domainEvent.PreviousHp} to {domainEvent.CurrentHp} (Change: {domainEvent.Amount}, Type: {domainEvent.Type})";
+            var logMessage = $"Creature {domainEvent.CreatureName} (ID: {domainEvent.CreatureId}) HP changed from {domainEvent.PreviousHp} to {domainEvent.CurrentHp} (Change: {domainEvent.Amount}, DamageType: {domainEvent.DamageType})";
 
             List<Condition> conditionsToApply = [Condition.None];
             int currentHp = domainEvent.CurrentHp;

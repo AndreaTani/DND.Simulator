@@ -36,7 +36,7 @@ namespace DND.Tests.Application.Handlers
 
             loggingServiceMock.Verify(m => m.LogMessageAsync(
                 It.Is<string>(s =>
-                s.Contains(modification.Name) &&
+                s.Contains(modification.CreatureName) &&
                 s.Contains(modification.Modifier.ToString()) &&
                 s.Contains(creatureId.ToString()) &&
                 s.Contains(sourceId.ToString()) &&
@@ -104,7 +104,7 @@ namespace DND.Tests.Application.Handlers
 
             loggingServiceMock.Verify(m => m.LogMessageAsync(
                 It.Is<string>(s =>
-                s.Contains(modification.Name) &&
+                s.Contains(modification.CreatureName) &&
                 s.Contains(creatureId.ToString()) &&
                 s.Contains(sourceId.ToString()) &&
                 s.Contains(damageType.ToString()))

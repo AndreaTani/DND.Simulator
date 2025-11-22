@@ -18,7 +18,7 @@ namespace DND.Application.Handlers
         {
             await _creatureService.AddProficientSkillsAsync(domainEvent.CreatureId, domainEvent.Skills);
 
-            string logMessage = $"The following skills '{string.Join(',', domainEvent.Skills)}' have been marked as proficient for creature {domainEvent.Name} (ID: {domainEvent.CreatureId})";
+            string logMessage = $"The following skills '{string.Join(',', domainEvent.Skills)}' have been marked as proficient for creature {domainEvent.CreatureName} (ID: {domainEvent.CreatureId})";
             await _loggingService.LogMessageAsync(logMessage);
         }
     }

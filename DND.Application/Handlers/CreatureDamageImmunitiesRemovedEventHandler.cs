@@ -18,7 +18,7 @@ namespace DND.Application.Handlers
         {
             await _creatureService.RemoveDamageImmunitiesAsync(domainEvent.CreatureId, domainEvent.DamageTypes);
 
-            string logMessage = $"The following damage immunities '{string.Join(',', domainEvent.DamageTypes)}' have been removed from Creature {domainEvent.Name} (ID: {domainEvent.CreatureId}) for {domainEvent.Reason.ToString()}";
+            string logMessage = $"The following damage immunities '{string.Join(',', domainEvent.DamageTypes)}' have been removed from Creature {domainEvent.CreatureName} (ID: {domainEvent.CreatureId}) for {domainEvent.Reason.ToString()}";
              await _loggingService.LogMessageAsync(logMessage);
         }
     }

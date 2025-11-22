@@ -16,9 +16,9 @@ namespace DND.Application.Handlers
 
         public async Task HandleAsync(CreatureTemporaryDamageModificationRemovedEvent domainEvent)
         {
-            await _creatureService.RemoveTemporaryDamageModificationAsync(domainEvent.CreatureId, domainEvent.Name, domainEvent.DamageType);
+            await _creatureService.RemoveTemporaryDamageModificationAsync(domainEvent.CreatureId, domainEvent.CreatureName, domainEvent.DamageType);
 
-            string logMessage = $"The temporary damage modification rule of damage type '{domainEvent.DamageType}' hase been removed from creature {domainEvent.Name} (ID: {domainEvent.CreatureId})";
+            string logMessage = $"The temporary damage modification rule of damage type '{domainEvent.DamageType}' hase been removed from creature {domainEvent.CreatureName} (ID: {domainEvent.CreatureId})";
             await _loggingService.LogMessageAsync(logMessage);
         }
     }

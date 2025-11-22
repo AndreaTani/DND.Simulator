@@ -43,10 +43,8 @@ namespace DND.Tests.Application.Handlers
                 PreviousHp: previusHp,
                 Amount: amount,
                 CurrentHp: previusHp + amount,
-                Type: DamageType.Fire
+                DamageType: DamageType.Fire
             );
-
-            var expectedMessage = $"Creature {domainEvent.CreatureId} HP changed from {domainEvent.PreviousHp} to {domainEvent.CurrentHp} (Change: {domainEvent.Amount}, Type: {domainEvent.Type})";
 
             // Act
             await handler.HandleAsync(domainEvent);
@@ -59,7 +57,7 @@ namespace DND.Tests.Application.Handlers
                 s.Contains(domainEvent.PreviousHp.ToString()) &&
                 s.Contains(domainEvent.CurrentHp.ToString()) &&
                 s.Contains(domainEvent.Amount.ToString()) &&
-                s.Contains(domainEvent.Type.ToString())
+                s.Contains(domainEvent.DamageType.ToString())
             )), Times.Once);
 
             creatureServiceMock.Verify(m => m.HandleCreatureHpStatusAsync(

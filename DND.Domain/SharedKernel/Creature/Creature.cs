@@ -300,7 +300,7 @@
                     CurrentHp: CurrentHitPoints,
                     MaxHp: MaxHitPoints,
                     Amount: amountChanged,  // negative value if damage taken
-                    Type: damageType
+                    DamageType: damageType
                 );
                 AddDomainEvent(damagingEvent);
             }
@@ -400,6 +400,7 @@
             
             var tempHpChnagedEvent = new CreatureTemporaryHPChangedEvent(
                 CreatureId: Id,
+                CreatureName: Name,
                 CurrentTemporaryHp: TemporaryHitPoints,
                 Amount: amount
             );
@@ -411,21 +412,21 @@
         protected void AddConditionImmunities(IEnumerable<Condition> conditions)
         {
             _conditionImmunities.AddRange(conditions.Where(c => !_conditionImmunities.Contains(c)).Distinct());
-            AddDomainEvent(new CreatureConditionImmunitiesAddedEvent(Id, conditions.Distinct()));
+            AddDomainEvent(new CreatureConditionImmunitiesAddedEvent(Id, Name, conditions.Distinct()));
         }
         protected void AddConditionImmunity(Condition condition)
         {
             if (!_conditionImmunities.Contains(condition))
             {
                 _conditionImmunities.Add(condition);
-                AddDomainEvent(new CreatureConditionImmunitiesAddedEvent(Id, [condition]));
+                AddDomainEvent(new CreatureConditionImmunitiesAddedEvent(Id, Name, [condition]));
             }
         }
         protected void RemoveConditionImmunities(IEnumerable<Condition> conditions)
         {
             var conditionsToRemove = new HashSet<Condition>(conditions).Distinct();
             _conditionImmunities.RemoveAll(c => conditionsToRemove.Contains(c));
-            AddDomainEvent(new CreatureConditionImmunitiesRemovedEvent(Id, conditionsToRemove));
+            AddDomainEvent(new CreatureConditionImmunitiesRemovedEvent(Id, Name, conditionsToRemove));
         }
 
         /// <summary>
@@ -441,7 +442,7 @@
 
             if (immuneConditions.Count != 0)
             {
-                var immuneEvent = new CreatureConditionImmunitiesAddedEvent(Id, immuneConditions);
+                var immuneEvent = new CreatureConditionImmunitiesAddedEvent(Id, Name, immuneConditions);
                 AddDomainEvent(immuneEvent);
             }
 
@@ -456,7 +457,7 @@
         {
             if (_conditionImmunities.Contains(condition))
             {
-                var immuneEvent = new CreatureConditionImmunitiesAddedEvent(Id, [condition]);
+                var immuneEvent = new CreatureConditionImmunitiesAddedEvent(Id, Name, [condition]);
                 AddDomainEvent(immuneEvent);
                 return;
             }
@@ -779,7 +780,7 @@
                 }
 
                 AddCondition(Condition.Unconscious);
-                var unconsciousEvent = new CreatureBecameUnconsciousEvent(Id);
+                var unconsciousEvent = new CreatureBecameUnconsciousEvent(Id, Name, [Condition.Unconscious]);
                 AddDomainEvent(unconsciousEvent);
 
                 AddCondition(Condition.Prone);
@@ -867,7 +868,7 @@
 
             AddDomainEvent(new CreatureTemporaryDamageModificationRemovedEvent(
                 CreatureId: Id,
-                Name: Name,
+                CreatureName: Name,
                 DamageType: damageType
             ));
 
@@ -880,7 +881,7 @@
             
             AddDomainEvent(new CreatureTemporaryDamageImmunityRemovedEvent(
                 CreatureId: Id,
-                Name: Name,
+                CreatureName: Name,
                 DamageType: damageType
             ));
         }

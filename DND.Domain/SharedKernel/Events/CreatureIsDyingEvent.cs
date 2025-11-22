@@ -4,6 +4,7 @@
     /// Event triggered when a creature is Dying
     /// </summary>
     /// <param name="CreatureId">Id of the creature</param>
+    /// <param name="CreatureName">Name of the creature</param>
     /// <param name="Conditions">Always only Dying</param>
     public record CreatureIsDyingEvent(
         Guid CreatureId,

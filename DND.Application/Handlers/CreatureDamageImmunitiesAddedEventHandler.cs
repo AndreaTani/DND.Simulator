@@ -16,9 +16,9 @@ namespace DND.Application.Handlers
 
         public async Task HandleAsync(CreatureDamageImmunitiesAddedEvent domainEvent)
         {
-            await _creatureService.AddDamageImmunityAsync(domainEvent.CreatureId, domainEvent.Types);
+            await _creatureService.AddDamageImmunityAsync(domainEvent.CreatureId, domainEvent.DamageTypes);
 
-            string logMessage = $"The creature {domainEvent.Name} (ID: {domainEvent.CreatureId}) has new damage immunities: '{string.Join(',', domainEvent.Types)}'";
+            string logMessage = $"The creature {domainEvent.CreatureName} (ID: {domainEvent.CreatureId}) has new damage immunities: '{string.Join(',', domainEvent.DamageTypes)}'";
             await _loggingService.LogMessageAsync(logMessage);
         }
     }

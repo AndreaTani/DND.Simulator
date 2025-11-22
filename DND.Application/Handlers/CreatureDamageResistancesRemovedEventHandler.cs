@@ -16,9 +16,9 @@ namespace DND.Application.Handlers
 
         public async Task HandleAsync(CreatureDamageResistancesRemovedEvent domainEvent)
         {
-            await _creatureService.RemoveDamageResistancesAsync(domainEvent.CreatureId, domainEvent.Type);
+            await _creatureService.RemoveDamageResistancesAsync(domainEvent.CreatureId, domainEvent.DamageType);
 
-            string logMessage = $"The following damage resistances '{string.Join(',', domainEvent.Type)}' has been removed from the creature {domainEvent.Name} (ID: {domainEvent.CreatureId}) for the following reason: '{domainEvent.Reason}'";
+            string logMessage = $"The following damage resistances '{string.Join(',', domainEvent.DamageType)}' has been removed from the creature {domainEvent.CreatureName} (ID: {domainEvent.CreatureId}) for the following reason: '{domainEvent.Reason}'";
             await _loggingService.LogMessageAsync(logMessage);
         }
     }

@@ -16,9 +16,9 @@ namespace DND.Application.Handlers
 
         public async Task HandleAsync(CreatureSpecialDamageRuleAddedEvent domainEvent)
         {
-            await _creatureService.AddSpecialDamageRuleAsync(domainEvent.CreatureId, domainEvent.damageType);
+            await _creatureService.AddSpecialDamageRuleAsync(domainEvent.CreatureId, domainEvent.DamageType);
 
-            string logMessage = $"The creature {domainEvent.Name} (ID:{domainEvent.CreatureId}) has gained a new Special rule '{domainEvent.RuleName}' pertaining this damage type: '{domainEvent.damageType}'";
+            string logMessage = $"The creature {domainEvent.CreatureName} (ID:{domainEvent.CreatureId}) has gained a new Special rule '{domainEvent.RuleName}' pertaining this damage type: '{domainEvent.DamageType}'";
             await _loggingService.LogMessageAsync(logMessage);
         }
     }

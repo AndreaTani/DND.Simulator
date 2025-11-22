@@ -18,7 +18,7 @@ namespace DND.Application.Handlers
         {
             await _creatureService.AddLanguagesAsync(domainEvent.CreatureId, domainEvent.Languages);
 
-            string logMessage = $"Creature {domainEvent.Name} (ID: {domainEvent.CreatureId}) can now speak the following languages '{string.Join(',', domainEvent.Languages)}'";
+            string logMessage = $"Creature {domainEvent.CreatureName} (ID: {domainEvent.CreatureId}) can now speak the following languages '{string.Join(',', domainEvent.Languages)}'";
             await _loggingService.LogMessageAsync(logMessage);
         }
     }

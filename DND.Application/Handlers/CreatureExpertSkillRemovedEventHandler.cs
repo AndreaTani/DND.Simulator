@@ -18,7 +18,7 @@ namespace DND.Application.Handlers
         {
             await _creatureService.RemoveExpertSkillsAsync(domainEvent.CreatureId, domainEvent.Skills);
 
-            string logMessage = $"The following skills '{string.Join(',', domainEvent.Skills)}' have been removed from creature {domainEvent.Name} (ID: {domainEvent.CreatureId}) expertise list";
+            string logMessage = $"The following skills '{string.Join(',', domainEvent.Skills)}' have been removed from creature {domainEvent.CreatureName} (ID: {domainEvent.CreatureId}) expertise list";
             await _loggingService.LogMessageAsync(logMessage);
         }
     }

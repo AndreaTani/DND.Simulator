@@ -16,9 +16,9 @@ namespace DND.Application.Handlers
 
         public async Task HandleAsync(CreatureTemporaryDamageImmunityRemovedEvent domainEvent)
         {
-            await _creatureService.RemoveTemporaryDamageImmunityAsync(domainEvent.CreatureId, domainEvent.Name, domainEvent.DamageType);
+            await _creatureService.RemoveTemporaryDamageImmunityAsync(domainEvent.CreatureId, domainEvent.CreatureName, domainEvent.DamageType);
 
-            string logMessage = $"The creature {domainEvent.Name} (ID: {domainEvent.CreatureId}) has lost the temporary immunity to the following damage type: '{domainEvent.DamageType}'";
+            string logMessage = $"The creature {domainEvent.CreatureName} (ID: {domainEvent.CreatureId}) has lost the temporary immunity to the following damage type: '{domainEvent.DamageType}'";
             await _loggingService.LogMessageAsync(logMessage);
         }
     }

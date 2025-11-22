@@ -18,7 +18,7 @@ namespace DND.Application.Handlers
         {
             await _creatureService.AddTempopraryDamageImmunityAsync(domainEvent.CreatureId, domainEvent.SourceId, domainEvent.Modification);
 
-            string logMessage = $"The creature {domainEvent.Modification.Name} (ID: {domainEvent.CreatureId}) has gained temporary immunity from The following damage type {domainEvent.Modification.TypeOfDamage} due to creature id {domainEvent.SourceId}";
+            string logMessage = $"The creature {domainEvent.Modification.CreatureName} (ID: {domainEvent.CreatureId}) has gained temporary immunity from The following damage type {domainEvent.Modification.TypeOfDamage} due to creature id {domainEvent.SourceId}";
             await _loggingService.LogMessageAsync(logMessage);
         }
     }

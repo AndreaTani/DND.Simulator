@@ -71,12 +71,22 @@ namespace DND.Application.Services
             throw new NotImplementedException();
         }
 
+        public async Task ChangeCreatureTempHpAsync(Guid creatureId, string name, int currentHp, int amount)
+        {
+            throw new NotImplementedException();
+        }
+
         public async Task HandleCreatureHpStatusAsync(Guid creatureId, int maxHp, int currentHp)
         {
             throw new NotImplementedException();
         }
 
         public async Task<bool> IsPlayerCharacterAsync(Guid creatureId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task RemoveConditionImmunitiesAsync(Guid creatureId, IEnumerable<Condition> conditions)
         {
             throw new NotImplementedException();
         }

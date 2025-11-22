@@ -18,7 +18,7 @@ namespace DND.Application.Handlers
         {
             await _creatureService.RemoveSensesAsync(domainEvent.CreatureId, domainEvent.Senses);
 
-            string logMessage = $"The following senses '{string.Join(',', domainEvent.Senses)}' have been removed from creature {domainEvent.Name} (ID: {domainEvent.CreatureId})";
+            string logMessage = $"The following senses '{string.Join(',', domainEvent.Senses)}' have been removed from creature {domainEvent.CreatureName} (ID: {domainEvent.CreatureId})";
             await _loggingService.LogMessageAsync(logMessage);
         }
     }

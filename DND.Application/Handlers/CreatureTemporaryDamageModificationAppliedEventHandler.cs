@@ -18,7 +18,7 @@ namespace DND.Application.Handlers
         {
             await _creatureService.AddTemporaryDamageModificationAsync(domainEvent.CreatureId, domainEvent.SourceId, domainEvent.Modification);
 
-            string logMessage = $"A temporary modifier of '{domainEvent.Modification.Modifier}' for damage type '{domainEvent.Modification.TypeOfDamage}' has been applied to creature name {domainEvent.Modification.Name} (ID:{domainEvent.CreatureId}) from the followind source id: '{domainEvent.SourceId}'";
+            string logMessage = $"A temporary modifier of '{domainEvent.Modification.Modifier}' for damage type '{domainEvent.Modification.TypeOfDamage}' has been applied to creature name {domainEvent.Modification.CreatureName} (ID:{domainEvent.CreatureId}) from the followind source id: '{domainEvent.SourceId}'";
             await _loggingService.LogMessageAsync(logMessage);
         }
     }

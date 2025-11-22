@@ -63,10 +63,18 @@ namespace DND.Tests.SharedKernel
             Assert.Equal(expectedDamage, finalDamage);
         }
 
+        // TODO: add a test for the removal of the conditions and to verify
+        // the application of the condition without its immunity 
+
         [Theory]
         [MemberData(nameof(AllConditions))]
         public void Creature_WhenImmuneToConditionAndAddedThatCondition_MustFireImmuynityEvent(Condition condition)
         {
+            // TODO: Fix this test, It should trigger the condition iummunity
+            // event regardless if the condition is applied or not. Another
+            // assert copuld be used to test if the application of the condition
+            // is baing rejected afterwards
+
             // Arrange
             var sut = new SimpleCreature(
                 name: "Lone Fighter",

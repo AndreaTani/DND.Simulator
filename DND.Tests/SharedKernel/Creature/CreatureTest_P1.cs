@@ -118,7 +118,7 @@ namespace DND.Tests.SharedKernel
 
         [Theory]
         [MemberData(nameof(DamageTypeRuleNames))]
-        public void AddDamageImmunity_WhenAddingImmunity_RemovesResistanceAndVulnerabilityOfTheSameDamageType(DamageType type, string resistanceName, string vulnerabilityName, string immunityName)
+        public void AddDamageImmunity_WhenAddingImmunity_RemovesResistanceAndVulnerabilityOfTheSameDamageType(DamageType damageType, string resistanceName, string vulnerabilityName, string immunityName)
         {
             // Arrange
             var sut = new SimpleCreature(
@@ -132,38 +132,38 @@ namespace DND.Tests.SharedKernel
                 level: 5
                 );
 
-            sut.SetupDamageResistance(type);
-            bool InitialIsResistant = sut.IsResistantTo(type);
+            sut.SetupDamageResistance(damageType);
+            bool InitialIsResistant = sut.IsResistantTo(damageType);
             List<DamageType> InitialResistances = [.. sut.DamageResistances];
-            List<IDamageAdjustmentRule> InitialResistanceAdjustmetRules = [.. sut.DamageAdjustmentRules.OfType<SimpleDamageResisistanceRule>().Where(rule => rule.GetDamageType().Equals(type))];
+            List<IDamageAdjustmentRule> InitialResistanceAdjustmetRules = [.. sut.DamageAdjustmentRules.OfType<SimpleDamageResisistanceRule>().Where(rule => rule.GetDamageType().Equals(damageType))];
 
-            sut.SetupDamageVulnerability(type);
-            bool InitialIsVulnerable = sut.IsVulnerableTo(type);
+            sut.SetupDamageVulnerability(damageType);
+            bool InitialIsVulnerable = sut.IsVulnerableTo(damageType);
             List<DamageType> InitialVulnerabilities = [.. sut.DamageVulnerabilities];
 
-            List<IDamageAdjustmentRule> InitialVulnerabilityAdjustmetRules = [.. sut.DamageAdjustmentRules.OfType<SimpleDamageVulnerabilityRule>().Where(rule => rule.GetDamageType().Equals(type))];
+            List<IDamageAdjustmentRule> InitialVulnerabilityAdjustmetRules = [.. sut.DamageAdjustmentRules.OfType<SimpleDamageVulnerabilityRule>().Where(rule => rule.GetDamageType().Equals(damageType))];
 
 
             // Act
-            sut.SetupDamageImmunity(type);
-            bool CurrentIsResistant = sut.IsResistantTo(type);
-            bool CurrentIsVulnerable = sut.IsVulnerableTo(type);
-            bool IsImmune = sut.IsImmuneTo(type);
+            sut.SetupDamageImmunity(damageType);
+            bool CurrentIsResistant = sut.IsResistantTo(damageType);
+            bool CurrentIsVulnerable = sut.IsVulnerableTo(damageType);
+            bool IsImmune = sut.IsImmuneTo(damageType);
             var Immunities = sut.DamageImmunities;
-            var ImmunityRules = sut.DamageAdjustmentRules.OfType<IImmunityRule>().Where(rule => rule.GetDamageType() == type);
+            var ImmunityRules = sut.DamageAdjustmentRules.OfType<IImmunityRule>().Where(rule => rule.GetDamageType() == damageType);
             List<DamageType> CurrentResistances = [.. sut.DamageResistances];
             List<DamageType> CurrentVulnerabilities = [.. sut.DamageVulnerabilities];
-            List<IDamageAdjustmentRule> CurrentResistanceAdjustmetRules = [.. sut.DamageAdjustmentRules.OfType<SimpleDamageResisistanceRule>().Where(rule => rule.GetDamageType().Equals(type))];
-            List<IDamageAdjustmentRule> CurrentVulnerabilityAdjustmetRules = [.. sut.DamageAdjustmentRules.OfType<SimpleDamageVulnerabilityRule>().Where(rule => rule.GetDamageType().Equals(type))];
+            List<IDamageAdjustmentRule> CurrentResistanceAdjustmetRules = [.. sut.DamageAdjustmentRules.OfType<SimpleDamageResisistanceRule>().Where(rule => rule.GetDamageType().Equals(damageType))];
+            List<IDamageAdjustmentRule> CurrentVulnerabilityAdjustmetRules = [.. sut.DamageAdjustmentRules.OfType<SimpleDamageVulnerabilityRule>().Where(rule => rule.GetDamageType().Equals(damageType))];
 
             // Assert
             Assert.Empty(CurrentResistances);
             Assert.Empty(CurrentVulnerabilities);
             Assert.NotEqual(InitialResistances, CurrentResistances);
             Assert.NotEqual(InitialVulnerabilities, CurrentVulnerabilities);
-            Assert.Contains(Immunities, item => item.Equals(type));
-            Assert.DoesNotContain(CurrentResistances, item => item.Equals(type));
-            Assert.DoesNotContain(CurrentVulnerabilities, item => item.Equals(type));
+            Assert.Contains(Immunities, item => item.Equals(damageType));
+            Assert.DoesNotContain(CurrentResistances, item => item.Equals(damageType));
+            Assert.DoesNotContain(CurrentVulnerabilities, item => item.Equals(damageType));
             Assert.NotEqual(InitialResistanceAdjustmetRules, CurrentResistanceAdjustmetRules);
             Assert.NotEqual(InitialVulnerabilityAdjustmetRules, CurrentVulnerabilityAdjustmetRules);
             Assert.Contains(ImmunityRules, item => item.Name == immunityName);

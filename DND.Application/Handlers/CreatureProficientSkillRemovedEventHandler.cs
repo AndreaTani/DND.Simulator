@@ -18,7 +18,7 @@ namespace DND.Application.Handlers
         {
             await _creatureService.RemoveProficientSkillsAsync(domainEvent.CreatureId, domainEvent.Skills);
 
-            string logMessage = $"The following skills '{string.Join(',', domainEvent.Skills)}' have been removed from creature {domainEvent.Name} (ID: {domainEvent.CreatureId}) proficiency list";
+            string logMessage = $"The following skills '{string.Join(',', domainEvent.Skills)}' have been removed from creature {domainEvent.CreatureName} (ID: {domainEvent.CreatureId}) proficiency list";
             await _loggingService.LogMessageAsync(logMessage);
         }
     }

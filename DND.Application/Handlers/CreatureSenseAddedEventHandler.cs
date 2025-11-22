@@ -18,7 +18,7 @@ namespace DND.Application.Handlers
         {
             await _creatureService.AddSensesAsync(domainEvent.CreatureId, domainEvent.Senses);
 
-            string logMessage = $"The following senses '{string.Join(',', domainEvent.Senses)}' have been added to Creature {domainEvent.Name} (ID: {domainEvent.CreatureId})";
+            string logMessage = $"The following senses '{string.Join(',', domainEvent.Senses)}' have been added to Creature {domainEvent.CreatureName} (ID: {domainEvent.CreatureId})";
             await _loggingService.LogMessageAsync(logMessage);
         }
     }

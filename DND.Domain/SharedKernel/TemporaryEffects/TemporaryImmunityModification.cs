@@ -8,7 +8,7 @@
         DamageType TypeOfDamage,
         Guid SourceId,
         Guid CreatureId,
-        string Name,
+        string CreatureName,
         int ExpiresOnTurn,
         ExpirationType ExpiresAt,
         ExpirationTrigger ExpiresOn
