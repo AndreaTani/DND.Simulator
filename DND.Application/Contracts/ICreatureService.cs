@@ -67,6 +67,18 @@ namespace DND.Application.Contracts
         // Remove specific damage type special rule from the creature
         Task RemoveSpecialDamageRuleAsync(Guid creatureId, DamageType damageType);
 
+        // Add temporary modification to creature
+        Task AddTemporaryDamageModificationAsync(Guid creatureId, Guid sourceId, TemporaryDamageModification modification);
+
+        // Remove temporary modification of a certain type from creature
+        Task RemoveTemporaryDamageModificationAsync(Guid creatureId, string name, DamageType damageType);
+
+        // Add Temporary immunity to the creature
+        Task AddTempopraryDamageImmunityAsync(Guid creatureId, Guid sourceId, TemporaryImmunityModification modification);
+
+        // Remove temporary immunity of a certain type from creature
+        Task RemoveTemporaryDamageImmunityAsync(Guid creatureId, string name, DamageType damageType);
+
         // Check if the creature is a player character.
         Task<bool> IsPlayerCharacterAsync(Guid creatureId);
     }

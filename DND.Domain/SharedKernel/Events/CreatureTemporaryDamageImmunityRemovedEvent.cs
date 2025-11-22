@@ -8,7 +8,7 @@
     /// <param name="DamageType">The specific DamageType of the temporary effect</param>
     public record CreatureTemporaryDamageImmunityRemovedEvent(
         Guid CreatureId,
-        Guid SourceId,
+        string Name,
         DamageType DamageType
         ) : IDomainEvent;
 }
