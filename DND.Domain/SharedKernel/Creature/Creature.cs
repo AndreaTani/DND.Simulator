@@ -867,7 +867,7 @@
 
             AddDomainEvent(new CreatureTemporaryDamageModificationRemovedEvent(
                 CreatureId: Id,
-                SourceId: sourceId,
+                Name: Name,
                 DamageType: damageType
             ));
 
@@ -880,7 +880,7 @@
             
             AddDomainEvent(new CreatureTemporaryDamageImmunityRemovedEvent(
                 CreatureId: Id,
-                SourceId: sourceId,
+                Name: Name,
                 DamageType: damageType
             ));
         }

@@ -7,7 +7,10 @@
     public record TemporaryImmunityModification(
         DamageType TypeOfDamage,
         Guid SourceId,
+        Guid CreatureId,
+        string Name,
         int ExpiresOnTurn,
-        ExpirationType ExpiresAt
+        ExpirationType ExpiresAt,
+        ExpirationTrigger ExpiresOn
      );
 }

@@ -574,7 +574,7 @@ namespace DND.Tests.SharedKernel
 
             var sourceId = new Guid();
             sut.SetupDamageVulnerability(damageType);
-            var temporaryResistance = new TemporaryDamageModification(damageType, tempModifier, sourceId, 47, ExpirationType.AtTheBeginning);
+            var temporaryResistance = new TemporaryDamageModification(damageType, tempModifier, sourceId, sut.Id, "Hero", 47, ExpirationType.AtTheBeginning, ExpirationTrigger.Source);
             sut.ApplyTemporaryDamageModification(temporaryResistance, sourceId);
 
             // Act
@@ -603,7 +603,7 @@ namespace DND.Tests.SharedKernel
 
             var sourceId = new Guid();
             sut.SetupDamageResistance(damageType);
-            var temporaryResistance = new TemporaryDamageModification(damageType, tempModifier, sourceId, 47, ExpirationType.AtTheBeginning);
+            var temporaryResistance = new TemporaryDamageModification(damageType, tempModifier, sourceId, sut.Id, "Hero", 47, ExpirationType.AtTheBeginning, ExpirationTrigger.Source);
             sut.ApplyTemporaryDamageModification(temporaryResistance, sourceId);
 
             // Act

@@ -50,6 +50,21 @@ namespace DND.Application.Services
             throw new NotImplementedException();
         }
 
+        public async Task AddTempopraryDamageImmunityAsync(Guid creatureId, Guid sourceId, TemporaryDamageModification modification)
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task AddTempopraryDamageImmunityAsync(Guid creatureId, Guid sourceId, TemporaryImmunityModification modification)
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task AddTemporaryDamageModificationAsync(Guid creatureId, Guid sourceId, TemporaryDamageModification modification)
+        {
+            throw new NotImplementedException();
+        }
+
         // TODO: remember to trigger the CreatureDiedEvent when the dead condition is applied to a creature
         public async Task ApplyConditionsAsync(Guid creatureId, IEnumerable<Condition> conditions)
         {
@@ -112,6 +127,16 @@ namespace DND.Application.Services
         }
 
         public async Task RemoveSpecialDamageRuleAsync(Guid creatureId, DamageType damageType)
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task RemoveTemporaryDamageImmunityAsync(Guid creatureId, string name, DamageType damageType)
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task RemoveTemporaryDamageModificationAsync(Guid creatureId, string name, DamageType damageType)
         {
             throw new NotImplementedException();
         }
